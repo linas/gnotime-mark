@@ -31,24 +31,25 @@
 
 struct NewPluginDialog_s
 {
-	GladeXML  *gtxml;
+	GladeXML *gtxml;
 	GtkDialog *dialog;
-	GtkEntry  *plugin_name;
-	GtkFileChooser  *plugin_path;
-	GtkEntry  *plugin_tooltip;
-	GnomeApp  *app;
+	GtkEntry *plugin_name;
+	GtkFileChooser *plugin_path;
+	GtkEntry *plugin_tooltip;
+	GnomeApp *app;
 };
 
 /* ============================================================ */
 
 GttPlugin *
-gtt_plugin_new (const char * nam, const char * pth)
+gtt_plugin_new(const char *nam, const char *pth)
 {
 	GttPlugin *plg;
 
-	if (!nam || !pth) return NULL;
+	if (!nam || !pth)
+		return NULL;
 
-	plg = g_new0 (GttPlugin, 1);
+	plg = g_new0(GttPlugin, 1);
 	plg->name = g_strdup(nam);
 	plg->path = g_strdup(pth);
 	plg->tooltip = NULL;
@@ -57,77 +58,84 @@ gtt_plugin_new (const char * nam, const char * pth)
 }
 
 GttPlugin *
-gtt_plugin_copy (GttPlugin *orig)
+gtt_plugin_copy(GttPlugin *orig)
 {
 	GttPlugin *plg;
 
-	if (!orig) return NULL;
+	if (!orig)
+		return NULL;
 
-	plg = g_new0 (GttPlugin, 1);
+	plg = g_new0(GttPlugin, 1);
 	plg->name = NULL;
-	if (orig->name) plg->name = g_strdup(orig->name);
-	
+	if (orig->name)
+		plg->name = g_strdup(orig->name);
+
 	plg->path = NULL;
-	if (orig->path) plg->path = g_strdup(orig->path);
-	
+	if (orig->path)
+		plg->path = g_strdup(orig->path);
+
 	plg->tooltip = NULL;
-	if (orig->tooltip) plg->tooltip = g_strdup(orig->tooltip);
-	
+	if (orig->tooltip)
+		plg->tooltip = g_strdup(orig->tooltip);
+
 	plg->last_url = NULL;
-	if (orig->last_url) plg->last_url = g_strdup(orig->last_url);
-	
+	if (orig->last_url)
+		plg->last_url = g_strdup(orig->last_url);
+
 	return plg;
 }
 
 void
-gtt_plugin_free (GttPlugin *plg)
+gtt_plugin_free(GttPlugin *plg)
 {
-	if (!plg) return;
-	if (plg->name) g_free (plg->name);
-	if (plg->path) g_free (plg->path);
-	if (plg->tooltip) g_free (plg->tooltip);
-	if (plg->last_url) g_free (plg->last_url);
+	if (!plg)
+		return;
+	if (plg->name)
+		g_free(plg->name);
+	if (plg->path)
+		g_free(plg->path);
+	if (plg->tooltip)
+		g_free(plg->tooltip);
+	if (plg->last_url)
+		g_free(plg->last_url);
 }
 
 /* ============================================================ */
 
 static void
-new_plugin_create_cb (GtkWidget * w, gpointer data)
+new_plugin_create_cb(GtkWidget *w, gpointer data)
 {
 	const char *title, *tip;
 	NewPluginDialog *dlg = data;
 
 	/* Get the dialog contents */
-	title = gtk_entry_get_text (dlg->plugin_name);
-	char* path = gtk_file_chooser_get_uri (dlg->plugin_path);
-	tip = gtk_entry_get_text (dlg->plugin_tooltip);
+	title = gtk_entry_get_text(dlg->plugin_name);
+	char *path = gtk_file_chooser_get_uri(dlg->plugin_path);
+	tip = gtk_entry_get_text(dlg->plugin_tooltip);
 
 	/* Do a basic sanity check */
 	GnomeVFSURI *parsed_uri;
-	parsed_uri = gnome_vfs_uri_new (path);
-	gboolean exists = gnome_vfs_uri_exists (parsed_uri);
-	gnome_vfs_uri_unref (parsed_uri);
+	parsed_uri = gnome_vfs_uri_new(path);
+	gboolean exists = gnome_vfs_uri_exists(parsed_uri);
+	gnome_vfs_uri_unref(parsed_uri);
 	if (!exists)
 	{
 		gchar *msg;
 		GtkWidget *mb;
-		msg = g_strdup_printf (_("Unable to open the report file %s\n"), path);
-		mb = gnome_message_box_new (msg,
-			GNOME_MESSAGE_BOX_ERROR,
-			GTK_STOCK_CLOSE,
-			NULL);
-		gtk_widget_show (mb);
+		msg = g_strdup_printf(_("Unable to open the report file %s\n"), path);
+		mb = gnome_message_box_new(msg, GNOME_MESSAGE_BOX_ERROR, GTK_STOCK_CLOSE,
+		                           NULL);
+		gtk_widget_show(mb);
 		/* g_free (msg);   XXX memory leak needs fixing. */
-	}
-	else
+	} else
 	{
 		GttPlugin *plg;
 		GnomeUIInfo entry[2];
-		
+
 		/* Create the plugin */
-		plg = gtt_plugin_new (title,path);
-		plg->tooltip = g_strdup (tip);
-	
+		plg = gtt_plugin_new(title, path);
+		plg->tooltip = g_strdup(tip);
+
 		/* Add the thing to the Reports menu */
 		entry[0].type = GNOME_APP_UI_ITEM;
 		entry[0].label = plg->name;
@@ -138,15 +146,15 @@ new_plugin_create_cb (GtkWidget * w, gpointer data)
 		entry[0].pixmap_type = GNOME_APP_PIXMAP_STOCK;
 		entry[0].pixmap_info = GNOME_STOCK_MENU_BLANK;
 		entry[0].accelerator_key = 0;
-		entry[0].ac_mods = (GdkModifierType) 0;
-	
+		entry[0].ac_mods = (GdkModifierType)0;
+
 		entry[1].type = GNOME_APP_UI_ENDOFINFO;
-	
+
 		// gnome_app_insert_menus (dlg->app,  N_("Reports/<Separator>"), entry);
 
 		gtt_reports_menu_prepend_entry(dlg->app, entry);
 
-	   /* Save to file, too.  That way, if system core dumps later,
+		/* Save to file, too.  That way, if system core dumps later,
 		 * at least we managed to get this set of changes saved. */
 		gtt_save_reports_menu();
 
@@ -157,53 +165,52 @@ new_plugin_create_cb (GtkWidget * w, gpointer data)
 		gtk_entry_set_text (dlg->plugin_tooltip, "");
 		*/
 	}
-	g_free (path);
-	gtk_widget_hide (GTK_WIDGET(dlg->dialog));
+	g_free(path);
+	gtk_widget_hide(GTK_WIDGET(dlg->dialog));
 }
 
 static void
-new_plugin_cancel_cb (GtkWidget * w, gpointer data)
+new_plugin_cancel_cb(GtkWidget *w, gpointer data)
 {
 	NewPluginDialog *dlg = data;
-	gtk_widget_hide (GTK_WIDGET(dlg->dialog));
+	gtk_widget_hide(GTK_WIDGET(dlg->dialog));
 }
 
 /* ============================================================ */
 
-
 NewPluginDialog *
-new_plugin_dialog_new (void)
+new_plugin_dialog_new(void)
 {
 	NewPluginDialog *dlg;
 	GladeXML *gtxml;
 	GtkWidget *e;
 
 	dlg = g_malloc(sizeof(NewPluginDialog));
-	dlg->app = GNOME_APP (app_window);
+	dlg->app = GNOME_APP(app_window);
 
-	gtxml = gtt_glade_xml_new ("glade/plugin.glade", "Plugin New");
+	gtxml = gtt_glade_xml_new("glade/plugin.glade", "Plugin New");
 	dlg->gtxml = gtxml;
 
-	dlg->dialog = GTK_DIALOG (glade_xml_get_widget (gtxml,  "Plugin New"));
+	dlg->dialog = GTK_DIALOG(glade_xml_get_widget(gtxml, "Plugin New"));
 
-	glade_xml_signal_connect_data (gtxml, "on_ok_button_clicked",
-		GTK_SIGNAL_FUNC (new_plugin_create_cb), dlg);
+	glade_xml_signal_connect_data(gtxml, "on_ok_button_clicked",
+	                              GTK_SIGNAL_FUNC(new_plugin_create_cb), dlg);
 
-	glade_xml_signal_connect_data (gtxml, "on_cancel_button_clicked",
-		GTK_SIGNAL_FUNC (new_plugin_cancel_cb), dlg);
+	glade_xml_signal_connect_data(gtxml, "on_cancel_button_clicked",
+	                              GTK_SIGNAL_FUNC(new_plugin_cancel_cb), dlg);
 
 	/* ------------------------------------------------------ */
 	/* grab the various entry boxes and hook them up */
-	e = glade_xml_get_widget (gtxml, "plugin name");
+	e = glade_xml_get_widget(gtxml, "plugin name");
 	dlg->plugin_name = GTK_ENTRY(e);
 
-	e = glade_xml_get_widget (gtxml, "plugin path");
+	e = glade_xml_get_widget(gtxml, "plugin path");
 	dlg->plugin_path = GTK_FILE_CHOOSER(e);
 
-	e = glade_xml_get_widget (gtxml, "plugin tooltip");
+	e = glade_xml_get_widget(gtxml, "plugin tooltip");
 	dlg->plugin_tooltip = GTK_ENTRY(e);
 
-	gtk_widget_hide_on_delete (GTK_WIDGET(dlg->dialog));
+	gtk_widget_hide_on_delete(GTK_WIDGET(dlg->dialog));
 
 	return dlg;
 }
@@ -213,16 +220,18 @@ new_plugin_dialog_new (void)
 void
 new_plugin_dialog_show(NewPluginDialog *dlg)
 {
-	if (!dlg) return;
+	if (!dlg)
+		return;
 	gtk_widget_show(GTK_WIDGET(dlg->dialog));
 }
 
 void
 new_plugin_dialog_destroy(NewPluginDialog *dlg)
 {
-	if (!dlg) return;
-	gtk_widget_destroy (GTK_WIDGET(dlg->dialog));
-	g_free (dlg);
+	if (!dlg)
+		return;
+	gtk_widget_destroy(GTK_WIDGET(dlg->dialog));
+	g_free(dlg);
 }
 
 /* ============================================================ */
@@ -232,7 +241,8 @@ static NewPluginDialog *pdlg = NULL;
 void
 new_report(GtkWidget *widget, gpointer data)
 {
-	if (!pdlg) pdlg = new_plugin_dialog_new ();
+	if (!pdlg)
+		pdlg = new_plugin_dialog_new();
 	gtk_widget_show(GTK_WIDGET(pdlg->dialog));
 }
 

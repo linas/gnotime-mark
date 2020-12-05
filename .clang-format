@@ -21,7 +21,7 @@ AllowShortLambdasOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
-AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterReturnType: AllDefinitions
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: MultiLine
 AttributeMacros:
@@ -31,12 +31,12 @@ BinPackParameters: true
 BraceWrapping:
   AfterCaseLabel:  false
   AfterClass:      false
-  AfterControlStatement: Never
-  AfterEnum:       false
-  AfterFunction:   false
+  AfterControlStatement: Always
+  AfterEnum:       true
+  AfterFunction:   true
   AfterNamespace:  false
   AfterObjCDeclaration: false
-  AfterStruct:     false
+  AfterStruct:     true
   AfterUnion:      false
   AfterExternBlock: false
   BeforeCatch:     false
@@ -48,7 +48,7 @@ BraceWrapping:
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
 BreakBeforeBinaryOperators: None
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Custom
 BreakBeforeInheritanceComma: false
 BreakInheritanceList: BeforeColon
 BreakBeforeTernaryOperators: true
@@ -143,9 +143,9 @@ Standard:        Latest
 StatementMacros:
   - Q_UNUSED
   - QT_REQUIRE_VERSION
-TabWidth:        8
+TabWidth:        2
 UseCRLF:         false
-UseTab:          Never
+UseTab:          AlignWithSpaces
 WhitespaceSensitiveMacros:
   - STRINGIZE
   - PP_STRINGIZE

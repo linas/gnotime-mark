@@ -16,16 +16,11 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __GTT_PROJ_P_H__
-#define __GTT_PROJ_P_H__
+#ifndef GTT_PROJ_P_H_
+#define GTT_PROJ_P_H_
 
-#include "config.h"
-
-#include <glib.h>
-#include <qof.h>
-
+#include "fake_qof.h"
 #include "proj.h"
-#include "timer.h"
 
 struct gtt_project_list_s
 {
@@ -133,4 +128,4 @@ struct gtt_interval_s
 void gtt_project_set_guid(GttProject *, const GUID *);
 void gtt_task_set_guid(GttTask *, const GUID *);
 
-#endif /* __GTT_PROJ_P_H__ */
+#endif /* GTT_PROJ_P_H_ */

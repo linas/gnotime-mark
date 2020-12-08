@@ -16,22 +16,27 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <gnome.h>
-#include <libgnome/gnome-help.h>
-
 #include "dialog.h"
-
-/* ================================================================= */
 
 void
 gtt_help_popup(GtkWidget *widget, gpointer data)
 {
 	GError *err = NULL;
+	gchar *link = NULL;
+	gboolean res = FALSE;
 	char *section = data;
 	if ((section != NULL) && !strcmp("", section))
 		section = NULL;
-	gnome_help_display("gnotime", section, &err);
+	if (section)
+	{
+		link = g_strdup_printf("ghelp:gnotime?%s", section);
+	} else
+	{
+		g_strdup("ghelp:gnotime");
+	}
+	res =
+			gtk_show_uri(gtk_widget_get_screen(widget), link, GDK_CURRENT_TIME, &err);
+	g_free(link);
 	if (err)
 	{
 		GtkWidget *mb;
@@ -45,5 +50,3 @@ gtt_help_popup(GtkWidget *widget, gpointer data)
 		printf("duude gnome help err msg: %s\n", err->message);
 	}
 }
-
-/* ==================== END OF FILE ================================ */

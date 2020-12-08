@@ -7,5 +7,6 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(GLIB2 REQUIRED IMPORTED_TARGET glib-2.0)
 pkg_check_modules(GTK2 REQUIRED IMPORTED_TARGET gtk+-2.0)
+pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
 
 add_subdirectory(src)

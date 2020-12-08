@@ -1,8 +1,8 @@
 #ifndef FAKE_QOF_H_
 #define FAKE_QOF_H_
 
-#include <glib.h>
 #include <glib-object.h>
+#include <glib.h>
 
 #define GUID_DATA_SIZE 16
 typedef union _GUID {
@@ -16,13 +16,13 @@ struct QofInstance_s
 {
 	GObject object;
 
-  /* QofIdType e_type; */ /**< Entity type */
+	/* QofIdType e_type; */ /**< Entity type */
 
 	/* kvp_data is a key-value pair database for storing arbirtary
 	 * information associated with this instance.
 	 * See src/engine/kvp_doc.txt for a list and description of the
 	 * important keys. */
-  /* KvpFrame *kvp_data; */
+	/* KvpFrame *kvp_data; */
 };
 
 typedef struct QofInstance_s QofInstance;

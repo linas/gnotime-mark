@@ -30,3 +30,6 @@ TAGS
 gnotime.desktop
 omf_timestamp
 gnotime-*.omf.out
+/builddir*/
+/CMakeLists.txt.user*
+/meson.build.user*

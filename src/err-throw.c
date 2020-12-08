@@ -16,12 +16,10 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
+#include "err-throw.h"
 
 #include <glib.h>
-#include <gnome.h> /* needed only to define the _() macro */
-
-#include "err-throw.h"
+#include <glib/gi18n.h>
 
 static GttErrCode err = GTT_NO_ERR;
 

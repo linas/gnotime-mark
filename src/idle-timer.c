@@ -46,26 +46,19 @@
 
  */
 
+#include "idle-timer.h"
 #include "config.h"
+
+#include <gdk/gdkx.h>
+#include <glib.h>
+#include <gtk/gtk.h>
+
+#include <X11/Xlib.h>
 
 /* #define DEBUG_TIMERS */
 
 /* Its OK to define this for all OS's,  even those that don't have one */
 #define HAVE_PROC_INTERRUPTS
-
-#include <errno.h>
-#include <gdk/gdk.h>
-#include <gdk/gdkx.h>
-#include <gtk/gtk.h>
-
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xos.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #ifdef HAVE_XMU
 #ifndef VMS
@@ -80,8 +73,6 @@
 #ifdef HAVE_XIDLE_EXTENSION
 #include <X11/extensions/xidle.h>
 #endif /* HAVE_XIDLE_EXTENSION */
-
-#include "idle-timer.h"
 
 typedef struct IdleTimeoutScreen_s IdleTimeoutScreen;
 
@@ -377,7 +368,7 @@ check_for_clock_skew(IdleTimeout *si)
 #ifdef DEBUG_TIMERS
 	long shift = now - si->last_wall_clock_time;
 
-	fprintf(stderr, "checking wall clock (%d).\n",
+	fprintf(stderr, "checking wall clock (%ld).\n",
 	        (si->last_wall_clock_time == 0 ? 0 : shift));
 
 	if (si->last_wall_clock_time != 0 && shift > (p->timeout / 1000))

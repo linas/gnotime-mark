@@ -10,6 +10,7 @@ x11_dep = dependency('x11', version: x11_req_version)
 
 conf_data = configuration_data()
 conf_data.set('gttgladedir', '/usr/local/share/gnotime')
+conf_data.set('package', meson.project_name())
 configure_file(configuration: conf_data,
                input: 'meson_config.h.in',
                output: 'config.h')

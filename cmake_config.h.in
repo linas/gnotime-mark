@@ -1,1 +1,2 @@
 #cmakedefine GTTGLADEDIR "@GTTGLADEDIR@"
+#cmakedefine PACKAGE "@PACKAGE@"

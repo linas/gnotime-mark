@@ -1,1 +1,2 @@
 #define GTTGLADEDIR "@gttgladedir@"
+#define PACKAGE "@package@"

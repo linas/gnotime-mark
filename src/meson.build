@@ -7,8 +7,10 @@ deps = [
 srcs = [
   'dialog.c',
   'err-throw.c',
+  'util.c',
 ]
 
 executable('gnotime', srcs,
            dependencies: deps,
+           include_directories: [top_inc],
 )

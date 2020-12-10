@@ -16,11 +16,10 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __GTT_UTIL_H__
-#define __GTT_UTIL_H__
+#ifndef GTT_UTIL_H_
+#define GTT_UTIL_H_
 
-#include <glade/glade.h>
-#include <gtk/gtktext.h>
+#include <gtk/gtk.h>
 
 /* ------------------------------------------------------------------ */
 /* some gtk-like utilities */
@@ -28,7 +27,7 @@ void xxxgtk_textview_set_text(GtkTextView *text, const char *str);
 char *xxxgtk_textview_get_text(GtkTextView *text);
 
 /* Glade loader, it will look in the right directories */
-GladeXML *gtt_glade_xml_new(const char *filename, const char *widget);
+GtkBuilder *gtt_builder_xml_new(const char *filename, const char *widget);
 
 /* ------------------------------------------------------------------ */
 /* Functions that used to be in qof,m but are not there any longer. */
@@ -46,4 +45,4 @@ size_t xxxqof_print_minutes_elapsed_buff(char *buff, size_t len, int secs,
 size_t xxxqof_print_date_dmy_buff(char *buff, size_t len, int day, int month,
                                   int year);
 
-#endif /* __GTT_UTIL_H__ */
+#endif /* GTT_UTIL_H_ */

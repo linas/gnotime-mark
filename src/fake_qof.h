@@ -4,6 +4,19 @@
 #include <glib-object.h>
 #include <glib.h>
 
+#define QOF_UTC_DATE_FORMAT "%Y-%m-%dT%H:%M:%SZ"
+
+#define QOF_DATE_FORMAT_US 1
+#define QOF_DATE_FORMAT_UK 2
+#define QOF_DATE_FORMAT_CE 3
+#define QOF_DATE_FORMAT_ISO 4
+#define QOF_DATE_FORMAT_UTC 5
+#define QOF_DATE_FORMAT_ISO8601 6
+#define QOF_DATE_FORMAT_LOCALE 7
+#define QOF_DATE_FORMAT_CUSTOM 8
+
+typedef gint QofDateFormat;
+
 #define GUID_DATA_SIZE 16
 typedef union _GUID {
 	guchar data[GUID_DATA_SIZE];
@@ -26,5 +39,11 @@ struct QofInstance_s
 };
 
 typedef struct QofInstance_s QofInstance;
+
+QofDateFormat
+qof_date_format_get_current(void)
+{
+	return QOF_DATE_FORMAT_CUSTOM;
+}
 
 #endif /* FAKE_QOF_H_ */

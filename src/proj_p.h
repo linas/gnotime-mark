@@ -19,7 +19,6 @@
 #ifndef GTT_PROJ_P_H_
 #define GTT_PROJ_P_H_
 
-#include "fake_qof.h"
 #include "proj.h"
 
 struct gtt_project_list_s

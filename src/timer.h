@@ -17,8 +17,10 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __GTT_TIMER_H__
-#define __GTT_TIMER_H__
+#ifndef GTT_TIMER_H_
+#define GTT_TIMER_H_
+
+#include "proj.h"
 
 #ifdef TIME_WITH_SYS_TIME
 #include <sys/time.h>
@@ -29,7 +31,6 @@
 #endif /* TM_IN_SYS_TIME */
 #include <time.h>
 #endif /* TIME_WITH_SYS_TIME */
-#include "proj.h"
 
 void init_timer(void);
 gboolean timer_is_running(void);
@@ -55,4 +56,4 @@ void start_idle_timer();
 void start_main_timer();
 void stop_main_timer();
 
-#endif /* __GTT_TIMER_H__ */
+#endif /* GTT_TIMER_H_ */

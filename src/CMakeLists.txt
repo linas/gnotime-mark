@@ -7,8 +7,10 @@ configure_file(../cmake_config.h.in config.h @ONLY)
 add_executable(${PROJECT_NAME}
     dialog.c
     err-throw.c
+    fake_qof.c
     idle-timer.c
     myoaf.c
+    proj.c
     util.c)
 target_include_directories(${PROJECT_NAME}
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

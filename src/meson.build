@@ -7,7 +7,10 @@ deps = [
 srcs = [
   'dialog.c',
   'err-throw.c',
-  'myoaf.h',
+  'fake_qof.c',
+  'idle-timer.c',
+  'myoaf.c',
+  'proj.c',
   'util.c',
 ]
 

@@ -17,11 +17,11 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
+/* #include "config.h"
 
 #include <glib.h>
-#include <libintl.h> /*conflicts with <libgnome/gnome-i18n.h> on some systems */
-#include <stdio.h>
+#include <libintl.h> */ /*conflicts with <libgnome/gnome-i18n.h> on some systems */
+/* #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -29,12 +29,15 @@
 
 #include "err-throw.h"
 #include "log.h"
-#include "prefs.h" /* XXX tmp hack for config_* */
+#include "prefs.h" */ /* XXX tmp hack for config_* */
+/* #include "proj.h"
+#include "proj_p.h"
+#include "query.h" */ /* temp hack for query */
+
 #include "proj.h"
 #include "proj_p.h"
-#include "query.h" /* temp hack for query */
 
-#define _(X) gettext(X)
+#include <glib/gi18n.h>
 
 /* XXX replace this notifier by GObject signals someday */
 typedef struct notif_s
@@ -200,7 +203,7 @@ gtt_project_remove(GttProject *p)
 	}
 }
 
-void
+/* void
 gtt_project_destroy(GttProject *proj)
 {
 	if (!proj)
@@ -228,9 +231,9 @@ gtt_project_destroy(GttProject *proj)
 	if (proj->task_list)
 	{
 		while (proj->task_list)
-		{
+		{ */
 			/* destroying a task pops it off the list */
-			gtt_task_destroy(proj->task_list->data);
+			/* gtt_task_destroy(proj->task_list->data);
 		}
 	}
 	proj->task_list = NULL;
@@ -238,14 +241,14 @@ gtt_project_destroy(GttProject *proj)
 	if (proj->sub_projects)
 	{
 		while (proj->sub_projects)
-		{
+		{ */
 			/* destroying a sub-project pops it off the list */
-			gtt_project_destroy(proj->sub_projects->data);
+			/* gtt_project_destroy(proj->sub_projects->data);
 		}
-	}
+	} */
 
 	/* remove notifiers as well */
-	{
+	/* {
 		Notifier *ntf;
 		GList *node;
 
@@ -259,7 +262,7 @@ gtt_project_destroy(GttProject *proj)
 	}
 	proj->private_data = NULL;
 	g_free(proj);
-}
+} */
 
 void
 gtt_project_set_guid(GttProject *prj, const GUID *guid)
@@ -682,138 +685,138 @@ gtt_project_get_id(GttProject *proj)
 /* =========================================================== */
 /* compatibility interface */
 
-static time_t
+/* static time_t
 get_midnight(time_t last)
 {
-	struct tm lt;
-	time_t midnight;
+  struct tm lt;
+  time_t midnight;
 
-	if (0 >= last)
-	{
-		last = time(0);
-	}
+  if (0 >= last)
+  {
+    last = time(0);
+  } */
 
-	/* If config_daystart_offset == 3*3600 then the new day
-	 * will start at 3AM, for example.  */
-	last -= config_daystart_offset;
+/* If config_daystart_offset == 3*3600 then the new day
+ * will start at 3AM, for example.  */
+/* last -= config_daystart_offset;
 
-	memcpy(&lt, localtime(&last), sizeof(struct tm));
-	lt.tm_sec = 0;
-	lt.tm_min = 0;
-	lt.tm_hour = 0;
-	midnight = mktime(&lt);
+memcpy(&lt, localtime(&last), sizeof(struct tm));
+lt.tm_sec = 0;
+lt.tm_min = 0;
+lt.tm_hour = 0;
+midnight = mktime(&lt);
 
-	midnight += config_daystart_offset;
+midnight += config_daystart_offset;
 
-	return midnight;
-}
+return midnight;
+} */
 
-static time_t
+/* static time_t
 get_sunday(time_t last)
 {
-	struct tm lt;
-	time_t sunday;
+  struct tm lt;
+  time_t sunday;
 
-	if (0 >= last)
-	{
-		last = time(0);
-	}
+  if (0 >= last)
+  {
+    last = time(0);
+  }
 
-	memcpy(&lt, localtime(&last), sizeof(struct tm));
-	lt.tm_sec = 0;
-	lt.tm_min = 0;
-	lt.tm_hour = 0;
-	lt.tm_mday -= lt.tm_wday;
-	sunday = mktime(&lt);
+  memcpy(&lt, localtime(&last), sizeof(struct tm));
+  lt.tm_sec = 0;
+  lt.tm_min = 0;
+  lt.tm_hour = 0;
+  lt.tm_mday -= lt.tm_wday;
+  sunday = mktime(&lt); */
 
-	/* If config_weekstart_offset == 1 then a new week starts
-	 * on monday, not sunday. */
-	sunday += 24 * 3600 * config_weekstart_offset + config_daystart_offset;
+/* If config_weekstart_offset == 1 then a new week starts
+ * on monday, not sunday. */
+/* sunday += 24 * 3600 * config_weekstart_offset + config_daystart_offset;
 
-	return sunday;
+return sunday;
 }
 
 static time_t
 get_month(time_t last)
 {
-	struct tm lt;
-	time_t first;
+struct tm lt;
+time_t first;
 
-	if (0 >= last)
-	{
-		last = time(0);
-	}
+if (0 >= last)
+{
+  last = time(0);
+}
 
-	memcpy(&lt, localtime(&last), sizeof(struct tm));
-	lt.tm_sec = 0;
-	lt.tm_min = 0;
-	lt.tm_hour = 0;
-	lt.tm_mday = 1;
-	first = mktime(&lt);
+memcpy(&lt, localtime(&last), sizeof(struct tm));
+lt.tm_sec = 0;
+lt.tm_min = 0;
+lt.tm_hour = 0;
+lt.tm_mday = 1;
+first = mktime(&lt);
 
-	first += config_daystart_offset;
-	return first;
+first += config_daystart_offset;
+return first;
 }
 
 static time_t
 get_newyear(time_t last)
 {
-	struct tm lt;
-	time_t newyear;
+struct tm lt;
+time_t newyear;
 
-	if (0 >= last)
-	{
-		last = time(0);
-	}
-
-	memcpy(&lt, localtime(&last), sizeof(struct tm));
-	lt.tm_sec = 0;
-	lt.tm_min = 0;
-	lt.tm_hour = 0;
-	lt.tm_mday -= lt.tm_yday;
-	newyear = mktime(&lt);
-
-	newyear += config_daystart_offset;
-	return newyear;
+if (0 >= last)
+{
+  last = time(0);
 }
 
-void
+memcpy(&lt, localtime(&last), sizeof(struct tm));
+lt.tm_sec = 0;
+lt.tm_min = 0;
+lt.tm_hour = 0;
+lt.tm_mday -= lt.tm_yday;
+newyear = mktime(&lt);
+
+newyear += config_daystart_offset;
+return newyear;
+} */
+
+/* void
 gtt_project_compat_set_secs(GttProject *proj, int sever, int sday, time_t last)
 {
-	time_t midnight;
-	GttTask *tsk;
-	GttInterval *ivl;
+  time_t midnight;
+  GttTask *tsk;
+  GttInterval *ivl; */
 
-	/* Get the midnight of the last update */
-	midnight = get_midnight(last);
+/* Get the midnight of the last update */
+/* midnight = get_midnight(last); */
 
-	/* Old GTT data will just be one big interval
-	 * lumped under one task */
-	tsk = gtt_task_new();
-	gtt_task_set_memo(tsk, _("Old GTT Tasks"));
+/* Old GTT data will just be one big interval
+ * lumped under one task */
+/* tsk = gtt_task_new();
+gtt_task_set_memo(tsk, _("Old GTT Tasks"));
 
-	ivl = gtt_interval_new();
-	ivl->stop = midnight - 1;
-	ivl->start = midnight - 1 - sever + sday;
-	gtt_task_add_interval(tsk, ivl);
+ivl = gtt_interval_new();
+ivl->stop = midnight - 1;
+ivl->start = midnight - 1 - sever + sday;
+gtt_task_add_interval(tsk, ivl);
 
-	if (0 < sday)
-	{
-		ivl = gtt_interval_new();
-		ivl->start = midnight + 1;
-		ivl->stop = midnight + sday + 1;
-		gtt_task_add_interval(tsk, ivl);
-	}
-
-	gtt_project_append_task(proj, tsk);
-
-	/* All new data will get its own task */
-	tsk = gtt_task_new();
-	gtt_task_set_memo(tsk, _("New Diary Entry"));
-	gtt_project_append_task(proj, tsk);
-
-	proj_refresh_time(proj);
+if (0 < sday)
+{
+  ivl = gtt_interval_new();
+  ivl->start = midnight + 1;
+  ivl->stop = midnight + sday + 1;
+  gtt_task_add_interval(tsk, ivl);
 }
+
+gtt_project_append_task(proj, tsk); */
+
+/* All new data will get its own task */
+/* tsk = gtt_task_new();
+gtt_task_set_memo(tsk, _("New Diary Entry"));
+gtt_project_append_task(proj, tsk);
+
+proj_refresh_time(proj);
+} */
 
 /* =========================================================== */
 /* add subprojects, tasks */
@@ -973,14 +976,14 @@ gtt_project_reparent(GttProject *proj, GttProject *parent, int position)
 	proj->parent = parent;
 }
 
-void
+/* void
 gtt_project_append_task(GttProject *proj, GttTask *task)
 {
 	if (!proj || !task)
-		return;
+		return; */
 
 	/* if task has a different parent, then reparent */
-	if (task->parent)
+	/* if (task->parent)
 	{
 		task->parent->task_list = g_list_remove(task->parent->task_list, task);
 		proj_refresh_time(task->parent);
@@ -989,24 +992,24 @@ gtt_project_append_task(GttProject *proj, GttTask *task)
 	proj->task_list = g_list_append(proj->task_list, task);
 	task->parent = proj;
 	proj_refresh_time(proj);
-}
+} */
 
-void
+/* void
 gtt_project_prepend_task(GttProject *proj, GttTask *task)
 {
 	int is_running = FALSE;
 	if (!proj || !task)
-		return;
+		return; */
 
 	/* if task has a different parent, then reparent */
-	if (task->parent)
+	/* if (task->parent)
 	{
 		task->parent->task_list = g_list_remove(task->parent->task_list, task);
 		proj_refresh_time(task->parent);
-	}
+	} */
 
 	/* avoid misplaced running intervals, stop the task */
-	if (proj->task_list)
+	/* if (proj->task_list)
 	{
 		GttTask *leadtask = proj->task_list->data;
 		is_running = task_suspend(leadtask);
@@ -1019,7 +1022,7 @@ gtt_project_prepend_task(GttProject *proj, GttTask *task)
 	if (is_running)
 		gtt_project_timer_start(proj);
 	proj_refresh_time(proj);
-}
+} */
 
 GList *
 gtt_project_get_children(GttProject *proj)
@@ -1066,7 +1069,7 @@ gtt_project_get_current_task(GttProject *proj)
 	return (proj->current_task);
 }
 
-void
+/* void
 gtt_project_set_current_task(GttProject *proj, GttTask *newCurrentTask)
 {
 	int is_running = 0;
@@ -1080,7 +1083,7 @@ gtt_project_set_current_task(GttProject *proj, GttTask *newCurrentTask)
 	if (is_running)
 		gtt_project_timer_start(proj);
 	proj_refresh_time(proj);
-}
+} */
 
 GttInterval *
 gtt_project_get_first_interval(GttProject *proj)
@@ -1421,278 +1424,278 @@ get_closest(GList *node)
 	return NULL;
 }
 
-static GttInterval *
+/* static GttInterval *
 scrub_intervals(GttTask *tsk, GttInterval *handle)
 {
-	GttProject *prj;
-	GList *node;
-	int mini, merge, mgap;
-	int not_done = TRUE;
-	int save_freeze;
+  GttProject *prj;
+  GList *node;
+  int mini, merge, mgap;
+  int not_done = TRUE;
+  int save_freeze; */
 
-	/* Prevent recursion */
-	prj = tsk->parent;
-	g_return_val_if_fail(prj, FALSE);
-	save_freeze = prj->frozen;
-	prj->frozen = TRUE;
+/* Prevent recursion */
+/* prj = tsk->parent;
+g_return_val_if_fail(prj, FALSE);
+save_freeze = prj->frozen;
+prj->frozen = TRUE; */
 
-	/* First, eliminate very short intervals */
-	mini = prj->min_interval;
-	while (not_done)
-	{
-		not_done = FALSE;
-		for (node = tsk->interval_list; node; node = node->next)
-		{
-			GttInterval *ivl = node->data;
-			int len = ivl->stop - ivl->start;
+/* First, eliminate very short intervals */
+/* mini = prj->min_interval;
+while (not_done)
+{
+  not_done = FALSE;
+  for (node = tsk->interval_list; node; node = node->next)
+  {
+    GttInterval *ivl = node->data;
+    int len = ivl->stop - ivl->start; */
 
-			/* Should never see negative intervals */
-			g_return_val_if_fail((0 <= len), handle);
-			if ((FALSE == ivl->running) && (len <= mini) &&
-			    (0 != ivl->start)) /* don't whack new ivls */
-			{
-				if (handle == ivl)
-					handle = get_closest(node);
-				tsk->interval_list = g_list_remove(tsk->interval_list, ivl);
-				ivl->parent = NULL;
-				g_free(ivl);
-				not_done = TRUE;
-				break;
-			}
-		}
-	}
+/* Should never see negative intervals */
+/* g_return_val_if_fail((0 <= len), handle);
+if ((FALSE == ivl->running) && (len <= mini) &&
+    (0 != ivl->start)) */ /* don't whack new ivls */
+/* {
+  if (handle == ivl)
+    handle = get_closest(node);
+  tsk->interval_list = g_list_remove(tsk->interval_list, ivl);
+  ivl->parent = NULL;
+  g_free(ivl);
+  not_done = TRUE;
+  break;
+}
+}
+} */
 
-	/* Merge intervals with small gaps between them */
-	mgap = prj->auto_merge_gap;
-	not_done = TRUE;
-	while (not_done)
-	{
-		not_done = FALSE;
-		for (node = tsk->interval_list; node; node = node->next)
-		{
-			GttInterval *ivl = node->data;
-			GttInterval *nivl;
-			int gap;
+/* Merge intervals with small gaps between them */
+/* mgap = prj->auto_merge_gap;
+not_done = TRUE;
+while (not_done)
+{
+  not_done = FALSE;
+  for (node = tsk->interval_list; node; node = node->next)
+  {
+    GttInterval *ivl = node->data;
+    GttInterval *nivl;
+    int gap;
 
-			if (ivl->running)
-				continue;
-			if (!node->next)
-				break;
-			nivl = node->next->data;
-			gap = ivl->start - nivl->stop;
-			if (0 > gap)
-				continue; /* out of order ivls */
-			if ((mgap > gap) || (ivl->fuzz > gap) || (nivl->fuzz > gap))
-			{
-				GttInterval *rc = gtt_interval_merge_down(ivl);
-				if (handle == ivl)
-					handle = rc;
-				not_done = TRUE;
-				break;
-			}
-		}
-	}
+    if (ivl->running)
+      continue;
+    if (!node->next)
+      break;
+    nivl = node->next->data;
+    gap = ivl->start - nivl->stop;
+    if (0 > gap)
+      continue; */ /* out of order ivls */
+/* if ((mgap > gap) || (ivl->fuzz > gap) || (nivl->fuzz > gap))
+{
+  GttInterval *rc = gtt_interval_merge_down(ivl);
+  if (handle == ivl)
+    handle = rc;
+  not_done = TRUE;
+  break;
+}
+}
+} */
 
-	/* Merge short intervals into neighbors */
-	merge = prj->auto_merge_interval;
-	not_done = TRUE;
-	while (not_done)
-	{
-		not_done = FALSE;
-		for (node = tsk->interval_list; node; node = node->next)
-		{
-			GttInterval *ivl = node->data;
-			int gap_up = 1000000000;
-			int gap_down = 1000000000;
-			int do_merge = FALSE;
-			int len;
+/* Merge short intervals into neighbors */
+/* merge = prj->auto_merge_interval;
+not_done = TRUE;
+while (not_done)
+{
+  not_done = FALSE;
+  for (node = tsk->interval_list; node; node = node->next)
+  {
+    GttInterval *ivl = node->data;
+    int gap_up = 1000000000;
+    int gap_down = 1000000000;
+    int do_merge = FALSE;
+    int len;
 
-			if (ivl->running)
-				continue;
-			if (0 == ivl->start)
-				continue; /* brand-new ivl */
-			len = ivl->stop - ivl->start;
-			if (len > merge)
-				continue;
-			if (node->next)
-			{
-				GttInterval *nivl = node->next->data;
+    if (ivl->running)
+      continue;
+    if (0 == ivl->start)
+      continue; */ /* brand-new ivl */
+/* len = ivl->stop - ivl->start;
+if (len > merge)
+  continue;
+if (node->next)
+{
+  GttInterval *nivl = node->next->data; */
 
-				/* Merge only if the intervals are in the same day */
-				if (get_midnight(ivl->start) == get_midnight(nivl->stop))
-				{
-					gap_down = ivl->start - nivl->stop;
-					do_merge = TRUE;
-				}
-			}
-			if (node->prev)
-			{
-				GttInterval *nivl = node->prev->data;
+/* Merge only if the intervals are in the same day */
+/* if (get_midnight(ivl->start) == get_midnight(nivl->stop))
+{
+  gap_down = ivl->start - nivl->stop;
+  do_merge = TRUE;
+}
+}
+if (node->prev)
+{
+GttInterval *nivl = node->prev->data; */
 
-				/* Merge only if the intervals are in the same day */
-				if (get_midnight(nivl->start) == get_midnight(ivl->stop))
-				{
-					gap_up = nivl->start - ivl->stop;
-					do_merge = TRUE;
-				}
-			}
-			if (!do_merge)
-				continue;
-			if (gap_up < gap_down)
-			{
-				GttInterval *rc = gtt_interval_merge_up(ivl);
-				if (handle == ivl)
-					handle = rc;
-			} else
-			{
-				GttInterval *rc = gtt_interval_merge_down(ivl);
-				if (handle == ivl)
-					handle = rc;
-			}
-			not_done = TRUE;
-			break;
-		}
-	}
-
-	prj->frozen = save_freeze;
-	return handle;
+/* Merge only if the intervals are in the same day */
+/* if (get_midnight(nivl->start) == get_midnight(ivl->stop))
+{
+  gap_up = nivl->start - ivl->stop;
+  do_merge = TRUE;
+}
+}
+if (!do_merge)
+continue;
+if (gap_up < gap_down)
+{
+GttInterval *rc = gtt_interval_merge_up(ivl);
+if (handle == ivl)
+  handle = rc;
+} else
+{
+GttInterval *rc = gtt_interval_merge_down(ivl);
+if (handle == ivl)
+  handle = rc;
+}
+not_done = TRUE;
+break;
+}
 }
 
-static void
+prj->frozen = save_freeze;
+return handle;
+} */
+
+/* static void
 project_compute_secs(GttProject *proj)
 {
-	int total_ever = 0;
-	int total_day = 0;
-	int total_yesterday = 0;
-	int total_week = 0;
-	int total_lastweek = 0;
-	int total_month = 0;
-	int total_year = 0;
-	time_t midnight, sunday, month, newyear;
-	GList *tsk_node, *ivl_node, *prj_node;
+  int total_ever = 0;
+  int total_day = 0;
+  int total_yesterday = 0;
+  int total_week = 0;
+  int total_lastweek = 0;
+  int total_month = 0;
+  int total_year = 0;
+  time_t midnight, sunday, month, newyear;
+  GList *tsk_node, *ivl_node, *prj_node;
 
-	if (!proj)
-		return;
+  if (!proj)
+    return; */
 
-	/* Total up the subprojects first */
-	for (prj_node = proj->sub_projects; prj_node; prj_node = prj_node->next)
-	{
-		GttProject *prj = prj_node->data;
-		project_compute_secs(prj);
-	}
-
-	midnight = get_midnight(-1);
-	sunday = get_sunday(-1);
-	month = get_month(-1);
-	newyear = get_newyear(-1);
-
-	/* Total up time spent in various tasks.
-	 * XXX None of these total handle daylight savings correctly.
-	 */
-	for (tsk_node = proj->task_list; tsk_node; tsk_node = tsk_node->next)
-	{
-		GttTask *task = tsk_node->data;
-		scrub_intervals(task, NULL);
-		for (ivl_node = task->interval_list; ivl_node; ivl_node = ivl_node->next)
-		{
-			GttInterval *ivl = ivl_node->data;
-			total_ever += ivl->stop - ivl->start;
-
-			/* Accum time today. */
-			if (ivl->start >= midnight)
-			{
-				total_day += ivl->stop - ivl->start;
-			} else if (ivl->stop > midnight)
-			{
-				total_day += ivl->stop - midnight;
-			}
-
-			/* Accum time yesterday. */
-			if (ivl->start < midnight)
-			{
-				if (ivl->start >= midnight - 24 * 3600)
-				{
-					if (ivl->stop <= midnight)
-					{
-						total_yesterday += ivl->stop - ivl->start;
-					} else
-					{
-						total_yesterday += midnight - ivl->start;
-					}
-				} else /* else .. it started before midnight yesterday */
-						if (ivl->stop > midnight - 24 * 3600)
-				{
-					if (ivl->stop <= midnight)
-					{
-						total_yesterday += ivl->stop - (midnight - 24 * 3600);
-					} else
-					{
-						total_yesterday += 24 * 3600;
-					}
-				}
-			}
-
-			/* Accum time this week. */
-			if (ivl->start >= sunday)
-			{
-				total_week += ivl->stop - ivl->start;
-			} else if (ivl->stop > sunday)
-			{
-				total_week += ivl->stop - sunday;
-			}
-
-			/* Accum time last week. */
-			if (ivl->start < sunday)
-			{
-				if (ivl->start >= sunday - 7 * 24 * 3600)
-				{
-					if (ivl->stop <= sunday)
-					{
-						total_lastweek += ivl->stop - ivl->start;
-					} else
-					{
-						total_lastweek += sunday - ivl->start;
-					}
-				} else /* else .. it started before sunday last week */
-						if (ivl->stop > sunday - 7 * 24 * 3600)
-				{
-					if (ivl->stop <= sunday)
-					{
-						total_lastweek += ivl->stop - (sunday - 7 * 24 * 3600);
-					} else
-					{
-						total_lastweek += 7 * 24 * 3600;
-					}
-				}
-			}
-
-			/* Accum time this month */
-			if (ivl->start >= month)
-			{
-				total_month += ivl->stop - ivl->start;
-			} else if (ivl->stop > month)
-			{
-				total_month += ivl->stop - month;
-			}
-			if (ivl->start >= newyear)
-			{
-				total_year += ivl->stop - ivl->start;
-			} else if (ivl->stop > newyear)
-			{
-				total_year += ivl->stop - newyear;
-			}
-		}
-	}
-
-	proj->secs_ever = total_ever;
-	proj->secs_day = total_day;
-	proj->secs_yesterday = total_yesterday;
-	proj->secs_week = total_week;
-	proj->secs_lastweek = total_lastweek;
-	proj->secs_month = total_month;
-	proj->secs_year = total_year;
-	proj->dirty_time = FALSE;
+/* Total up the subprojects first */
+/* for (prj_node = proj->sub_projects; prj_node; prj_node = prj_node->next)
+{
+  GttProject *prj = prj_node->data;
+  project_compute_secs(prj);
 }
+
+midnight = get_midnight(-1);
+sunday = get_sunday(-1);
+month = get_month(-1);
+newyear = get_newyear(-1); */
+
+/* Total up time spent in various tasks.
+ * XXX None of these total handle daylight savings correctly.
+ */
+/* for (tsk_node = proj->task_list; tsk_node; tsk_node = tsk_node->next)
+{
+  GttTask *task = tsk_node->data;
+  scrub_intervals(task, NULL);
+  for (ivl_node = task->interval_list; ivl_node; ivl_node = ivl_node->next)
+  {
+    GttInterval *ivl = ivl_node->data;
+    total_ever += ivl->stop - ivl->start; */
+
+/* Accum time today. */
+/* if (ivl->start >= midnight)
+{
+  total_day += ivl->stop - ivl->start;
+} else if (ivl->stop > midnight)
+{
+  total_day += ivl->stop - midnight;
+} */
+
+/* Accum time yesterday. */
+/* if (ivl->start < midnight)
+{
+  if (ivl->start >= midnight - 24 * 3600)
+  {
+    if (ivl->stop <= midnight)
+    {
+      total_yesterday += ivl->stop - ivl->start;
+    } else
+    {
+      total_yesterday += midnight - ivl->start;
+    }
+  } else */ /* else .. it started before midnight yesterday */
+/* if (ivl->stop > midnight - 24 * 3600)
+{
+if (ivl->stop <= midnight)
+{
+total_yesterday += ivl->stop - (midnight - 24 * 3600);
+} else
+{
+total_yesterday += 24 * 3600;
+}
+}
+} */
+
+/* Accum time this week. */
+/* if (ivl->start >= sunday)
+{
+  total_week += ivl->stop - ivl->start;
+} else if (ivl->stop > sunday)
+{
+  total_week += ivl->stop - sunday;
+} */
+
+/* Accum time last week. */
+/* if (ivl->start < sunday)
+{
+  if (ivl->start >= sunday - 7 * 24 * 3600)
+  {
+    if (ivl->stop <= sunday)
+    {
+      total_lastweek += ivl->stop - ivl->start;
+    } else
+    {
+      total_lastweek += sunday - ivl->start;
+    }
+  } else */ /* else .. it started before sunday last week */
+/* if (ivl->stop > sunday - 7 * 24 * 3600)
+{
+if (ivl->stop <= sunday)
+{
+total_lastweek += ivl->stop - (sunday - 7 * 24 * 3600);
+} else
+{
+total_lastweek += 7 * 24 * 3600;
+}
+}
+} */
+
+/* Accum time this month */
+/* if (ivl->start >= month)
+{
+  total_month += ivl->stop - ivl->start;
+} else if (ivl->stop > month)
+{
+  total_month += ivl->stop - month;
+}
+if (ivl->start >= newyear)
+{
+  total_year += ivl->stop - ivl->start;
+} else if (ivl->stop > newyear)
+{
+  total_year += ivl->stop - newyear;
+}
+}
+}
+
+proj->secs_ever = total_ever;
+proj->secs_day = total_day;
+proj->secs_yesterday = total_yesterday;
+proj->secs_week = total_week;
+proj->secs_lastweek = total_lastweek;
+proj->secs_month = total_month;
+proj->secs_year = total_year;
+proj->dirty_time = FALSE;
+} */
 
 static void
 children_modified(GttProject *prj)
@@ -1708,17 +1711,17 @@ children_modified(GttProject *prj)
 	proj_modified(prj);
 }
 
-void
+/* void
 gtt_project_list_compute_secs(void)
 {
-	GList *node;
-	for (node = global_plist->prj_list; node; node = node->next)
-	{
-		GttProject *prj = node->data;
-		proj_refresh_time(prj);
-		children_modified(prj);
-	}
-}
+  GList *node;
+  for (node = global_plist->prj_list; node; node = node->next)
+  {
+    GttProject *prj = node->data;
+    proj_refresh_time(prj);
+    children_modified(prj);
+  }
+} */
 
 /* =========================================================== */
 /* even notification subsystem */
@@ -1770,14 +1773,14 @@ gtt_project_freeze(GttProject *prj)
 	prj->frozen = TRUE;
 }
 
-void
+/* void
 gtt_project_thaw(GttProject *prj)
 {
 	if (!prj)
 		return;
 	prj->frozen = FALSE;
 	proj_refresh_time(prj);
-}
+} */
 
 void
 gtt_task_freeze(GttTask *tsk)
@@ -1787,14 +1790,14 @@ gtt_task_freeze(GttTask *tsk)
 	tsk->parent->frozen = TRUE;
 }
 
-void
+/* void
 gtt_task_thaw(GttTask *tsk)
 {
 	if (!tsk || !tsk->parent)
 		return;
 	tsk->parent->frozen = FALSE;
 	proj_refresh_time(tsk->parent);
-}
+} */
 
 void
 gtt_interval_freeze(GttInterval *ivl)
@@ -1804,38 +1807,38 @@ gtt_interval_freeze(GttInterval *ivl)
 	ivl->parent->parent->frozen = TRUE;
 }
 
-GttInterval *
+/* GttInterval *
 gtt_interval_thaw(GttInterval *ivl)
 {
-	if (!ivl || !ivl->parent || !ivl->parent->parent)
-		return ivl;
-	ivl->parent->parent->frozen = FALSE;
-	ivl = scrub_intervals(ivl->parent, ivl);
-	proj_refresh_time(ivl->parent->parent);
-	return ivl;
-}
+  if (!ivl || !ivl->parent || !ivl->parent->parent)
+    return ivl;
+  ivl->parent->parent->frozen = FALSE;
+  ivl = scrub_intervals(ivl->parent, ivl);
+  proj_refresh_time(ivl->parent->parent);
+  return ivl;
+} */
 
-static void
+/* static void
 proj_refresh_time(GttProject *proj)
 {
-	GList *node;
+  GList *node;
 
-	if (!proj)
-		return;
-	if (proj->being_destroyed)
-		return;
-	proj->dirty_time = TRUE;
-	if (proj->frozen)
-		return;
-	project_compute_secs(proj);
+  if (!proj)
+    return;
+  if (proj->being_destroyed)
+    return;
+  proj->dirty_time = TRUE;
+  if (proj->frozen)
+    return;
+  project_compute_secs(proj); */
 
-	/* let listeners know that the times have changed */
-	for (node = proj->listeners; node; node = node->next)
-	{
-		Notifier *ntf = node->data;
-		(ntf->func)(proj, ntf->user_data);
-	}
+/* let listeners know that the times have changed */
+/* for (node = proj->listeners; node; node = node->next)
+{
+  Notifier *ntf = node->data;
+  (ntf->func)(proj, ntf->user_data);
 }
+} */
 
 static void
 proj_modified(GttProject *proj)
@@ -1859,57 +1862,57 @@ proj_modified(GttProject *proj)
 
 /* =========================================================== */
 
-void
+/* void
 gtt_clear_daily_counter(GttProject *proj)
 {
-	time_t midnight;
-	int not_done = TRUE;
-	GList *tsk_node, *in;
-	int is_running;
+  time_t midnight;
+  int not_done = TRUE;
+  GList *tsk_node, *in;
+  int is_running;
 
-	if (!proj)
-		return;
-	if (!proj->task_list)
-		return;
+  if (!proj)
+    return;
+  if (!proj->task_list)
+    return;
 
-	is_running = task_suspend((GttTask *)proj->task_list->data);
+  is_running = task_suspend((GttTask *)proj->task_list->data);
 
-	gtt_project_freeze(proj);
-	midnight = get_midnight(-1);
+  gtt_project_freeze(proj);
+  midnight = get_midnight(-1); */
 
-	/* loop over tasks */
-	for (tsk_node = proj->task_list; tsk_node; tsk_node = tsk_node->next)
-	{
-		GttTask *task = tsk_node->data;
+/* loop over tasks */
+/* for (tsk_node = proj->task_list; tsk_node; tsk_node = tsk_node->next)
+{
+  GttTask *task = tsk_node->data;
 
-		not_done = TRUE;
-		while (not_done)
-		{
-			not_done = FALSE;
-			for (in = task->interval_list; in; in = in->next)
-			{
-				GttInterval *ivl = in->data;
+  not_done = TRUE;
+  while (not_done)
+  {
+    not_done = FALSE;
+    for (in = task->interval_list; in; in = in->next)
+    {
+      GttInterval *ivl = in->data; */
 
-				/* only nuke the ones that started after midnight.
-				 * The ones that started before midnight remain */
-				if (ivl->start >= midnight)
-				{
-					task->interval_list = g_list_remove(task->interval_list, ivl);
-					g_free(ivl);
-					not_done = TRUE;
-					break;
-				}
-			}
-		}
-	}
-	gtt_project_thaw(proj);
-	if (is_running)
-		gtt_project_timer_start(proj);
+/* only nuke the ones that started after midnight.
+ * The ones that started before midnight remain */
+/* if (ivl->start >= midnight)
+{
+  task->interval_list = g_list_remove(task->interval_list, ivl);
+  g_free(ivl);
+  not_done = TRUE;
+  break;
 }
+}
+}
+}
+gtt_project_thaw(proj);
+if (is_running)
+gtt_project_timer_start(proj);
+} */
 
 /* =========================================================== */
 
-void
+/* void
 gtt_project_timer_start(GttProject *proj)
 {
 	GttTask *task;
@@ -1917,13 +1920,13 @@ gtt_project_timer_start(GttProject *proj)
 	time_t now;
 
 	if (!proj)
-		return;
+		return; */
 
 	/* By definition, the current task is not anymore the one at the head
 	 * of the list, but rather the one denoted by GttProject->current_task
 	 * and the current interval is  at the head
 	 * of the task */
-	if (NULL == proj->task_list)
+	/* if (NULL == proj->task_list)
 	{
 		task = gtt_task_new();
 		gtt_task_set_memo(task, _("New Diary Entry"));
@@ -1942,11 +1945,11 @@ gtt_project_timer_start(GttProject *proj)
 		g_return_if_fail(task);
 	}
 
-	now = time(0);
+	now = time(0); */
 
 	/* only add a new interval if there's been a bit of a gap,
 	 * otherwise, reuse the most recent running interval.  */
-	if (task->interval_list)
+	/* if (task->interval_list)
 	{
 		int delta;
 		ival = task->interval_list->data;
@@ -1968,14 +1971,14 @@ gtt_project_timer_start(GttProject *proj)
 	ival->stop = ival->start;
 	ival->running = TRUE;
 	task->interval_list = g_list_prepend(task->interval_list, ival);
-	ival->parent = task;
+	ival->parent = task; */
 
 	/* don't add the task until after we've done above */
-	if (NULL == proj->task_list)
+	/* if (NULL == proj->task_list)
 	{
 		gtt_project_append_task(proj, task);
 	}
-}
+} */
 
 void
 gtt_project_timer_update(GttProject *proj)
@@ -2025,7 +2028,7 @@ gtt_project_timer_update(GttProject *proj)
 	proj->secs_year += diff;
 }
 
-void
+/* void
 gtt_project_timer_stop(GttProject *proj)
 {
 	GttTask *task;
@@ -2036,20 +2039,20 @@ gtt_project_timer_stop(GttProject *proj)
 	if (!proj->current_task)
 		return;
 
-	gtt_project_timer_update(proj);
+	gtt_project_timer_update(proj); */
 
 	/* Also note that the timer really has stopped. */
-	task = proj->current_task;
-	g_return_if_fail(task);
+	/* task = proj->current_task;
+	g_return_if_fail(task); */
 
 	/* its 'legal' to have no intervals, which implies
 	 * that the timer isn't running anyway. */
-	if (task->interval_list)
+	/* if (task->interval_list)
 	{
 		ival = task->interval_list->data;
 		g_return_if_fail(ival);
 		ival->running = FALSE;
-	}
+	} */
 
 	/* When we stop the timer, call proj_refresh_time(),
 	 * as this will do several things: first, it will
@@ -2057,92 +2060,92 @@ gtt_project_timer_stop(GttProject *proj)
 	 * and, secondly, it will force redraws of affected
 	 * windows so that the old data doesn't show.
 	 */
-	proj_refresh_time(proj);
-}
+	/* proj_refresh_time(proj);
+} */
 
 /* =========================================================== */
 
-static void
+/* static void
 prj_obj_foreach_helper(GList *prjlist, QofEntityForeachCB cb, gpointer data)
 {
-	GList *node;
+  GList *node;
 
-	for (node = prjlist; node; node = node->next)
-	{
-		GttProject *prj = node->data;
-		cb((QofEntity *)prj, data);
-		prj_obj_foreach_helper(prj->sub_projects, cb, data);
-	}
+  for (node = prjlist; node; node = node->next)
+  {
+    GttProject *prj = node->data;
+    cb((QofEntity *)prj, data);
+    prj_obj_foreach_helper(prj->sub_projects, cb, data);
+  }
 }
 
 void
 gtt_project_obj_foreach(QofCollection *coll, QofEntityForeachCB cb,
                         gpointer data)
 {
-	prj_obj_foreach_helper(global_plist->prj_list, cb, data);
+  prj_obj_foreach_helper(global_plist->prj_list, cb, data);
 }
 
 static int
 prj_obj_order(GttProject *a, GttProject *b)
 {
-	return 0;
+  return 0;
 }
 
 static QofObject prj_object_def = {
-	interface_version : QOF_OBJECT_VERSION,
-	e_type : GTT_PROJECT_ID,
-	type_label : GTT_PROJECT_ID,
-	create : NULL,
-	book_begin : NULL,
-	book_end : NULL,
-	is_dirty : NULL,
-	mark_clean : NULL,
-	foreach : gtt_project_obj_foreach,
-	printable : NULL,
-};
+  interface_version : QOF_OBJECT_VERSION,
+  e_type : GTT_PROJECT_ID,
+  type_label : GTT_PROJECT_ID,
+  create : NULL,
+  book_begin : NULL,
+  book_end : NULL,
+  is_dirty : NULL,
+  mark_clean : NULL,
+  foreach : gtt_project_obj_foreach,
+  printable : NULL,
+}; */
 
 /* =========================================================== */
 /* bogus wrappers */
-static QofTime *
+/* static QofTime *
 prj_obj_get_earliest(GttProject *prj, QofParam *qpm)
 {
-	// static time return, not thread safe, but a hack that will do for now.
-	static QofTime *qt = NULL;
-	if (NULL == qt)
-		qt = qof_time_new();
-	time_t gt = gtt_project_get_earliest_start(prj, TRUE);
-	qof_time_set_secs(qt, gt);
-	return qt;
+  // static time return, not thread safe, but a hack that will do for now.
+  static QofTime *qt = NULL;
+  if (NULL == qt)
+    qt = qof_time_new();
+  time_t gt = gtt_project_get_earliest_start(prj, TRUE);
+  qof_time_set_secs(qt, gt);
+  return qt;
 }
 
 static QofTime *
 prj_obj_get_latest(GttProject *prj, QofParam *qpm)
 {
-	static QofTime *qt = NULL;
-	if (NULL == qt)
-		qt = qof_time_new();
-	time_t gt = gtt_project_get_latest_stop(prj, TRUE);
-	qof_time_set_secs(qt, gt);
-	return qt;
+  static QofTime *qt = NULL;
+  if (NULL == qt)
+    qt = qof_time_new();
+  time_t gt = gtt_project_get_latest_stop(prj, TRUE);
+  qof_time_set_secs(qt, gt);
+  return qt;
 }
 
 gboolean
 gtt_project_obj_register(void)
 {
-	global_book = qof_book_new();
+  global_book = qof_book_new(); */
 
-	/* Associate an ASCII name to each getter, as well as the return type */
-	static QofParam params[] = {
-			{GTT_PROJECT_EARLIEST, QOF_TYPE_TIME, (QofAccessFunc)prj_obj_get_earliest,
-	     NULL},
-			{GTT_PROJECT_LATEST, QOF_TYPE_TIME, (QofAccessFunc)prj_obj_get_latest,
-	     NULL},
-			{NULL},
-	};
+/* Associate an ASCII name to each getter, as well as the return type */
+/* static QofParam params[] = {
+    {GTT_PROJECT_EARLIEST, QOF_TYPE_TIME, (QofAccessFunc)prj_obj_get_earliest,
+     NULL},
+    {GTT_PROJECT_LATEST, QOF_TYPE_TIME, (QofAccessFunc)prj_obj_get_latest,
+     NULL},
+    {NULL},
+};
 
-	qof_class_register(GTT_PROJECT_ID, (QofSortFunc)prj_obj_order, params);
-	return qof_object_register(&prj_object_def);
-}
+qof_class_register(GTT_PROJECT_ID, (QofSortFunc)prj_obj_order, params);
+return qof_object_register(&prj_object_def);
+} */
 
 /* =========================================================== */
 
@@ -2209,7 +2212,7 @@ task_suspend(GttTask *tsk)
 	return is_running;
 }
 
-void
+/* void
 gtt_task_destroy(GttTask *task)
 {
 	int is_running;
@@ -2236,16 +2239,16 @@ gtt_task_destroy(GttTask *task)
 	{
 		GList *node;
 		for (node = task->interval_list; node; node = node->next)
-		{
+		{ */
 			/* free the individual intervals */
-			g_free(node->data);
+			/* g_free(node->data);
 		}
 		g_list_free(task->interval_list);
 		task->interval_list = NULL;
 	}
-}
+} */
 
-void
+/* void
 gtt_task_remove(GttTask *task)
 {
 	int is_running;
@@ -2265,9 +2268,9 @@ gtt_task_remove(GttTask *task)
 		proj_refresh_time(project);
 		task->parent = NULL;
 	}
-}
+} */
 
-void
+/* void
 gtt_task_insert(GttTask *where, GttTask *insertee)
 {
 	GttProject *prj;
@@ -2291,9 +2294,9 @@ gtt_task_insert(GttTask *where, GttTask *insertee)
 	if (is_running)
 		gtt_project_timer_start(prj);
 	proj_refresh_time(prj);
-}
+} */
 
-GttTask *
+/* GttTask *
 gtt_task_new_insert(GttTask *old)
 {
 	int is_running = 0;
@@ -2304,23 +2307,23 @@ gtt_task_new_insert(GttTask *old)
 	if (!old)
 		return NULL;
 
-	task = gtt_task_new();
+	task = gtt_task_new(); */
 
 	/* Inherit the properties ... important for user */
-	task->billable = old->billable;
+	/* task->billable = old->billable;
 	task->billrate = old->billrate;
 	task->billstatus = old->billstatus;
 	task->bill_unit = old->bill_unit;
-	task->interval_list = NULL;
+	task->interval_list = NULL; */
 
 	/* chain into place */
-	prj = old->parent;
+	/* prj = old->parent;
 	task->parent = prj;
 	if (!prj)
-		return task;
+		return task; */
 
 	/* avoid misplaced running intervals, stop the task */
-	is_running = task_suspend(old);
+	/* is_running = task_suspend(old);
 
 	idx = g_list_index(prj->task_list, old);
 	prj->task_list = g_list_insert(prj->task_list, task, idx);
@@ -2330,7 +2333,7 @@ gtt_task_new_insert(GttTask *old)
 		gtt_project_timer_start(prj);
 	proj_refresh_time(prj);
 	return task;
-}
+} */
 
 void
 gtt_task_set_guid(GttTask *tsk, const GUID *guid)
@@ -2344,7 +2347,7 @@ gtt_task_get_guid(GttTask *tsk)
 	return qof_entity_get_guid(&tsk->inst.entity);
 }
 
-void
+/* void
 gtt_task_add_interval(GttTask *tsk, GttInterval *ival)
 {
 	if (!tsk || !ival)
@@ -2353,9 +2356,9 @@ gtt_task_add_interval(GttTask *tsk, GttInterval *ival)
 	tsk->interval_list = g_list_prepend(tsk->interval_list, ival);
 	ival->parent = tsk;
 	proj_refresh_time(tsk->parent);
-}
+} */
 
-void
+/* void
 gtt_task_append_interval(GttTask *tsk, GttInterval *ival)
 {
 	if (!tsk || !ival)
@@ -2364,7 +2367,7 @@ gtt_task_append_interval(GttTask *tsk, GttInterval *ival)
 	tsk->interval_list = g_list_append(tsk->interval_list, ival);
 	ival->parent = tsk;
 	proj_refresh_time(tsk->parent);
-}
+} */
 
 void
 gtt_task_set_memo(GttTask *tsk, const char *m)
@@ -2623,28 +2626,28 @@ gtt_interval_new(void)
 	return ivl;
 }
 
-void
+/* void
 gtt_interval_destroy(GttInterval *ivl)
 {
 	if (!ivl)
 		return;
 	gtt_interval_unhook(ivl);
 	g_free(ivl);
-}
+} */
 
-static void
+/* static void
 gtt_interval_unhook(GttInterval *ivl)
 {
 	if (NULL == ivl->parent)
-		return;
+		return; */
 
 	/* Unhook myself from the chain */
-	ivl->parent->interval_list = g_list_remove(ivl->parent->interval_list, ivl);
+	/* ivl->parent->interval_list = g_list_remove(ivl->parent->interval_list, ivl);
 	proj_refresh_time(ivl->parent->parent);
 	ivl->parent = NULL;
-}
+} */
 
-void
+/* void
 gtt_interval_set_start(GttInterval *ivl, time_t st)
 {
 	if (!ivl)
@@ -2654,9 +2657,9 @@ gtt_interval_set_start(GttInterval *ivl, time_t st)
 		ivl->stop = st;
 	if (ivl->parent)
 		proj_refresh_time(ivl->parent->parent);
-}
+} */
 
-void
+/* void
 gtt_interval_set_stop(GttInterval *ivl, time_t st)
 {
 	if (!ivl)
@@ -2666,7 +2669,7 @@ gtt_interval_set_stop(GttInterval *ivl, time_t st)
 		ivl->start = st;
 	if (ivl->parent)
 		proj_refresh_time(ivl->parent->parent);
-}
+} */
 
 void
 gtt_interval_set_fuzz(GttInterval *ivl, int st)
@@ -2786,7 +2789,7 @@ gtt_interval_new_insert_after(GttInterval *where)
 	return ivl;
 }
 
-GttInterval *
+/* GttInterval *
 gtt_interval_merge_up(GttInterval *ivl)
 {
 	int more_fuzz;
@@ -2814,10 +2817,10 @@ gtt_interval_merge_up(GttInterval *ivl)
 
 	merge = node->data;
 	if (!merge)
-		return NULL;
+		return NULL; */
 
 	/* the fuzz is the gap between stop and start times */
-	more_fuzz = merge->start - ivl->stop;
+	/* more_fuzz = merge->start - ivl->stop;
 	ivl_len = ivl->stop - ivl->start;
 	if (more_fuzz > ivl_len)
 		more_fuzz = ivl_len;
@@ -2832,9 +2835,9 @@ gtt_interval_merge_up(GttInterval *ivl)
 
 	proj_refresh_time(prnt->parent);
 	return merge;
-}
+} */
 
-GttInterval *
+/* GttInterval *
 gtt_interval_merge_down(GttInterval *ivl)
 {
 	int more_fuzz;
@@ -2862,10 +2865,10 @@ gtt_interval_merge_down(GttInterval *ivl)
 
 	merge = node->data;
 	if (!merge)
-		return NULL;
+		return NULL; */
 
 	/* the fuzz is the gap between stop and start times */
-	more_fuzz = ivl->start - merge->stop;
+	/* more_fuzz = ivl->start - merge->stop;
 	ivl_len = ivl->stop - ivl->start;
 	if (more_fuzz > ivl_len)
 		more_fuzz = ivl_len;
@@ -2879,9 +2882,9 @@ gtt_interval_merge_down(GttInterval *ivl)
 
 	proj_refresh_time(prnt->parent);
 	return merge;
-}
+} */
 
-void
+/* void
 gtt_interval_split(GttInterval *ivl, GttTask *newtask)
 {
 	int is_running = 0;
@@ -2903,27 +2906,27 @@ gtt_interval_split(GttInterval *ivl, GttTask *newtask)
 	if (!node)
 		return;
 
-	gtt_task_remove(newtask);
+	gtt_task_remove(newtask); */
 
 	/* avoid misplaced running intervals, stop the task */
-	first_ivl = (GttInterval *)(prnt->interval_list->data);
+	/* first_ivl = (GttInterval *)(prnt->interval_list->data);
 	is_running = first_ivl->running;
 	if (is_running)
-	{
+	{ */
 		/* don't call stop here, avoid dispatching redraw events */
-		gtt_project_timer_update(prj);
+		/* gtt_project_timer_update(prj);
 		first_ivl->running = FALSE;
-	}
+	} */
 
 	/* chain the new task into proper order in the parent project */
-	idx = g_list_index(prj->task_list, prnt);
+	/* idx = g_list_index(prj->task_list, prnt);
 	idx++;
 	prj->task_list = g_list_insert(prj->task_list, newtask, idx);
-	newtask->parent = prj;
+	newtask->parent = prj; */
 
 	/* Rechain the intervals.  We do this by hand, since it
 	 * seems that glib doesn't provide this function. */
-	if (node->prev)
+	/* if (node->prev)
 	{
 		node->prev->next = NULL;
 		node->prev = NULL;
@@ -2944,7 +2947,7 @@ gtt_interval_split(GttInterval *ivl, GttTask *newtask)
 		gtt_project_timer_start(prj);
 
 	proj_refresh_time(prnt->parent);
-}
+} */
 
 /* ============================================================= */
 /* project_list -- simple wrapper around glib routines */
@@ -2973,17 +2976,17 @@ gtt_project_list_append(GttProjectList *gpl, GttProject *p)
 	gtt_project_insert_before(p, NULL);
 }
 
-void
+/* void
 gtt_project_list_destroy(GttProjectList *gpl)
 {
 	while (gpl->prj_list)
-	{
+	{ */
 		/* destroying a project pops the plist ... */
-		gtt_project_destroy(gpl->prj_list->data);
+		/* gtt_project_destroy(gpl->prj_list->data);
 	}
 
 	g_free(gpl);
-}
+} */
 
 static GList *
 project_list_sort(GList *prjs, int(cmp)(const void *, const void *))

@@ -36,14 +36,21 @@ struct QofInstance_s
 	 * See src/engine/kvp_doc.txt for a list and description of the
 	 * important keys. */
 	/* KvpFrame *kvp_data; */
+
+	void *entity;
 };
 
 typedef struct QofInstance_s QofInstance;
 
-QofDateFormat
-qof_date_format_get_current(void)
+struct _QofBook
 {
-	return QOF_DATE_FORMAT_CUSTOM;
-}
+};
+
+typedef struct _QofBook QofBook;
+
+QofDateFormat qof_date_format_get_current(void);
+const GUID *qof_entity_get_guid(void *);
+void qof_entity_set_guid(void *, const GUID *);
+void qof_instance_init(void *, const char *, QofBook *);
 
 #endif /* FAKE_QOF_H_ */

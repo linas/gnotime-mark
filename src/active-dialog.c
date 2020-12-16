@@ -16,26 +16,18 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glade/glade.h>
-#include <gnome.h>
-#include <string.h>
-
-#include <qof.h>
-
 #include "active-dialog.h"
 #include "cur-proj.h"
 #include "dialog.h"
-#include "proj-query.h"
-#include "proj.h"
-#include "util.h"
+
+#include <glib/gi18n.h>
+#include <gtk/gtk.h>
 
 int config_no_project_timeout;
 
 struct GttActiveDialog_s
 {
-	GladeXML *gtxml;
+	GtkBuilder *builder;
 	GtkDialog *dlg;
 	GtkButton *yes_btn;
 	GtkButton *no_btn;
@@ -91,7 +83,7 @@ static void
 dialog_close(GObject *obj, GttActiveDialog *dlg)
 {
 	dlg->dlg = NULL;
-	dlg->gtxml = NULL;
+	dlg->builder = NULL;
 
 	if (!cur_proj)
 	{
@@ -106,7 +98,7 @@ dialog_kill(GObject *obj, GttActiveDialog *dlg)
 {
 	gtk_widget_destroy(GTK_WIDGET(dlg->dlg));
 	dlg->dlg = NULL;
-	dlg->gtxml = NULL;
+	dlg->builder = NULL;
 	if (!cur_proj)
 	{
 		schedule_active_timeout(config_no_project_timeout, dlg);
@@ -127,7 +119,7 @@ start_proj(GObject *obj, GttActiveDialog *dlg)
 	w = gtk_menu_get_active(menu);
 	prj = g_object_get_data(G_OBJECT(w), "prj");
 
-	cur_proj_set(prj);
+	/* TODO cur_proj_set(prj); */
 	dialog_kill(obj, dlg);
 }
 
@@ -158,7 +150,7 @@ setup_menus(GttActiveDialog *dlg)
 
 	/* Give user a list only of the unfinished projects,
 	 * so that there isn't too much clutter ... */
-	prjlist = gtt_project_get_unfinished();
+	prjlist = NULL; /* TODO prjlist = gtt_project_get_unfinished(); */
 	for (node = prjlist; node; node = node->next)
 	{
 		GttProject *prj = node->data;
@@ -180,20 +172,26 @@ setup_menus(GttActiveDialog *dlg)
 static void
 active_dialog_realize(GttActiveDialog *id)
 {
-	GtkWidget *w;
-	GladeXML *gtxml;
+	GError *err = NULL;
+	GtkBuilder *gtxml = NULL;
+	GtkWidget *w = NULL;
 
-	gtxml = gtt_glade_xml_new("glade/active.glade", "Active Dialog");
-	id->gtxml = gtxml;
+	gtxml = gtk_builder_new();
+	if (!gtk_builder_add_from_file(gtxml, "glade/active.glade", &err))
+	{
+		g_warning("Couldn't load builder file: %s", err->message);
+		g_error_free(err);
+	}
+	id->builder = gtxml;
 
-	id->dlg = GTK_DIALOG(glade_xml_get_widget(gtxml, "Active Dialog"));
+	id->dlg = GTK_DIALOG(gtk_builder_get_object(gtxml, "Active Dialog"));
 
-	id->yes_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "yes button"));
-	id->no_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "no button"));
-	id->help_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "helpbutton1"));
-	id->active_label = GTK_LABEL(glade_xml_get_widget(gtxml, "active label"));
-	id->credit_label = GTK_LABEL(glade_xml_get_widget(gtxml, "credit label"));
-	w = glade_xml_get_widget(gtxml, "project option menu");
+	id->yes_btn = GTK_BUTTON(gtk_builder_get_object(gtxml, "yes button"));
+	id->no_btn = GTK_BUTTON(gtk_builder_get_object(gtxml, "no button"));
+	id->help_btn = GTK_BUTTON(gtk_builder_get_object(gtxml, "helpbutton1"));
+	id->active_label = GTK_LABEL(gtk_builder_get_object(gtxml, "active label"));
+	id->credit_label = GTK_LABEL(gtk_builder_get_object(gtxml, "credit label"));
+	w = GTK_WIDGET(gtk_builder_get_object(gtxml, "project option menu"));
 	id->project_menu = GTK_OPTION_MENU(w);
 
 	g_signal_connect(G_OBJECT(id->dlg), "destroy", G_CALLBACK(dialog_close), id);
@@ -216,7 +214,7 @@ active_dialog_new(void)
 	GttActiveDialog *ad;
 
 	ad = g_new0(GttActiveDialog, 1);
-	ad->gtxml = NULL;
+	ad->builder = NULL;
 
 	return ad;
 }
@@ -231,7 +229,7 @@ show_active_dialog(GttActiveDialog *ad)
 	g_return_if_fail(!cur_proj);
 
 	/* Due to GtkDialog broken-ness, re-realize the GUI */
-	if (NULL == ad->gtxml)
+	if (NULL == ad->builder)
 	{
 		active_dialog_realize(ad);
 		setup_menus(ad);
@@ -250,7 +248,7 @@ raise_active_dialog(GttActiveDialog *ad)
 {
 
 	g_return_if_fail(ad);
-	g_return_if_fail(ad->gtxml);
+	g_return_if_fail(ad->builder);
 
 	/* The following will raise the window, and put it on the current
 	 * workspace, at least if the metacity WM is used. Haven't tried

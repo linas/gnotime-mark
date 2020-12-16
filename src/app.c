@@ -16,7 +16,7 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include "config.h"
+/* #include "config.h"
 
 #include <gnome.h>
 #include <sched.h>
@@ -30,9 +30,9 @@
 #include <qof.h>
 
 #include "active-dialog.h"
-#include "app.h"
+#include "app.h" */
 #include "cur-proj.h"
-#include "gtt.h"
+/* #include "gtt.h"
 #include "log.h"
 #include "menucmd.h"
 #include "menus.h"
@@ -43,7 +43,7 @@
 #include "props-proj.h"
 #include "timer.h"
 #include "toolbar.h"
-#include "util.h"
+#include "util.h" */
 
 /* XXX Most of the globals below should be placed into a single
  * application-wide top-level structure, rather than being allowed
@@ -51,7 +51,7 @@
  */
 GttProject *cur_proj = NULL;
 
-GttProjectsTree *projects_tree = NULL;
+/* GttProjectsTree *projects_tree = NULL;
 NotesArea *global_na = NULL;
 GtkWidget *app_window = NULL;
 GtkWidget *status_bar = NULL;
@@ -232,40 +232,40 @@ projects_tree_columns_setup_done(GttProjectsTree *projects_tree,
 		g_signal_connect(column, "clicked", G_CALLBACK(column_clicked),
 		                 project_list_sort_status);
 	}
-}
+} */
 
 /* ============================================================= */
 
-void
+/* void
 update_status_bar(void)
 {
 	char day_total_str[25];
 	char *s;
 
 	if (!status_bar)
-		return;
+		return; */
 
 	/* Make the little clock item appear/disappear
 	 * when the project is started/stopped */
-	if (status_timer)
+  /* if (status_timer)
 	{
 		if (timer_is_running())
 			gtk_widget_show(status_timer);
 		else
 			gtk_widget_hide(status_timer);
-	}
+	} */
 
 	/* update timestamp */
-	xxxqof_print_hours_elapsed_buff(
+  /* xxxqof_print_hours_elapsed_buff(
 			day_total_str, 25, gtt_project_list_total_secs_day(), config_show_secs);
 
 	if (0 != strcmp(day_total_str, gtk_label_get_text(status_day_time)))
 	{
 		gtk_label_set_text(status_day_time, day_total_str);
-	}
+	} */
 
 	/* Display the project title */
-	if (cur_proj)
+  /* if (cur_proj)
 	{
 		s = g_strdup_printf("%s - %s", gtt_project_get_title(cur_proj),
 		                    gtt_project_get_desc(cur_proj));
@@ -279,23 +279,23 @@ update_status_bar(void)
 		gtk_label_set_text(status_project, s);
 	}
 	g_free(s);
-}
+} */
 
 /* ============================================================= */
 /* Handle shell commands */
 
-void
+/* void
 do_run_shell_command(const char *str)
 {
 	pid_t pid;
 	char *shell_path;
 	int rc;
-	struct stat shat;
+	struct stat shat; */
 
 	/* XXX This whole thing needs to be reviewewed for security */
 
 	/* Provide minimal security by using only system shells */
-	shell_path = "/bin/sh";
+  /* shell_path = "/bin/sh";
 	rc = stat(shell_path, &shat);
 	if ((0 == rc) && S_ISREG(shat.st_mode) && (S_IXUSR & shat.st_mode))
 	{
@@ -325,14 +325,14 @@ do_run_shell:
 	{
 		g_warning("%s: %d: do_run_shell_command: couldn't fork\n", __FILE__,
 		          __LINE__);
-	}
+	} */
 
 	/* Note that the forked processes might be scheduled by the operating
 	 * system 'out of order', if we've made rapid successive calls to this
 	 * routine.  So we try to ensure in-order execution by trying to let
 	 * the child process at least start running.  And we can do this by
 	 * yielding our time-slice ... */
-	sched_yield();
+  /* sched_yield();
 }
 
 void
@@ -344,27 +344,27 @@ run_shell_command(GttProject *proj, gboolean do_start)
 	cmd = (do_start) ? config_shell_start : config_shell_stop;
 
 	if (!cmd)
-		return;
+		return; */
 
 	/* Sometimes, we are called to stop a NULL project.
 	 * We don't really want that (its a result be being called twice).
 	 */
-	if (!proj)
+  /* if (!proj)
 		return;
 
 	str = printf_project(cmd, proj);
 	do_run_shell_command(str);
 	g_free((gchar *)str);
-}
+} */
 
 /* ============================================================= */
 
-void
+/* void
 cur_proj_set(GttProject *proj)
-{
+{ */
 	/* Due to the way the widget callbacks work,
 	 * we may be called recursively ... */
-	if (cur_proj == proj)
+  /* if (cur_proj == proj)
 		return;
 
 	log_proj(NULL);
@@ -404,10 +404,10 @@ cur_proj_set(GttProject *proj)
 	if (cur_proj)
 	{
 		gtt_projects_tree_update_project_data(projects_tree, cur_proj);
-	}
+	} */
 
 	/* update GUI elements */
-	menu_set_states();
+  /* menu_set_states();
 	toolbar_set_states();
 	if (proj)
 	{
@@ -415,22 +415,22 @@ cur_proj_set(GttProject *proj)
 		notes_area_set_project(global_na, proj);
 	}
 	update_status_bar();
-}
+} */
 
 /* ============================================================= */
 
-void
+/* void
 focus_row_set(GttProject *proj)
-{
+{ */
 	/* update GUI elements */
 
-	prop_dialog_set_project(proj);
+  /* prop_dialog_set_project(proj);
 	notes_area_set_project(global_na, proj);
-}
+} */
 
 /* ============================================================= */
 
-void
+/* void
 app_new(int argc, char *argv[], const char *geometry_string)
 {
 	GtkWidget *vbox;
@@ -444,26 +444,26 @@ app_new(int argc, char *argv[], const char *geometry_string)
 
 	app_window = gnome_app_new(GTT_APP_NAME, GTT_APP_TITLE " " VERSION);
 	gtk_window_set_wmclass(GTK_WINDOW(app_window), GTT_APP_NAME,
-	                       GTT_APP_PROPER_NAME);
+												 GTT_APP_PROPER_NAME); */
 
 	/* 485 x 272 seems to be a good size to default to */
-	gtk_window_set_default_size(GTK_WINDOW(app_window), 485, 272);
-	gtk_window_set_resizable(GTK_WINDOW(app_window), TRUE);
+  /* gtk_window_set_default_size(GTK_WINDOW(app_window), 485, 272);
+	gtk_window_set_resizable(GTK_WINDOW(app_window), TRUE); */
 
 	/* build menus */
-	menus_create(GNOME_APP(app_window));
+  /* menus_create(GNOME_APP(app_window)); */
 
 	/* build toolbar */
-	widget = build_toolbar();
+  /* widget = build_toolbar();
 	gtk_widget_show(widget);
-	gnome_app_set_toolbar(GNOME_APP(app_window), GTK_TOOLBAR(widget));
+	gnome_app_set_toolbar(GNOME_APP(app_window), GTK_TOOLBAR(widget)); */
 
 	/* container holds status bar, main ctree widget */
-	vbox = gtk_vbox_new(FALSE, 0);
+  /* vbox = gtk_vbox_new(FALSE, 0); */
 
 	/* build statusbar */
 
-	status_vbox = GTK_VBOX(gtk_vbox_new(FALSE, 0));
+  /* status_vbox = GTK_VBOX(gtk_vbox_new(FALSE, 0));
 	gtk_widget_show(GTK_WIDGET(status_vbox));
 
 	labels = GTK_HBOX(gtk_hbox_new(FALSE, 0));
@@ -481,17 +481,17 @@ app_new(int argc, char *argv[], const char *geometry_string)
 	grip = GTK_STATUSBAR(gtk_statusbar_new());
 	gtk_statusbar_set_has_resize_grip(grip, TRUE);
 	gtk_widget_show(GTK_WIDGET(grip));
-	gtk_box_pack_start(GTK_BOX(status_bar), GTK_WIDGET(grip), FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(status_bar), GTK_WIDGET(grip), FALSE, FALSE, 0); */
 
 	/* put elapsed time into statusbar */
-	status_day_time = GTK_LABEL(gtk_label_new(_("00:00")));
+  /* status_day_time = GTK_LABEL(gtk_label_new(_("00:00")));
 	gtk_widget_show(GTK_WIDGET(status_day_time));
 
 	gtk_box_pack_start(GTK_BOX(labels), GTK_WIDGET(status_day_time), FALSE, TRUE,
-	                   0);
+										 0); */
 
 	/* put project name into statusbar */
-	status_project = GTK_LABEL(gtk_label_new(_("Timer is not running")));
+  /* status_project = GTK_LABEL(gtk_label_new(_("Timer is not running")));
 	gtk_widget_show(GTK_WIDGET(status_project));
 
 	gtk_box_pack_start(GTK_BOX(labels), GTK_WIDGET(status_project), FALSE, TRUE,
@@ -499,17 +499,17 @@ app_new(int argc, char *argv[], const char *geometry_string)
 
 	filler = GTK_LABEL(gtk_label_new(""));
 	gtk_widget_show(GTK_WIDGET(filler));
-	gtk_box_pack_start(GTK_BOX(labels), GTK_WIDGET(filler), TRUE, TRUE, 1);
+	gtk_box_pack_start(GTK_BOX(labels), GTK_WIDGET(filler), TRUE, TRUE, 1); */
 
 	/* put timer icon into statusbar */
-	status_timer =
+  /* status_timer =
 			gtk_image_new_from_stock(GNOME_STOCK_TIMER, GTK_ICON_SIZE_MENU);
 	gtk_widget_show(status_timer);
 	gtk_box_pack_end(GTK_BOX(status_bar), GTK_WIDGET(status_timer), FALSE, FALSE,
-	                 1);
+									 1); */
 
 	/* create the main columned tree for showing projects */
-	projects_tree = gtt_projects_tree_new();
+  /* projects_tree = gtt_projects_tree_new();
 
 	g_signal_connect(projects_tree, "columns-setup-done",
 	                 G_CALLBACK(projects_tree_columns_setup_done), NULL);
@@ -517,27 +517,27 @@ app_new(int argc, char *argv[], const char *geometry_string)
 	gtk_tree_view_set_reorderable(GTK_TREE_VIEW(projects_tree), TRUE);
 
 	g_signal_connect(projects_tree, "row-activated",
-	                 G_CALLBACK(projects_tree_row_activated), NULL);
+									 G_CALLBACK(projects_tree_row_activated), NULL); */
 
 	/* create the notes area */
-	global_na = notes_area_new();
-	vpane = notes_area_get_widget(global_na);
+  /* global_na = notes_area_new();
+	vpane = notes_area_get_widget(global_na); */
 
 	/* Need to reparent, to get rid of glade parent-window hack.
 	 * But gtk_widget_reparent (vpane); causes  a "Gtk-CRITICAL"
 	 * to occur.  So we need a fancier move.
 	 */
-	gtk_widget_ref(vpane);
+  /* gtk_widget_ref(vpane);
 	gtk_container_remove(GTK_CONTAINER(vpane->parent), vpane);
 	gtk_box_pack_start(GTK_BOX(vbox), vpane, TRUE, TRUE, 0);
 	gtk_widget_unref(vpane);
 
 	gtk_box_pack_end(GTK_BOX(vbox), status_bar, FALSE, FALSE, 2);
 
-	notes_area_add_projects_tree(global_na, projects_tree);
+	notes_area_add_projects_tree(global_na, projects_tree); */
 
 	/* we are done building it, make it visible */
-	gtk_widget_show(vbox);
+  /* gtk_widget_show(vbox);
 	gnome_app_set_contents(GNOME_APP(app_window), vbox);
 
 	gtt_status_icon_create();
@@ -571,6 +571,6 @@ app_quit(GtkWidget *w, gpointer data)
 	save_projects();
 	gtt_status_icon_destroy();
 	gtk_main_quit();
-}
+} */
 
 /* ============================== END OF FILE ===================== */

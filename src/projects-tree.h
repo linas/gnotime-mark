@@ -29,9 +29,9 @@
 #ifndef GTT_PROJECTS_TREE_H_
 #define GTT_PROJECTS_TREE_H_
 
-#include <gtk/gtk.h>
-
 #include "proj.h"
+
+#include <gtk/gtk.h>
 
 #define GTT_TYPE_PROJECTS_TREE (gtt_projects_tree_get_type())
 #define GTT_PROJECTS_TREE(obj)                                                 \

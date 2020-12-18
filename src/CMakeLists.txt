@@ -4,6 +4,8 @@ add_executable(${PROJECT_NAME}
     err-throw.c
     fake_qof.c
     proj.c
+    projects-tree.c
     query.c)
 target_link_libraries(${PROJECT_NAME}
-    PkgConfig::GLIB2)
+    PkgConfig::GLIB2
+    PkgConfig::GTK2)

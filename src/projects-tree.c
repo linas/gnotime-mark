@@ -27,11 +27,9 @@
  * Modified by:   Goedson Teixeira Paixao <goedson@debian.org>
  ********************************************************************/
 
-#include <glib.h>
-#include <glib/gi18n.h>
-
 #include "projects-tree.h"
-#include "timer.h"
+
+#include <glib/gi18n.h>
 
 #define GTT_PROJECTS_TREE_GET_PRIVATE(obj)                                     \
 	(G_TYPE_INSTANCE_GET_PRIVATE((obj), GTT_TYPE_PROJECTS_TREE,                  \
@@ -500,11 +498,11 @@ gtt_projects_tree_set_style(GttProjectsTree *gpt, GtkTreeStore *tree_model,
 
 	if (priv->highlight_active)
 	{
-		if (timer_project_is_running(prj))
+		/* TODO if (timer_project_is_running(prj))
 		{
 			bgcolor = priv->active_bgcolor;
 			weight = PANGO_WEIGHT_BOLD;
-		}
+		} */
 	}
 	gtk_tree_store_set(tree_model, iter, BACKGROUND_COLOR_COLUMN, bgcolor,
 	                   WEIGHT_COLUMN, weight, -1);

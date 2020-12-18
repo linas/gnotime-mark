@@ -500,8 +500,8 @@ gtt_projects_tree_set_style(GttProjectsTree *gpt, GtkTreeStore *tree_model,
 	{
 		/* TODO if (timer_project_is_running(prj))
 		{
-			bgcolor = priv->active_bgcolor;
-			weight = PANGO_WEIGHT_BOLD;
+		  bgcolor = priv->active_bgcolor;
+		  weight = PANGO_WEIGHT_BOLD;
 		} */
 	}
 	gtk_tree_store_set(tree_model, iter, BACKGROUND_COLOR_COLUMN, bgcolor,

@@ -17,21 +17,10 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glade/glade.h>
-#include <gnome.h>
-#include <qof.h>
-#include <string.h>
-
-#include "app.h"
-#include "cur-proj.h"
-#include "dialog.h"
-#include "gtt.h"
 #include "prefs.h"
-#include "timer.h"
-#include "toolbar.h"
-#include "util.h"
+#include "gnome-propertybox.h"
+
+#include <gtk/gtk.h>
 
 /* globals */
 int config_show_secs = 0;
@@ -87,7 +76,7 @@ char *config_data_url = NULL;
 
 typedef struct _PrefsDialog
 {
-	GladeXML *gtxml;
+	GtkBuilder *gtxml;
 	GnomePropertyBox *dlg;
 	GtkCheckButton *show_secs;
 	GtkCheckButton *show_statusbar;
@@ -253,19 +242,19 @@ prefs_update_projects_view(void)
 		columns = g_list_insert(columns, "percent_done", -1);
 	}
 
-	gtt_projects_tree_set_visible_columns(projects_tree, columns);
+	/* TODO gtt_projects_tree_set_visible_columns(projects_tree, columns);
 	g_list_free(columns);
 
 	gtk_tree_view_set_enable_tree_lines(GTK_TREE_VIEW(projects_tree),
 	                                    config_show_subprojects);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(projects_tree),
-	                                  config_show_clist_titles);
+					  config_show_clist_titles); */
 }
 
 void
 prefs_set_show_secs()
 {
-	gtt_projects_tree_set_show_seconds(projects_tree, config_show_secs);
+        /* TODO gtt_projects_tree_set_show_seconds(projects_tree, config_show_secs); */
 }
 
 /* ============================================================== */
@@ -401,7 +390,7 @@ prefs_set(GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
 
 		/* display options */
 		state = GTK_TOGGLE_BUTTON(odlg->show_secs)->active;
-		if (state != config_show_secs)
+		/* TODO if (state != config_show_secs)
 		{
 			config_show_secs = state;
 			prefs_set_show_secs();
@@ -434,15 +423,15 @@ prefs_set(GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
 		{
 			config_show_subprojects = 0;
 		}
-		prefs_update_projects_view();
+		prefs_update_projects_view(); */
 	}
 
-	if (2 == page)
-	{
+	/* TODO if (2 == page)
+	{ */
 		/* shell command options */
-		ENTRY_TO_CHAR(odlg->shell_start, config_shell_start);
+		/* TODO ENTRY_TO_CHAR(odlg->shell_start, config_shell_start);
 		ENTRY_TO_CHAR(odlg->shell_stop, config_shell_stop);
-	}
+	} */
 
 	if (3 == page)
 	{
@@ -472,18 +461,18 @@ prefs_set(GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
 		SHOW_CHECK(tb_help);
 		SHOW_CHECK(tb_exit);
 
-		if (change)
+		/* TODO if (change)
 		{
 			update_toolbar_sections();
 		}
 
-		toolbar_set_states();
+		toolbar_set_states(); */
 	}
 
 	if (5 == page)
 	{
 		int change = 0;
-		config_idle_timeout = atoi(gtk_entry_get_text(GTK_ENTRY(odlg->idle_secs)));
+		/* TODO config_idle_timeout = atoi(gtk_entry_get_text(GTK_ENTRY(odlg->idle_secs)));
 		config_no_project_timeout =
 				atoi(gtk_entry_get_text(GTK_ENTRY(odlg->no_project_secs)));
 
@@ -493,7 +482,7 @@ prefs_set(GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
 		} else
 		{
 			start_no_project_timer();
-		}
+		} */
 
 		/* Hunt for the hour-of night on which to start */
 		const char *buff = gtk_entry_get_text(odlg->daystart_secs);
@@ -506,8 +495,8 @@ prefs_set(GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
 		if (change)
 		{
 			/* Need to recompute everything, including the bining */
-			gtt_project_list_compute_secs();
-			gtt_projects_tree_update_all_rows(projects_tree);
+			/* TODO gtt_project_list_compute_secs();
+			gtt_projects_tree_update_all_rows(projects_tree); */
 		}
 	}
 
@@ -538,7 +527,7 @@ prefs_set(GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
 	}
 
 	/* Also save them the to file at this point */
-	save_properties();
+	/* TODO save_properties(); */
 }
 
 /* ============================================================== */
@@ -602,15 +591,15 @@ options_dialog_set(PrefsDialog *odlg)
 	SET_ACTIVE(title_sizing);
 	SET_ACTIVE(title_percent_complete);
 
-	if (config_shell_start)
+	/* TODO if (config_shell_start)
 		gtk_entry_set_text(odlg->shell_start, config_shell_start);
 	else
-		gtk_entry_set_text(odlg->shell_start, "");
+		gtk_entry_set_text(odlg->shell_start, ""); */
 
-	if (config_shell_stop)
+	/* TODO if (config_shell_stop)
 		gtk_entry_set_text(odlg->shell_stop, config_shell_stop);
 	else
-		gtk_entry_set_text(odlg->shell_stop, "");
+		gtk_entry_set_text(odlg->shell_stop, ""); */
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(odlg->logfileuse),
 	                             config_logfile_use);
@@ -649,11 +638,11 @@ options_dialog_set(PrefsDialog *odlg)
 	toolbar_sensitive_cb(NULL, odlg);
 
 	/* misc section */
-	g_snprintf(s, sizeof(s), "%d", config_idle_timeout);
+	/* TODO g_snprintf(s, sizeof(s), "%d", config_idle_timeout);
 	gtk_entry_set_text(GTK_ENTRY(odlg->idle_secs), s);
 
 	g_snprintf(s, sizeof(s), "%d", config_no_project_timeout);
-	gtk_entry_set_text(GTK_ENTRY(odlg->no_project_secs), s);
+	gtk_entry_set_text(GTK_ENTRY(odlg->no_project_secs), s); */
 
 	/* Set the correct menu item based on current values */
 	int hour;
@@ -676,7 +665,7 @@ options_dialog_set(PrefsDialog *odlg)
 	if (0 > secs)
 		secs += 24 * 3600;
 	char buff[24];
-	xxxqof_print_hours_elapsed_buff(buff, 24, secs, config_show_secs);
+	/* TODO xxxqof_print_hours_elapsed_buff(buff, 24, secs, config_show_secs); */
 	gtk_entry_set_text(odlg->daystart_secs, buff);
 
 	/* Set the correct menu item based on current values */
@@ -718,7 +707,7 @@ options_dialog_set(PrefsDialog *odlg)
 	                             config_currency_use_locale);
 
 	/* set to unmodified as it reflects the current state of the app */
-	gnome_property_box_set_modified(GNOME_PROPERTY_BOX(odlg->dlg), FALSE);
+	/* TODO gnome_property_box_set_modified(GNOME_PROPERTY_BOX(odlg->dlg), FALSE); */
 }
 
 /* ============================================================== */
@@ -738,7 +727,7 @@ daystart_menu_changed(gpointer data, GtkComboBox *w)
 	if (0 > secs)
 		secs += 24 * 3600;
 	char buff[24];
-	xxxqof_print_hours_elapsed_buff(buff, 24, secs, config_show_secs);
+	/* TODO xxxqof_print_hours_elapsed_buff(buff, 24, secs, config_show_secs); */
 	gtk_entry_set_text(dlg->daystart_secs, buff);
 }
 
@@ -747,7 +736,7 @@ daystart_menu_changed(gpointer data, GtkComboBox *w)
 #define GETWID(strname)                                                        \
 	({                                                                           \
 		GtkWidget *e;                                                              \
-		e = glade_xml_get_widget(gtxml, strname);                                  \
+		e = GTK_WIDGET(gtk_builder_get_object(gtxml, strname));                                  \
 		gtk_signal_connect_object(GTK_OBJECT(e), "changed",                        \
 		                          GTK_SIGNAL_FUNC(gnome_property_box_changed),     \
 		                          GTK_OBJECT(dlg->dlg));                           \
@@ -757,7 +746,7 @@ daystart_menu_changed(gpointer data, GtkComboBox *w)
 #define GETCHWID(strname)                                                      \
 	({                                                                           \
 		GtkWidget *e;                                                              \
-		e = glade_xml_get_widget(gtxml, strname);                                  \
+		e = GTK_WIDGET(gtk_builder_get_object(gtxml, strname));                                  \
 		gtk_signal_connect_object(GTK_OBJECT(e), "toggled",                        \
 		                          GTK_SIGNAL_FUNC(gnome_property_box_changed),     \
 		                          GTK_OBJECT(dlg->dlg));                           \
@@ -768,7 +757,7 @@ static void
 display_options(PrefsDialog *dlg)
 {
 	GtkWidget *w;
-	GladeXML *gtxml = dlg->gtxml;
+	GtkBuilder *gtxml = dlg->gtxml;
 
 	w = GETCHWID("show secs");
 	dlg->show_secs = GTK_CHECK_BUTTON(w);
@@ -791,7 +780,7 @@ static void
 field_options(PrefsDialog *dlg)
 {
 	GtkWidget *w;
-	GladeXML *gtxml = dlg->gtxml;
+	GtkBuilder *gtxml = dlg->gtxml;
 
 	DLGWID(importance);
 	DLGWID(urgency);
@@ -817,7 +806,7 @@ static void
 shell_command_options(PrefsDialog *dlg)
 {
 	GtkWidget *e;
-	GladeXML *gtxml = dlg->gtxml;
+	GtkBuilder *gtxml = dlg->gtxml;
 
 	e = GETWID("start project");
 	dlg->shell_start = GTK_ENTRY(e);
@@ -830,35 +819,35 @@ static void
 logfile_options(PrefsDialog *dlg)
 {
 	GtkWidget *w;
-	GladeXML *gtxml = dlg->gtxml;
+	GtkBuilder *gtxml = dlg->gtxml;
 
 	w = GETCHWID("use logfile");
 	dlg->logfileuse = GTK_CHECK_BUTTON(w);
 	gtk_signal_connect(GTK_OBJECT(w), "clicked",
 	                   GTK_SIGNAL_FUNC(logfile_sensitive_cb), (gpointer *)dlg);
 
-	w = glade_xml_get_widget(gtxml, "filename label");
+	w = GTK_WIDGET(gtk_builder_get_object(gtxml, "filename label"));
 	dlg->logfilename_l = w;
 
-	w = glade_xml_get_widget(gtxml, "logfile path");
+	w = GTK_WIDGET(gtk_builder_get_object(gtxml, "logfile path"));
 	dlg->logfilename = GTK_FILE_CHOOSER(w);
 	gtk_signal_connect_object(GTK_OBJECT(dlg->logfilename), "file-set",
 	                          GTK_SIGNAL_FUNC(gnome_property_box_changed),
 	                          GTK_OBJECT(dlg->dlg));
 
-	w = glade_xml_get_widget(gtxml, "fstart label");
+	w = GTK_WIDGET(gtk_builder_get_object(gtxml, "fstart label"));
 	dlg->logfilestart_l = w;
 
 	w = GETWID("fstart");
 	dlg->logfilestart = GTK_ENTRY(w);
 
-	w = glade_xml_get_widget(gtxml, "fstop label");
+	w = GTK_WIDGET(gtk_builder_get_object(gtxml, "fstop label"));
 	dlg->logfilestop_l = w;
 
 	w = GETWID("fstop");
 	dlg->logfilestop = GTK_ENTRY(w);
 
-	w = glade_xml_get_widget(gtxml, "fmin label");
+	w = GTK_WIDGET(gtk_builder_get_object(gtxml, "fmin label"));
 	dlg->logfileminsecs_l = w;
 
 	w = GETWID("fmin");
@@ -873,7 +862,7 @@ static void
 toolbar_options(PrefsDialog *dlg)
 {
 	GtkWidget *w;
-	GladeXML *gtxml = dlg->gtxml;
+	GtkBuilder *gtxml = dlg->gtxml;
 
 	w = GETCHWID("show toolbar");
 	dlg->show_toolbar = GTK_CHECK_BUTTON(w);
@@ -896,7 +885,7 @@ static void
 misc_options(PrefsDialog *dlg)
 {
 	GtkWidget *w;
-	GladeXML *gtxml = dlg->gtxml;
+	GtkBuilder *gtxml = dlg->gtxml;
 
 	w = GETWID("idle secs");
 	dlg->idle_secs = GTK_ENTRY(w);
@@ -921,7 +910,7 @@ static void
 time_format_options(PrefsDialog *dlg)
 {
 	GtkWidget *w;
-	GladeXML *gtxml = dlg->gtxml;
+	GtkBuilder *gtxml = dlg->gtxml;
 
 	w = GETCHWID("time_format_am_pm");
 	dlg->time_format_am_pm = GTK_RADIO_BUTTON(w);
@@ -937,12 +926,12 @@ static void
 currency_options(PrefsDialog *dlg)
 {
 	GtkWidget *w;
-	GladeXML *gtxml = dlg->gtxml;
+	GtkBuilder *gtxml = dlg->gtxml;
 
 	w = GETWID("currency_symbol");
 	dlg->currency_symbol = GTK_ENTRY(w);
 
-	w = glade_xml_get_widget(gtxml, "currency_symbol_label");
+	w = GTK_WIDGET(gtk_builder_get_object(gtxml, "currency_symbol_label"));
 	dlg->currency_symbol_label = w;
 
 	w = GETCHWID("currency_use_locale");
@@ -957,22 +946,27 @@ currency_options(PrefsDialog *dlg)
 static void
 help_cb(GnomePropertyBox *propertybox, gint page_num, gpointer data)
 {
-	gtt_help_popup(GTK_WIDGET(propertybox), data);
+	/* TODO gtt_help_popup(GTK_WIDGET(propertybox), data); */
 }
 
 static PrefsDialog *
 prefs_dialog_new(void)
 {
 	PrefsDialog *dlg;
-	GladeXML *gtxml;
+	GError * err = NULL;
+	GtkBuilder *gtxml;
 
 	dlg = g_malloc(sizeof(PrefsDialog));
 
-	gtxml = gtt_glade_xml_new("glade/prefs.glade", "Global Preferences");
+	gtxml = gtk_builder_new(); // gtt_glade_xml_new("ui/prefs.xml", "Global Preferences");
+	if (!gtk_builder_add_from_file(gtxml, "ui/prefs.xml", &err)) {
+	    g_warning ("Couldn't load builder file: %s", err->message);
+	    g_error_free (err);
+	  }
 	dlg->gtxml = gtxml;
 
-	dlg->dlg =
-			GNOME_PROPERTY_BOX(glade_xml_get_widget(gtxml, "Global Preferences"));
+	/* TODO dlg->dlg =
+			GNOME_PROPERTY_BOX(gtk_builder_get_object(gtxml, "Global Preferences")); */
 
 	gtk_signal_connect(GTK_OBJECT(dlg->dlg), "help", GTK_SIGNAL_FUNC(help_cb),
 	                   "preferences");

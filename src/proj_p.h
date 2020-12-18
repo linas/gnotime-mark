@@ -19,13 +19,9 @@
 #ifndef GTT_PROJ_P_H_
 #define GTT_PROJ_P_H_
 
-#include "config.h"
+#include "proj.h"
 
 #include <glib.h>
-#include <qof.h>
-
-#include "proj.h"
-#include "timer.h"
 
 struct gtt_project_list_s
 {

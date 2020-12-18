@@ -20,8 +20,7 @@
 #ifndef GTT_PROJ_H_
 #define GTT_PROJ_H_
 
-#include <glib.h>
-#include <qof.h>
+#include "fake_qof.h"
 
 /* The data structures for GnoTime are written in a quasi-object-oriented
  * style.  All data is encapsulated in opaque structs, and can be accessed

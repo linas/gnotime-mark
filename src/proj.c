@@ -17,24 +17,11 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glib.h>
-#include <libintl.h> /*conflicts with <libgnome/gnome-i18n.h> on some systems */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <qof.h>
-
-#include "err-throw.h"
-#include "log.h"
-#include "prefs.h" /* XXX tmp hack for config_* */
 #include "proj.h"
 #include "proj_p.h"
-#include "query.h" /* temp hack for query */
+#include "query.h"
 
-#define _(X) gettext(X)
+#include <glib/gi18n.h>
 
 /* XXX replace this notifier by GObject signals someday */
 typedef struct notif_s
@@ -695,7 +682,7 @@ get_midnight(time_t last)
 
 	/* If config_daystart_offset == 3*3600 then the new day
 	 * will start at 3AM, for example.  */
-	last -= config_daystart_offset;
+	/* TODO last -= config_daystart_offset; */
 
 	memcpy(&lt, localtime(&last), sizeof(struct tm));
 	lt.tm_sec = 0;
@@ -703,7 +690,7 @@ get_midnight(time_t last)
 	lt.tm_hour = 0;
 	midnight = mktime(&lt);
 
-	midnight += config_daystart_offset;
+	/* TODO midnight += config_daystart_offset; */
 
 	return midnight;
 }
@@ -728,7 +715,8 @@ get_sunday(time_t last)
 
 	/* If config_weekstart_offset == 1 then a new week starts
 	 * on monday, not sunday. */
-	sunday += 24 * 3600 * config_weekstart_offset + config_daystart_offset;
+	/* TODO sunday += 24 * 3600 * config_weekstart_offset +
+	 * config_daystart_offset; */
 
 	return sunday;
 }
@@ -751,7 +739,7 @@ get_month(time_t last)
 	lt.tm_mday = 1;
 	first = mktime(&lt);
 
-	first += config_daystart_offset;
+	/* TODO first += config_daystart_offset; */
 	return first;
 }
 
@@ -773,7 +761,7 @@ get_newyear(time_t last)
 	lt.tm_mday -= lt.tm_yday;
 	newyear = mktime(&lt);
 
-	newyear += config_daystart_offset;
+	/* TODO newyear += config_daystart_offset; */
 	return newyear;
 }
 

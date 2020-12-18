@@ -46,6 +46,8 @@
 #include "util.h" */
 
 #include "app.h"
+#include "prefs.h"
+#include "util.h"
 
 #include <glib/gi18n.h>
 
@@ -262,8 +264,8 @@ update_status_bar(void)
 	}
 
 	/* update timestamp */
-	/* TODO xxxqof_print_hours_elapsed_buff(
-			day_total_str, 25, gtt_project_list_total_secs_day(), config_show_secs); */
+	xxxqof_print_hours_elapsed_buff(
+			day_total_str, 25, gtt_project_list_total_secs_day(), config_show_secs);
 
 	/* TODO if (0 != strcmp(day_total_str, gtk_label_get_text(status_day_time)))
 	{

@@ -15,8 +15,10 @@ srcs = [
   'projects-tree.c',
   'query.c',
   'status-icon.c',
+  'util.c',
 ]
 
 executable('gnotime', srcs,
            dependencies: deps,
+           include_directories: [top_inc],
 )

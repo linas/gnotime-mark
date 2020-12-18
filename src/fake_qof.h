@@ -5,6 +5,18 @@
 
 #define QOF_OBJECT_VERSION 3
 #define QOF_TYPE_TIME "time"
+#define QOF_UTC_DATE_FORMAT "%Y-%m-%dT%H:%M:%SZ"
+
+typedef enum
+{
+	QOF_DATE_FORMAT_US,     /**< United states: mm/dd/yyyy */
+	QOF_DATE_FORMAT_UK,     /**< Britain: dd/mm/yyyy */
+	QOF_DATE_FORMAT_CE,     /**< Continental Europe: dd.mm.yyyy */
+	QOF_DATE_FORMAT_ISO,    /**< ISO: yyyy-mm-dd */
+	QOF_DATE_FORMAT_UTC,    /**< UTC: 2004-12-12T23:39:11Z */
+	QOF_DATE_FORMAT_LOCALE, /**< Take from locale information */
+	QOF_DATE_FORMAT_CUSTOM  /**< Used by the check printing code */
+} QofDateFormat;
 
 typedef const gchar *QofIdType;
 typedef const char *QofType;
@@ -96,6 +108,7 @@ typedef int (*QofSortFunc)(gconstpointer, gconstpointer);
 
 QofBook *qof_book_new();
 void qof_class_register(const char *, QofSortFunc, QofParam *);
+int qof_date_format_get_current();
 const GUID *qof_entity_get_guid(void *);
 void qof_entity_set_guid(void *, const GUID *);
 void qof_instance_init(QofInstance *, const char *, const QofBook *);

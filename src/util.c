@@ -16,14 +16,12 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "util.h"
 #include "config.h"
+#include "fake_qof.h"
+#include "gnome-util.h"
 
-#include <glade/glade.h>
 #include <glib.h>
-#include <gnome.h>
-#include <qof.h>
-#include <stdio.h>
-#include <string.h>
 
 #ifdef HAVE_LANGINFO_H
 #define HAVE_LANGINFO_D_FMT 1
@@ -38,8 +36,6 @@
 #define QOF_D_T_FMT "%F %r"
 #define QOF_T_FMT "%r"
 #endif
-
-#include "util.h"
 
 /* ============================================================== */
 
@@ -64,21 +60,34 @@ xxxgtk_textview_get_text(GtkTextView *text)
 
 /* ============================================================== */
 
-/* Glade loader, it will look in the right directories */
-GladeXML *
-gtt_glade_xml_new(const char *filename, const char *widget)
+/* Builder loader, it will look in the right directories */
+GtkBuilder *
+gtt_builder_xml_new(const char *filename, const char *widget)
 {
-	GladeXML *xml = NULL;
+	GError *err = NULL;
+	GtkBuilder *xml = NULL;
 
 	g_return_val_if_fail(filename != NULL, NULL);
 
 	if (g_file_test(filename, G_FILE_TEST_EXISTS))
-		xml = glade_xml_new(filename, widget, NULL);
+	{
+		xml = gtk_builder_new();
+		if (!gtk_builder_add_from_file(xml, filename, &err))
+		{
+			g_warning("Couldn't load builder file: %s", err->message);
+			g_error_free(err);
+		}
+	}
 
 	if (xml == NULL)
 	{
 		char *file = g_concat_dir_and_file(GTTGLADEDIR, filename);
-		xml = glade_xml_new(file, widget, NULL);
+		xml = gtk_builder_new(); /* glade_xml_new(file, widget, NULL); */
+		if (!gtk_builder_add_from_file(xml, file, &err))
+		{
+			g_warning("Couldn't load builder file: %s", err->message);
+			g_error_free(err);
+		}
 		g_free(file);
 	}
 	return xml;

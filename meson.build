@@ -6,4 +6,12 @@ gtk_req_version = '>= 2.24.32'
 glib_dep = dependency('glib-2.0', version: glib_req_version)
 gtk_dep = dependency('gtk+-2.0', version: gtk_req_version)
 
+conf_data = configuration_data()
+conf_data.set('gttgladedir', '/usr/local/share/gnotime')
+configure_file(configuration: conf_data,
+               input: 'meson_config.h.in',
+               output: 'config.h')
+
+top_inc = include_directories('.')
+
 subdir('src')

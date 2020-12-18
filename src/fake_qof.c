@@ -12,6 +12,12 @@ qof_class_register(G_GNUC_UNUSED const char *a, G_GNUC_UNUSED QofSortFunc b,
 {
 }
 
+int
+qof_date_format_get_current()
+{
+	return 0;
+}
+
 const GUID *
 qof_entity_get_guid(G_GNUC_UNUSED void *a)
 {

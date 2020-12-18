@@ -4,6 +4,7 @@ deps = [
 
 srcs = [
   'err-throw.c',
+  'fake_qof.c',
 ]
 
 executable('gnotime', srcs,

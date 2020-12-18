@@ -30,7 +30,6 @@
 #define GTT_STATUS_ICON_H_
 
 #include "proj.h"
-#include <glib.h>
 
 void gtt_status_icon_create();
 void gtt_status_icon_destroy();

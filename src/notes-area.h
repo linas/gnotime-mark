@@ -20,7 +20,7 @@
 #define GTT_NOTES_AREA_H
 
 #include "projects-tree.h"
-#include <gnome.h>
+/* TODO #include <gnome.h> */
 
 typedef struct NotesArea_s NotesArea;
 

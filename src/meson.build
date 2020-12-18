@@ -4,6 +4,7 @@ deps = [
 ]
 
 srcs = [
+  'app.c',
   'dialog.c',
   'err-throw.c',
   'fake_qof.c',
@@ -13,6 +14,7 @@ srcs = [
   'proj.c',
   'projects-tree.c',
   'query.c',
+  'status-icon.c',
 ]
 
 executable('gnotime', srcs,

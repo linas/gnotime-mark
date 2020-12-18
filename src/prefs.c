@@ -18,6 +18,7 @@
  */
 
 #include "prefs.h"
+#include "dialog.h"
 #include "gnome-propertybox.h"
 
 #include <gtk/gtk.h>
@@ -946,7 +947,7 @@ currency_options(PrefsDialog *dlg)
 static void
 help_cb(GnomePropertyBox *propertybox, gint page_num, gpointer data)
 {
-	/* TODO gtt_help_popup(GTK_WIDGET(propertybox), data); */
+	gtt_help_popup(GTK_WIDGET(propertybox), data);
 }
 
 static PrefsDialog *

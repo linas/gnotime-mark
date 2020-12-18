@@ -4,6 +4,7 @@ deps = [
 ]
 
 srcs = [
+  'dialog.c',
   'err-throw.c',
   'fake_qof.c',
   'gnome-dialog.c',

@@ -16,25 +16,16 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glib.h>
-
-#include "cur-proj.h"
 #include "proj-query.h"
 #include "proj.h"
-
-/* =========================================================== */
 
 GList *
 gtt_project_get_unfinished(void)
 {
-	GList *prjlist;
+	GList *prjlist = NULL;
 
 	/* XXX under construction */
-	prjlist = gtt_project_list_get_list(master_list);
+	/* TODO prjlist = gtt_project_list_get_list(master_list); */
 
 	return prjlist;
 }
-
-/* =========================== END OF FILE ========================= */

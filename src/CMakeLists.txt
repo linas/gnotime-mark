@@ -12,6 +12,7 @@ add_executable(${PROJECT_NAME}
     gnome-propertybox.c
     prefs.c
     proj.c
+    proj-query.c
     projects-tree.c
     query.c
     status-icon.c

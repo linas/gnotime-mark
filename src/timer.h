@@ -20,6 +20,8 @@
 #ifndef GTT_TIMER_H_
 #define GTT_TIMER_H_
 
+#include "proj.h"
+
 #ifdef TIME_WITH_SYS_TIME
 #include <sys/time.h>
 #include <time.h>
@@ -29,7 +31,6 @@
 #endif /* TM_IN_SYS_TIME */
 #include <time.h>
 #endif /* TIME_WITH_SYS_TIME */
-#include "proj.h"
 
 void init_timer(void);
 gboolean timer_is_running(void);

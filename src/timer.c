@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
+/* #include <config.h>
 #include <gnome.h>
 #include <string.h>
 
@@ -32,6 +32,14 @@
 #include "proj.h"
 #include "projects-tree.h"
 #include "props-task.h"
+#include "timer.h" */
+
+#include "active-dialog.h"
+#include "app.h"
+#include "cur-proj.h"
+#include "idle-dialog.h"
+#include "prefs.h"
+#include "projects-tree.h"
 #include "timer.h"
 
 int config_autosave_period = 60;
@@ -72,7 +80,7 @@ zero_daily_counters(gpointer data)
 	{
 		gtt_project_list_compute_secs();
 		gtt_projects_tree_update_all_rows(projects_tree);
-		log_endofday();
+		/* TODO log_endofday(); */
 		year_last_reset = t1->tm_year;
 		day_last_reset = t1->tm_yday;
 	}
@@ -85,14 +93,14 @@ zero_daily_counters(gpointer data)
 static gint
 file_save_timer_func(gpointer data)
 {
-	save_projects();
+	/* TODO save_projects(); */
 	return 1;
 }
 
 static gint
 config_save_timer_func(gpointer data)
 {
-	save_properties();
+	/* TODO save_properties(); */
 	return 1;
 }
 
@@ -100,8 +108,8 @@ static gint
 main_timer_func(gpointer data)
 {
 	/* Wake up the notes area GUI, if needed. */
-	gtt_notes_timer_callback(global_na);
-	gtt_diary_timer_callback(NULL);
+	/* TODO gtt_notes_timer_callback(global_na); */
+	/* TODO gtt_diary_timer_callback(NULL); */
 
 	if (!cur_proj)
 	{

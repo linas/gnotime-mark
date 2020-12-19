@@ -18,6 +18,7 @@ add_executable(${PROJECT_NAME}
     projects-tree.c
     query.c
     status-icon.c
+    timer.c
     util.c)
 target_include_directories(${PROJECT_NAME}
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

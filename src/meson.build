@@ -21,6 +21,7 @@ srcs = [
   'projects-tree.c',
   'query.c',
   'status-icon.c',
+  'timer.c',
   'util.c',
 ]
 

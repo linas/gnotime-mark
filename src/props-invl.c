@@ -16,7 +16,7 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
+/* #include "config.h"
 
 #include <glade/glade.h>
 #include <glib.h>
@@ -26,12 +26,16 @@
 
 #include "proj.h"
 #include "props-invl.h"
-#include "util.h"
+#include "util.h" */
+
+#include "props-invl.h"
+
+#include <gtk/gtk.h>
 
 struct EditIntervalDialog_s
 {
 	GttInterval *interval;
-	GladeXML *gtxml;
+	GtkBuilder *gtxml;
 	GtkWidget *interval_edit;
 	GtkWidget *start_widget;
 	GtkWidget *stop_widget;
@@ -48,11 +52,11 @@ interval_edit_apply_cb(GtkWidget *w, gpointer data)
 	GtkWidget *menu, *menu_item;
 	GttTask *task;
 	GttProject *prj;
-	time_t start, stop, tmp;
+	time_t start = 0, stop = 0, tmp;
 	int fuzz, min_invl;
 
-	start = gnome_date_edit_get_time(GNOME_DATE_EDIT(dlg->start_widget));
-	stop = gnome_date_edit_get_time(GNOME_DATE_EDIT(dlg->stop_widget));
+	/* TODO start = gnome_date_edit_get_time(GNOME_DATE_EDIT(dlg->start_widget));
+	stop = gnome_date_edit_get_time(GNOME_DATE_EDIT(dlg->stop_widget)); */
 
 	/* If user reversed start and stop, flip them back */
 	if (start > stop)
@@ -125,9 +129,9 @@ edit_interval_set_interval(EditIntervalDialog *dlg, GttInterval *ivl)
 	if (!ivl)
 	{
 		w = dlg->start_widget;
-		gnome_date_edit_set_time(GNOME_DATE_EDIT(w), 0);
+		/* TODO gnome_date_edit_set_time(GNOME_DATE_EDIT(w), 0); */
 		w = dlg->stop_widget;
-		gnome_date_edit_set_time(GNOME_DATE_EDIT(w), 0);
+		/* TODO gnome_date_edit_set_time(GNOME_DATE_EDIT(w), 0); */
 
 		fw = GTK_OPTION_MENU(dlg->fuzz_widget);
 		gtk_option_menu_set_history(fw, 0);
@@ -136,11 +140,11 @@ edit_interval_set_interval(EditIntervalDialog *dlg, GttInterval *ivl)
 
 	w = dlg->start_widget;
 	start = gtt_interval_get_start(ivl);
-	gnome_date_edit_set_time(GNOME_DATE_EDIT(w), start);
+	/* TODO gnome_date_edit_set_time(GNOME_DATE_EDIT(w), start); */
 
 	w = dlg->stop_widget;
 	stop = gtt_interval_get_stop(ivl);
-	gnome_date_edit_set_time(GNOME_DATE_EDIT(w), stop);
+	/* TODO gnome_date_edit_set_time(GNOME_DATE_EDIT(w), stop); */
 
 	fuzz = gtt_interval_get_fuzz(dlg->interval);
 	fw = GTK_OPTION_MENU(dlg->fuzz_widget);
@@ -173,30 +177,35 @@ edit_interval_set_interval(EditIntervalDialog *dlg, GttInterval *ivl)
 EditIntervalDialog *
 edit_interval_dialog_new(void)
 {
-	EditIntervalDialog *dlg;
-	GladeXML *glxml;
+	EditIntervalDialog *dlg = NULL;
+	GError * err = NULL;
+	GtkBuilder *glxml = NULL;
 	GtkWidget *w, *menu, *menu_item;
 
 	dlg = g_malloc(sizeof(EditIntervalDialog));
 	dlg->interval = NULL;
 
-	glxml = gtt_glade_xml_new("glade/interval_edit.glade", "Interval Edit");
+	glxml = gtk_builder_new();
+	if (!gtk_builder_add_from_file(glxml, "ui/interval_edit.xml", &err)) {
+	    g_warning ("Couldn't load builder file: %s", err->message);
+	    g_error_free (err);
+	  }
 	dlg->gtxml = glxml;
 
-	dlg->interval_edit = glade_xml_get_widget(glxml, "Interval Edit");
+	dlg->interval_edit = GTK_WIDGET(gtk_builder_get_object(glxml, "Interval Edit"));
 
-	glade_xml_signal_connect_data(glxml, "on_ok_button_clicked",
+	/* TODO glade_xml_signal_connect_data(glxml, "on_ok_button_clicked",
 	                              GTK_SIGNAL_FUNC(interval_edit_ok_cb), dlg);
 
 	glade_xml_signal_connect_data(glxml, "on_apply_button_clicked",
 	                              GTK_SIGNAL_FUNC(interval_edit_apply_cb), dlg);
 
 	glade_xml_signal_connect_data(glxml, "on_cancel_button_clicked",
-	                              GTK_SIGNAL_FUNC(interval_edit_cancel_cb), dlg);
+				      GTK_SIGNAL_FUNC(interval_edit_cancel_cb), dlg); */
 
-	dlg->start_widget = glade_xml_get_widget(glxml, "start_date");
-	dlg->stop_widget = glade_xml_get_widget(glxml, "stop_date");
-	dlg->fuzz_widget = glade_xml_get_widget(glxml, "fuzz_menu");
+	dlg->start_widget = GTK_WIDGET(gtk_builder_get_object(glxml, "start_date"));
+	dlg->stop_widget = GTK_WIDGET(gtk_builder_get_object(glxml, "stop_date"));
+	dlg->fuzz_widget = GTK_WIDGET(gtk_builder_get_object(glxml, "fuzz_menu"));
 
 	/* ----------------------------------------------- */
 	/* install option data by hand ... ugh

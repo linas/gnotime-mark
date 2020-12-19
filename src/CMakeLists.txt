@@ -18,6 +18,7 @@ add_executable(${PROJECT_NAME}
     proj-query.c
     projects-tree.c
     props-invl.c
+    props-proj.c
     query.c
     status-icon.c
     timer.c

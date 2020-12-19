@@ -17,20 +17,17 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glade/glade.h>
-#include <gnome.h>
-#include <string.h>
-
-#include "dialog.h"
-#include "proj.h"
 #include "props-proj.h"
+#include "dialog.h"
+#include "gnome-propertybox.h"
 #include "util.h"
+
+#include <glib/gi18n.h>
+#include <gtk/gtk.h>
 
 typedef struct _PropDlg
 {
-	GladeXML *gtxml;
+	GtkBuilder *builder;
 	GnomePropertyBox *dlg;
 	GtkEntry *title;
 	GtkEntry *desc;
@@ -49,9 +46,9 @@ typedef struct _PropDlg
 	GtkOptionMenu *importance;
 	GtkOptionMenu *status;
 
-	GnomeDateEdit *start;
+	/* GnomeDateEdit *start;
 	GnomeDateEdit *end;
-	GnomeDateEdit *due;
+	GnomeDateEdit *due; */
 
 	GtkEntry *sizing;
 	GtkEntry *percent;
@@ -138,11 +135,11 @@ prop_set(GnomePropertyBox *pb, gint page, PropDlg *dlg)
 		ivl = (long)GET_MENU(dlg->status, "status");
 		gtt_project_set_status(dlg->proj, (GttProjectStatus)ivl);
 
-		tval = gnome_date_edit_get_time(dlg->start);
-		gtt_project_set_estimated_start(dlg->proj, tval);
-		tval = gnome_date_edit_get_time(dlg->end);
-		gtt_project_set_estimated_end(dlg->proj, tval);
-		tval = gnome_date_edit_get_time(dlg->due);
+		time_t tval = 0; /* TODO tval = gnome_date_edit_get_time(dlg->start);
+		    gtt_project_set_estimated_start(dlg->proj, tval);
+		    tval = gnome_date_edit_get_time(dlg->end);
+		    gtt_project_set_estimated_end(dlg->proj, tval);
+		    tval = gnome_date_edit_get_time(dlg->due); */
 		gtt_project_set_due_date(dlg->proj, tval);
 
 		rate = atof(gtk_entry_get_text(dlg->sizing));
@@ -186,9 +183,9 @@ do_set_project(GttProject *proj, PropDlg *dlg)
 		gtk_entry_set_text(dlg->interval, "0");
 		gtk_entry_set_text(dlg->gap, "0");
 
-		gnome_date_edit_set_time(dlg->start, now);
+		/* TODO gnome_date_edit_set_time(dlg->start, now);
 		gnome_date_edit_set_time(dlg->end, now);
-		gnome_date_edit_set_time(dlg->due, now + 86400);
+		gnome_date_edit_set_time(dlg->due, now + 86400); */
 		gtk_entry_set_text(dlg->sizing, "0.0");
 		gtk_entry_set_text(dlg->percent, "0");
 		return;
@@ -256,15 +253,15 @@ do_set_project(GttProject *proj, PropDlg *dlg)
 	tval = gtt_project_get_estimated_start(proj);
 	if (-1 == tval)
 		tval = now;
-	gnome_date_edit_set_time(dlg->start, tval);
+	/* TODO gnome_date_edit_set_time(dlg->start, tval); */
 	tval = gtt_project_get_estimated_end(proj);
 	if (-1 == tval)
 		tval = now + 3600;
-	gnome_date_edit_set_time(dlg->end, tval);
+	/* TODO gnome_date_edit_set_time(dlg->end, tval); */
 	tval = gtt_project_get_due_date(proj);
 	if (-1 == tval)
 		tval = now + 86400;
-	gnome_date_edit_set_time(dlg->due, tval);
+	/* TODO gnome_date_edit_set_time(dlg->due, tval); */
 
 	g_snprintf(buff, 132, "%.2f",
 	           ((double)gtt_project_get_sizing(proj)) / 3600.0);
@@ -273,7 +270,8 @@ do_set_project(GttProject *proj, PropDlg *dlg)
 	gtk_entry_set_text(dlg->percent, buff);
 
 	/* set to unmodified as it reflects the current state of the project */
-	gnome_property_box_set_modified(GNOME_PROPERTY_BOX(dlg->dlg), FALSE);
+	/* TODO gnome_property_box_set_modified(GNOME_PROPERTY_BOX(dlg->dlg), FALSE);
+	 */
 }
 
 /* ============================================================== */
@@ -281,7 +279,7 @@ do_set_project(GttProject *proj, PropDlg *dlg)
 #define TAGGED(NAME)                                                           \
 	({                                                                           \
 		GtkWidget *widget;                                                         \
-		widget = glade_xml_get_widget(gtxml, NAME);                                \
+		widget = GTK_WIDGET(gtk_builder_get_object(builder, NAME));                \
 		gtk_signal_connect_object(GTK_OBJECT(widget), "changed",                   \
 		                          GTK_SIGNAL_FUNC(gnome_property_box_changed),     \
 		                          GTK_OBJECT(dlg->dlg));                           \
@@ -291,7 +289,7 @@ do_set_project(GttProject *proj, PropDlg *dlg)
 #define DATED(NAME)                                                            \
 	({                                                                           \
 		GtkWidget *widget;                                                         \
-		widget = glade_xml_get_widget(gtxml, NAME);                                \
+		widget = GTK_WIDGET(gtk_builder_get_object(builder, NAME));                \
 		gtk_signal_connect_object(GTK_OBJECT(widget), "date_changed",              \
 		                          GTK_SIGNAL_FUNC(gnome_property_box_changed),     \
 		                          GTK_OBJECT(dlg->dlg));                           \
@@ -311,7 +309,7 @@ wrapper(void *gobj, void *data)
 	({                                                                           \
 		GtkWidget *widget;                                                         \
 		GtkTextBuffer *buff;                                                       \
-		widget = glade_xml_get_widget(gtxml, NAME);                                \
+		widget = GTK_WIDGET(gtk_builder_get_object(builder, NAME));                \
 		buff = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));                    \
 		g_signal_connect_object(G_OBJECT(buff), "changed", G_CALLBACK(wrapper),    \
 		                        G_OBJECT(dlg->dlg), 0);                            \
@@ -321,7 +319,7 @@ wrapper(void *gobj, void *data)
 #define MUGGED(NAME)                                                           \
 	({                                                                           \
 		GtkWidget *widget, *mw;                                                    \
-		widget = glade_xml_get_widget(gtxml, NAME);                                \
+		widget = GTK_WIDGET(gtk_builder_get_object(builder, NAME));                \
 		mw = gtk_option_menu_get_menu(GTK_OPTION_MENU(widget));                    \
 		gtk_signal_connect_object(GTK_OBJECT(mw), "selection_done",                \
 		                          GTK_SIGNAL_FUNC(gnome_property_box_changed),     \
@@ -350,16 +348,22 @@ static PropDlg *
 prop_dialog_new(void)
 {
 	PropDlg *dlg;
-	GladeXML *gtxml;
+	GError *err = NULL;
+	GtkBuilder *builder = NULL;
 
 	dlg = g_new0(PropDlg, 1);
 
-	gtxml =
-			gtt_glade_xml_new("glade/project_properties.glade", "Project Properties");
-	dlg->gtxml = gtxml;
+	builder = gtk_builder_new();
+	if (!gtk_builder_add_from_file(builder, "ui/project_properties.xml", &err))
+	{
+		g_warning("Couldn't load builder file: %s", err->message);
+		g_error_free(err);
+	}
+	dlg->builder = builder;
 
-	dlg->dlg =
-			GNOME_PROPERTY_BOX(glade_xml_get_widget(gtxml, "Project Properties"));
+	/* TODO dlg->dlg =
+	    GNOME_PROPERTY_BOX(gtk_builder_get_object(builder, "Project Properties"));
+	 */
 
 	gtk_signal_connect(GTK_OBJECT(dlg->dlg), "help", GTK_SIGNAL_FUNC(help_cb),
 	                   "projects-editing");
@@ -387,9 +391,9 @@ prop_dialog_new(void)
 	dlg->importance = MUGGED("importance menu");
 	dlg->status = MUGGED("status menu");
 
-	dlg->start = DATED("start date");
+	/* TODO dlg->start = DATED("start date");
 	dlg->end = DATED("end date");
-	dlg->due = DATED("due date");
+	dlg->due = DATED("due date"); */
 
 	dlg->sizing = GTK_ENTRY(TAGGED("sizing box"));
 	dlg->percent = GTK_ENTRY(TAGGED("percent box"));

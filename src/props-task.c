@@ -16,20 +16,15 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glade/glade.h>
-#include <gnome.h>
-#include <string.h>
-
-#include "dialog.h"
-#include "proj.h"
 #include "props-task.h"
+#include "dialog.h"
 #include "util.h"
+
+#include <gtk/gtk.h>
 
 typedef struct PropTaskDlg_s
 {
-	GladeXML *gtxml;
+	GtkBuilder *gtxml;
 	GtkDialog *dlg;
 	GtkEntry *memo;
 	GtkTextView *notes;
@@ -228,7 +223,7 @@ destroy_cb(GtkWidget *w, PropTaskDlg *dlg)
 #define NTAGGED(NAME)                                                          \
 	({                                                                           \
 		GtkWidget *widget;                                                         \
-		widget = glade_xml_get_widget(gtxml, NAME);                                \
+		widget = GTK_WIDGET(gtk_builder_get_object(builder, NAME));                \
 		g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(save_task_notes), \
 		                 dlg);                                                     \
 		widget;                                                                    \
@@ -237,7 +232,7 @@ destroy_cb(GtkWidget *w, PropTaskDlg *dlg)
 #define BTAGGED(NAME)                                                          \
 	({                                                                           \
 		GtkWidget *widget;                                                         \
-		widget = glade_xml_get_widget(gtxml, NAME);                                \
+		widget = GTK_WIDGET(gtk_builder_get_object(builder, NAME));                \
 		g_signal_connect(G_OBJECT(widget), "changed",                              \
 		                 G_CALLBACK(save_task_billinfo), dlg);                     \
 		widget;                                                                    \
@@ -247,7 +242,7 @@ destroy_cb(GtkWidget *w, PropTaskDlg *dlg)
 	({                                                                           \
 		GtkWidget *widget;                                                         \
 		GtkTextBuffer *buff;                                                       \
-		widget = glade_xml_get_widget(gtxml, NAME);                                \
+		widget = GTK_WIDGET(gtk_builder_get_object(builder, NAME));                \
 		buff = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));                    \
 		g_signal_connect(G_OBJECT(buff), "changed", G_CALLBACK(save_task_notes),   \
 		                 dlg);                                                     \
@@ -257,7 +252,7 @@ destroy_cb(GtkWidget *w, PropTaskDlg *dlg)
 #define MUGGED(NAME)                                                           \
 	({                                                                           \
 		GtkWidget *widget, *mw;                                                    \
-		widget = glade_xml_get_widget(gtxml, NAME);                                \
+		widget = GTK_WIDGET(gtk_builder_get_object(builder, NAME));                \
 		mw = gtk_option_menu_get_menu(GTK_OPTION_MENU(widget));                    \
 		g_signal_connect(G_OBJECT(mw), "selection_done",                           \
 		                 G_CALLBACK(save_task_billinfo), dlg);                     \
@@ -277,20 +272,26 @@ static PropTaskDlg *
 prop_task_dialog_new(void)
 {
 	PropTaskDlg *dlg = NULL;
-	GladeXML *gtxml;
+	GError *err = NULL;
+	GtkBuilder *builder = NULL;
 
 	dlg = g_new0(PropTaskDlg, 1);
 
-	gtxml = gtt_glade_xml_new("glade/task_properties.glade", "Task Properties");
-	dlg->gtxml = gtxml;
+	builder = gtk_builder_new();
+	if (!gtk_builder_add_from_file(builder, "ui/task_properties.xml", &err))
+	{
+		g_warning("Couldn't load builder file: %s", err->message);
+		g_error_free(err);
+	}
+	dlg->gtxml = builder;
 
-	dlg->dlg = GTK_DIALOG(glade_xml_get_widget(gtxml, "Task Properties"));
+	dlg->dlg = GTK_DIALOG(gtk_builder_get_object(builder, "Task Properties"));
 
-	glade_xml_signal_connect_data(gtxml, "on_help_button_clicked",
-	                              GTK_SIGNAL_FUNC(gtt_help_popup), "properties");
+	/* TODO glade_xml_signal_connect_data(builder, "on_help_button_clicked",
+	            GTK_SIGNAL_FUNC(gtt_help_popup), "properties"); */
 
-	glade_xml_signal_connect_data(gtxml, "on_ok_button_clicked",
-	                              GTK_SIGNAL_FUNC(close_cb), dlg);
+	/* TODO glade_xml_signal_connect_data(builder, "on_ok_button_clicked",
+	            GTK_SIGNAL_FUNC(close_cb), dlg); */
 
 	g_signal_connect(G_OBJECT(dlg->dlg), "close", G_CALLBACK(close_cb), dlg);
 	g_signal_connect(G_OBJECT(dlg->dlg), "destroy", G_CALLBACK(destroy_cb), dlg);

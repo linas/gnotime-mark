@@ -16,17 +16,12 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <glib.h>
-#include <gnome.h>
-#include <libgnomevfs/gnome-vfs.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "cur-proj.h"
 #include "log.h"
+#include "cur-proj.h"
 #include "prefs.h"
-#include "proj.h"
+
+#include <gio/gio.h>
+#include <glib/gi18n.h>
 
 #define CAN_LOG ((config_logfile_name != NULL) && (config_logfile_use))
 
@@ -34,52 +29,82 @@ static gboolean
 log_write(time_t t, const char *logstr)
 {
 	char date[256];
-	char *filename;
-	GnomeVFSHandle *handle;
-	GnomeVFSResult result;
+	GError *err = NULL;
+	char *filename = NULL;
+	GFile *file = NULL;
+	GFileOutputStream *fostream = NULL;
 
 	g_return_val_if_fail(logstr != NULL, FALSE);
+	memset(date, 0, 256);
 
 	if (!CAN_LOG)
+	{
 		return TRUE;
+	}
 
+	/* Expand "~/" if log file name begins with it */
 	if ((config_logfile_name[0] == '~') && (config_logfile_name[1] == '/') &&
 	    (config_logfile_name[2] != 0))
 	{
-		filename = gnome_util_prepend_user_home(&config_logfile_name[2]);
+		filename = g_build_path(G_DIR_SEPARATOR_S, g_get_home_dir(),
+		                        &config_logfile_name[2], NULL);
 
-		result =
-				gnome_vfs_create(&handle, filename, GNOME_VFS_OPEN_WRITE, FALSE, 0644);
+		file = g_file_new_for_path(filename);
+
 		g_free(filename);
 	} else
 	{
-		result = gnome_vfs_create(&handle, config_logfile_name,
-		                          GNOME_VFS_OPEN_WRITE, FALSE, 0644);
+		file = g_file_new_for_path(filename);
 	}
 
-	if (GNOME_VFS_OK != result)
+	fostream = g_file_append_to(file, G_FILE_CREATE_NONE, NULL, &err);
+	if ((!fostream) || err)
 	{
-		g_warning(_("Cannot open logfile %s for append: %s"), config_logfile_name,
-		          gnome_vfs_result_to_string(result));
+		g_warning(_("Cannot append to logfile %s for writing: %s"),
+		          config_logfile_name, err->message);
+		g_error_free(err);
+		g_object_unref(file);
 		return FALSE;
 	}
 
 	if (t < 0)
+	{
 		t = time(NULL);
+	}
 
 	/* Translators: Format to use in the gnotime logfile */
 	int rc = strftime(date, sizeof(date), _("%b %d %H:%M:%S"), localtime(&t));
 	if (0 >= rc)
+	{
 		strcpy(date, "???");
+	}
 
 	/* Append to end of file */
-	gnome_vfs_seek(handle, GNOME_VFS_SEEK_END, 0);
-	GnomeVFSFileSize bytes_written;
-	gnome_vfs_write(handle, date, strlen(date), &bytes_written);
-	gnome_vfs_write(handle, logstr, strlen(logstr), &bytes_written);
-	gnome_vfs_write(handle, "\n", 1, &bytes_written);
+	if (!g_output_stream_write_all(G_OUTPUT_STREAM(fostream), date, strlen(date),
+	                               NULL, NULL, &err))
+	{
+		g_warning(_("Failed to append to logfile %s: %s"), config_logfile_name,
+		          err->message);
+		goto clean_up;
+	}
+	if (!g_output_stream_write_all(G_OUTPUT_STREAM(fostream), logstr,
+	                               strlen(logstr), NULL, NULL, &err))
+	{
+		g_warning(_("Failed to append to logfile %s: %s"), config_logfile_name,
+		          err->message);
+		goto clean_up;
+	}
+	if (!g_output_stream_write_all(G_OUTPUT_STREAM(fostream), "\n", 1, NULL, NULL,
+	                               &err))
+	{
+		g_warning(_("Failed to append to logfile %s: %s"), config_logfile_name,
+		          err->message);
+		goto clean_up;
+	}
 
-	gnome_vfs_close(handle);
+clean_up:
+	g_object_unref(fostream);
+	g_object_unref(file);
 	return TRUE;
 }
 

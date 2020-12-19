@@ -48,6 +48,7 @@
 #include "active-dialog.h"
 #include "app.h"
 #include "cur-proj.h"
+#include "log.h"
 #include "prefs.h"
 #include "props-proj.h"
 #include "status-icon.h"
@@ -365,7 +366,7 @@ run_shell_command(GttProject *proj, gboolean do_start)
 	if (!proj)
 		return;
 
-	/* TODO str = printf_project(cmd, proj); */
+	str = printf_project(cmd, proj);
 	do_run_shell_command(str);
 	g_free((gchar *)str);
 }
@@ -380,7 +381,7 @@ cur_proj_set(GttProject *proj)
 	if (cur_proj == proj)
 		return;
 
-	/* TODO log_proj(NULL); */
+	log_proj(NULL);
 	gtt_project_timer_stop(cur_proj);
 	gtt_status_icon_stop_timer(proj);
 	run_shell_command(cur_proj, FALSE);
@@ -407,7 +408,7 @@ cur_proj_set(GttProject *proj)
 		cur_proj = NULL;
 		start_no_project_timer();
 	}
-	/* TODO log_proj(proj); */
+	log_proj(proj);
 
 	if (old_prj)
 	{

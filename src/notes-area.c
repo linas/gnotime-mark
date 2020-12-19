@@ -251,7 +251,7 @@ new_task_cb(GtkButton *but, NotesArea *na)
 	// na->ignore_events = TRUE;
 	tsk = gtt_task_new();
 	gtt_project_prepend_task(na->proj, tsk);
-	/* TODO prop_task_dialog_show(tsk); */
+	prop_task_dialog_show(tsk);
 	if (NULL != na->task_freeze)
 		gtt_task_thaw(na->task_freeze);
 	gtt_task_freeze(tsk);

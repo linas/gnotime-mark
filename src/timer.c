@@ -38,6 +38,7 @@
 #include "app.h"
 #include "cur-proj.h"
 #include "idle-dialog.h"
+#include "log.h"
 #include "prefs.h"
 #include "projects-tree.h"
 #include "timer.h"
@@ -80,7 +81,7 @@ zero_daily_counters(gpointer data)
 	{
 		gtt_project_list_compute_secs();
 		gtt_projects_tree_update_all_rows(projects_tree);
-		/* TODO log_endofday(); */
+		log_endofday();
 		year_last_reset = t1->tm_year;
 		day_last_reset = t1->tm_yday;
 	}

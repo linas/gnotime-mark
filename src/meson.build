@@ -1,6 +1,9 @@
 deps = [
   glib_dep,
   gtk_dep,
+  popt_dep,
+  x11_dep,
+  xss_dep,
 ]
 
 srcs = [
@@ -11,6 +14,7 @@ srcs = [
   'fake_qof.c',
   'gnome-dialog.c',
   'gnome-propertybox.c',
+  'idle-dialog.c',
   'prefs.c',
   'proj.c',
   'proj-query.c',

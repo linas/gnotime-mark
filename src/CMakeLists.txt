@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
     fake_qof.c
     gnome-dialog.c
     gnome-propertybox.c
+    idle-dialog.c
     prefs.c
     proj.c
     proj-query.c
@@ -23,4 +24,6 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PkgConfig::GLIB2
     PkgConfig::GTK2
-    PkgConfig::POPT)
+    PkgConfig::POPT
+    PkgConfig::X11
+    PkgConfig::XSS_EXTENSION)

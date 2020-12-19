@@ -17,31 +17,25 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <gdk/gdkx.h>
-#include <glade/glade.h>
-#include <glib.h>
-#include <gnome.h>
-#include <string.h>
-
-#include <X11/Xlib.h>
-#include <X11/extensions/scrnsaver.h>
-
-#include <qof.h>
-
+#include "idle-dialog.h"
 #include "app.h"
 #include "cur-proj.h"
 #include "dialog.h"
-#include "idle-dialog.h"
 #include "proj.h"
 #include "util.h"
+
+#include <gdk/gdkx.h>
+#include <glib/gi18n.h>
+#include <gtk/gtk.h>
+
+#include <X11/Xlib.h>
+#include <X11/extensions/scrnsaver.h>
 
 int config_idle_timeout = -1;
 
 struct GttIdleDialog_s
 {
-	GladeXML *gtxml;
+	GtkBuilder *builder;
 	GtkDialog *dlg;
 	GtkButton *yes_btn;
 	GtkButton *no_btn;
@@ -131,7 +125,7 @@ static void
 dialog_close(GObject *obj, GttIdleDialog *dlg)
 {
 	dlg->dlg = NULL;
-	dlg->gtxml = NULL;
+	dlg->builder = NULL;
 	dlg->visible = FALSE;
 }
 
@@ -142,7 +136,7 @@ dialog_kill(GObject *obj, GttIdleDialog *dlg)
 {
 	gtk_widget_destroy(GTK_WIDGET(dlg->dlg));
 	dlg->dlg = NULL;
-	dlg->gtxml = NULL;
+	dlg->builder = NULL;
 	dlg->visible = FALSE;
 }
 
@@ -329,22 +323,30 @@ value_changed(GObject *obj, GttIdleDialog *dlg)
 static void
 idle_dialog_realize(GttIdleDialog *id)
 {
-	GladeXML *gtxml;
+	GError *err = NULL;
+	GtkBuilder *tmp_builder = NULL;
 
 	id->prj = NULL;
 
-	gtxml = gtt_glade_xml_new("glade/idle.glade", "Idle Dialog");
-	id->gtxml = gtxml;
+	tmp_builder = gtk_builder_new(); /* gtt_glade_xml_new("glade/idle.glade",
+	                                    "Idle Dialog"); */
+	if (!gtk_builder_add_from_file(tmp_builder, "ui/idle-dialog.xml", &err))
+	{
+		g_warning("Couldn't load builder file: %s", err->message);
+		g_error_free(err);
+	}
+	id->builder = tmp_builder;
 
-	id->dlg = GTK_DIALOG(glade_xml_get_widget(gtxml, "Idle Dialog"));
+	id->dlg = GTK_DIALOG(gtk_builder_get_object(tmp_builder, "Idle Dialog"));
 
-	id->yes_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "yes button"));
-	id->no_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "no button"));
-	id->help_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "helpbutton1"));
-	id->idle_label = GTK_LABEL(glade_xml_get_widget(gtxml, "idle label"));
-	id->credit_label = GTK_LABEL(glade_xml_get_widget(gtxml, "credit label"));
-	id->time_label = GTK_LABEL(glade_xml_get_widget(gtxml, "time label"));
-	id->scale = GTK_RANGE(glade_xml_get_widget(gtxml, "scale"));
+	id->yes_btn = GTK_BUTTON(gtk_builder_get_object(tmp_builder, "yes button"));
+	id->no_btn = GTK_BUTTON(gtk_builder_get_object(tmp_builder, "no button"));
+	id->help_btn = GTK_BUTTON(gtk_builder_get_object(tmp_builder, "helpbutton1"));
+	id->idle_label = GTK_LABEL(gtk_builder_get_object(tmp_builder, "idle label"));
+	id->credit_label =
+			GTK_LABEL(gtk_builder_get_object(tmp_builder, "credit label"));
+	id->time_label = GTK_LABEL(gtk_builder_get_object(tmp_builder, "time label"));
+	id->scale = GTK_RANGE(gtk_builder_get_object(tmp_builder, "scale"));
 
 	g_signal_connect(G_OBJECT(id->dlg), "destroy", G_CALLBACK(dialog_close), id);
 
@@ -370,7 +372,7 @@ idle_dialog_new(void)
 	id = g_new0(GttIdleDialog, 1);
 	id->prj = NULL;
 
-	id->gtxml = NULL;
+	id->builder = NULL;
 
 	gchar *display_name = gdk_get_display();
 	id->display = XOpenDisplay(display_name);
@@ -420,7 +422,7 @@ show_idle_dialog(GttIdleDialog *id)
 	idle_time = now - id->last_activity;
 
 	/* Due to GtkDialog broken-ness, re-realize the GUI */
-	if (NULL == id->gtxml)
+	if (NULL == id->builder)
 	{
 		idle_dialog_realize(id);
 	}
@@ -456,7 +458,7 @@ void
 raise_idle_dialog(GttIdleDialog *id)
 {
 	g_return_if_fail(id);
-	g_return_if_fail(id->gtxml);
+	g_return_if_fail(id->builder);
 
 	/* Now, draw the messages in the GUI popup. */
 	display_value(id, config_idle_timeout);

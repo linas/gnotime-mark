@@ -302,7 +302,7 @@ do_set_project(GttProject *proj, PropDlg *dlg)
 static void
 wrapper(void *gobj, void *data)
 {
-	gnome_property_box_changed(GNOME_PROPERTY_BOX(data));
+	/* TODO gnome_property_box_changed(GNOME_PROPERTY_BOX(data)); */
 }
 
 #define TEXTED(NAME)                                                           \

@@ -45,8 +45,13 @@
 #include "toolbar.h"
 #include "util.h" */
 
+#include "active-dialog.h"
 #include "app.h"
+#include "cur-proj.h"
 #include "prefs.h"
+#include "props-proj.h"
+#include "status-icon.h"
+#include "timer.h"
 #include "util.h"
 
 #include <glib/gi18n.h>
@@ -74,7 +79,7 @@ char *config_shell_stop = NULL;
 gboolean geom_place_override = FALSE;
 gboolean geom_size_override = FALSE;
 
-/* TODO extern GttActiveDialog *act; */
+extern GttActiveDialog *act;
 
 static void
 projects_tree_row_activated(GtkTreeView *tree_view, GtkTreePath *path,
@@ -82,13 +87,13 @@ projects_tree_row_activated(GtkTreeView *tree_view, GtkTreePath *path,
 {
 	GttProjectsTree *gpt = GTT_PROJECTS_TREE(tree_view);
 	GttProject *prj = gtt_projects_tree_get_selected_project(gpt);
-	/* TODO if (cur_proj == prj)
+	if (cur_proj == prj)
 	{
 		cur_proj_set(NULL);
 	} else
 	{
 		cur_proj_set(prj);
-	} */
+	}
 }
 
 typedef void (*sort_function)(GttProjectList *);
@@ -257,20 +262,20 @@ update_status_bar(void)
 	 * when the project is started/stopped */
 	if (status_timer)
 	{
-		/* TODO if (timer_is_running())
+		if (timer_is_running())
 			gtk_widget_show(status_timer);
 		else
-			gtk_widget_hide(status_timer); */
+			gtk_widget_hide(status_timer);
 	}
 
 	/* update timestamp */
 	xxxqof_print_hours_elapsed_buff(
 			day_total_str, 25, gtt_project_list_total_secs_day(), config_show_secs);
 
-	/* TODO if (0 != strcmp(day_total_str, gtk_label_get_text(status_day_time)))
+	if (0 != strcmp(day_total_str, gtk_label_get_text(status_day_time)))
 	{
 		gtk_label_set_text(status_day_time, day_total_str);
-	} */
+	}
 
 	/* Display the project title */
 	if (cur_proj)
@@ -377,11 +382,11 @@ cur_proj_set(GttProject *proj)
 
 	/* TODO log_proj(NULL); */
 	gtt_project_timer_stop(cur_proj);
-	/* TODO gtt_status_icon_stop_timer(proj); */
+	gtt_status_icon_stop_timer(proj);
 	run_shell_command(cur_proj, FALSE);
 
 	GttProject *old_prj = cur_proj;
-	/* TODO if (proj)
+	if (proj)
 	{
 		if (timer_is_running())
 		{
@@ -402,7 +407,7 @@ cur_proj_set(GttProject *proj)
 		cur_proj = NULL;
 		start_no_project_timer();
 	}
-	log_proj(proj); */
+	/* TODO log_proj(proj); */
 
 	if (old_prj)
 	{
@@ -416,12 +421,12 @@ cur_proj_set(GttProject *proj)
 
 	/* update GUI elements */
 	/* TODO menu_set_states();
-	toolbar_set_states();
+	toolbar_set_states(); */
 	if (proj)
 	{
 		prop_dialog_set_project(proj);
 		notes_area_set_project(global_na, proj);
-	} */
+	}
 	update_status_bar();
 }
 
@@ -432,8 +437,8 @@ focus_row_set(GttProject *proj)
 {
 	/* update GUI elements */
 
-	/* TODO prop_dialog_set_project(proj);
-	notes_area_set_project(global_na, proj); */
+	prop_dialog_set_project(proj);
+	notes_area_set_project(global_na, proj);
 }
 
 /* ============================================================= */
@@ -452,7 +457,7 @@ app_new(int argc, char *argv[], const char *geometry_string)
 
 	/* TODO app_window = gnome_app_new(GTT_APP_NAME, GTT_APP_TITLE " " VERSION);
 	gtk_window_set_wmclass(GTK_WINDOW(app_window), GTT_APP_NAME,
-			       GTT_APP_PROPER_NAME); */
+	           GTT_APP_PROPER_NAME); */
 
 	/* 485 x 272 seems to be a good size to default to */
 	gtk_window_set_default_size(GTK_WINDOW(app_window), 485, 272);
@@ -528,8 +533,8 @@ app_new(int argc, char *argv[], const char *geometry_string)
 	                 G_CALLBACK(projects_tree_row_activated), NULL);
 
 	/* create the notes area */
-	/* TODO global_na = notes_area_new(); */
-	/* TODO vpane = notes_area_get_widget(global_na); */
+	global_na = notes_area_new();
+	vpane = notes_area_get_widget(global_na);
 
 	/* Need to reparent, to get rid of glade parent-window hack.
 	 * But gtk_widget_reparent (vpane); causes  a "Gtk-CRITICAL"
@@ -542,13 +547,13 @@ app_new(int argc, char *argv[], const char *geometry_string)
 
 	gtk_box_pack_end(GTK_BOX(vbox), status_bar, FALSE, FALSE, 2);
 
-	/* TODO notes_area_add_projects_tree(global_na, projects_tree); */
+	notes_area_add_projects_tree(global_na, projects_tree);
 
 	/* we are done building it, make it visible */
 	gtk_widget_show(vbox);
 	/* TODO gnome_app_set_contents(GNOME_APP(app_window), vbox); */
 
-	/* TODO gtt_status_icon_create(); */
+	gtt_status_icon_create();
 	if (!geometry_string)
 		return;
 
@@ -557,9 +562,9 @@ app_new(int argc, char *argv[], const char *geometry_string)
 		geom_size_override = TRUE;
 	} /* TODO  else
 	{
-		gnome_app_error(GNOME_APP(app_window),
-		                _("Couldn't understand geometry (position and size)\n"
-		                  " specified on command line"));
+	  gnome_app_error(GNOME_APP(app_window),
+	                  _("Couldn't understand geometry (position and size)\n"
+	                    " specified on command line"));
 	} */
 }
 
@@ -576,8 +581,8 @@ void
 app_quit(GtkWidget *w, gpointer data)
 {
 	/* TODO save_properties();
-	save_projects();
-	gtt_status_icon_destroy(); */
+	save_projects(); */
+	gtt_status_icon_destroy();
 	gtk_main_quit();
 }
 

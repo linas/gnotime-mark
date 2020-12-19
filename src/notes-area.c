@@ -17,6 +17,7 @@
  */
 
 #include "notes-area.h"
+#include "props-task.h"
 #include "util.h"
 
 struct NotesArea_s
@@ -266,7 +267,7 @@ edit_task_cb(GtkButton *but, NotesArea *na)
 	if (NULL == na->proj)
 		return;
 	GttTask *tsk = gtt_project_get_current_task(na->proj);
-	/* TODO prop_task_dialog_show(tsk); */
+	prop_task_dialog_show(tsk);
 	if (NULL != na->task_freeze)
 		gtt_task_thaw(na->task_freeze);
 	gtt_task_freeze(tsk);

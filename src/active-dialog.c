@@ -16,26 +16,18 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glade/glade.h>
-#include <gnome.h>
-#include <string.h>
-
-#include <qof.h>
-
 #include "active-dialog.h"
 #include "cur-proj.h"
 #include "dialog.h"
 #include "proj-query.h"
-#include "proj.h"
-#include "util.h"
+
+#include <glib/gi18n.h>
 
 int config_no_project_timeout;
 
 struct GttActiveDialog_s
 {
-	GladeXML *gtxml;
+	GtkBuilder *gtxml;
 	GtkDialog *dlg;
 	GtkButton *yes_btn;
 	GtkButton *no_btn;
@@ -180,20 +172,26 @@ setup_menus(GttActiveDialog *dlg)
 static void
 active_dialog_realize(GttActiveDialog *id)
 {
-	GtkWidget *w;
-	GladeXML *gtxml;
+	GError *err = NULL;
+	GtkBuilder *gtxml = NULL;
+	GtkWidget *w = NULL;
 
-	gtxml = gtt_glade_xml_new("glade/active.glade", "Active Dialog");
+	gtxml = gtk_builder_new();
+	if (!gtk_builder_add_from_file(gtxml, "ui/active-dialog.xml", &err))
+	{
+		g_warning("Couldn't load builder file: %s", err->message);
+		g_error_free(err);
+	}
 	id->gtxml = gtxml;
 
-	id->dlg = GTK_DIALOG(glade_xml_get_widget(gtxml, "Active Dialog"));
+	id->dlg = GTK_DIALOG(gtk_builder_get_object(gtxml, "Active Dialog"));
 
-	id->yes_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "yes button"));
-	id->no_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "no button"));
-	id->help_btn = GTK_BUTTON(glade_xml_get_widget(gtxml, "helpbutton1"));
-	id->active_label = GTK_LABEL(glade_xml_get_widget(gtxml, "active label"));
-	id->credit_label = GTK_LABEL(glade_xml_get_widget(gtxml, "credit label"));
-	w = glade_xml_get_widget(gtxml, "project option menu");
+	id->yes_btn = GTK_BUTTON(gtk_builder_get_object(gtxml, "yes button"));
+	id->no_btn = GTK_BUTTON(gtk_builder_get_object(gtxml, "no button"));
+	id->help_btn = GTK_BUTTON(gtk_builder_get_object(gtxml, "helpbutton1"));
+	id->active_label = GTK_LABEL(gtk_builder_get_object(gtxml, "active label"));
+	id->credit_label = GTK_LABEL(gtk_builder_get_object(gtxml, "credit label"));
+	w = GTK_WIDGET(gtk_builder_get_object(gtxml, "project option menu"));
 	id->project_menu = GTK_OPTION_MENU(w);
 
 	g_signal_connect(G_OBJECT(id->dlg), "destroy", G_CALLBACK(dialog_close), id);

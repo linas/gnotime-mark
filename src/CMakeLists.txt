@@ -4,6 +4,7 @@ set(GTTGLADEDIR "/usr/local/share/gnotime")
 configure_file(../cmake_config.h.in config.h @ONLY)
 
 add_executable(${PROJECT_NAME}
+    active-dialog.c
     app.c
     dialog.c
     err-throw.c

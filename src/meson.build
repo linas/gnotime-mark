@@ -4,6 +4,7 @@ deps = [
 ]
 
 srcs = [
+  'active-dialog.c',
   'app.c',
   'dialog.c',
   'err-throw.c',

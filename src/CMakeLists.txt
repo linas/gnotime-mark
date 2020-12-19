@@ -12,6 +12,7 @@ add_executable(${PROJECT_NAME}
     gnome-dialog.c
     gnome-propertybox.c
     idle-dialog.c
+    notes-area.c
     prefs.c
     proj.c
     proj-query.c

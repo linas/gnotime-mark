@@ -16,21 +16,12 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-#include <glib-object.h>
-
-#include <glade/glade.h>
-#include <gnome.h>
-
-#include "menus.h"
 #include "notes-area.h"
-#include "proj.h"
-#include "props-task.h"
 #include "util.h"
 
 struct NotesArea_s
 {
-	GladeXML *gtxml;
+	GtkBuilder *builder;
 	GtkPaned *vpane; /* top level pane */
 	GtkContainer
 			*projects_tree_holder; /* scrolled widget that holds the projects tree */
@@ -259,7 +250,7 @@ new_task_cb(GtkButton *but, NotesArea *na)
 	// na->ignore_events = TRUE;
 	tsk = gtt_task_new();
 	gtt_project_prepend_task(na->proj, tsk);
-	prop_task_dialog_show(tsk);
+	/* TODO prop_task_dialog_show(tsk); */
 	if (NULL != na->task_freeze)
 		gtt_task_thaw(na->task_freeze);
 	gtt_task_freeze(tsk);
@@ -275,7 +266,7 @@ edit_task_cb(GtkButton *but, NotesArea *na)
 	if (NULL == na->proj)
 		return;
 	GttTask *tsk = gtt_project_get_current_task(na->proj);
-	prop_task_dialog_show(tsk);
+	/* TODO prop_task_dialog_show(tsk); */
 	if (NULL != na->task_freeze)
 		gtt_task_thaw(na->task_freeze);
 	gtt_task_freeze(tsk);
@@ -321,7 +312,7 @@ enum
 #define CONNECT_ENTRY(GLADE_NAME, CB)                                          \
 	({                                                                           \
 		GtkEntry *entry;                                                           \
-		entry = GTK_ENTRY(glade_xml_get_widget(gtxml, GLADE_NAME));                \
+		entry = GTK_ENTRY(gtk_builder_get_object(builder, GLADE_NAME));            \
 		g_signal_connect(G_OBJECT(entry), "changed", G_CALLBACK(CB), dlg);         \
 		entry;                                                                     \
 	})
@@ -330,7 +321,7 @@ enum
 	({                                                                           \
 		GtkTextView *tv;                                                           \
 		GtkTextBuffer *buff;                                                       \
-		tv = GTK_TEXT_VIEW(glade_xml_get_widget(gtxml, GLADE_NAME));               \
+		tv = GTK_TEXT_VIEW(gtk_builder_get_object(builder, GLADE_NAME));           \
 		buff = gtk_text_view_get_buffer(tv);                                       \
 		g_signal_connect(G_OBJECT(buff), "changed", G_CALLBACK(CB), dlg);          \
 		tv;                                                                        \
@@ -339,31 +330,37 @@ enum
 NotesArea *
 notes_area_new(void)
 {
-	NotesArea *dlg;
-	GladeXML *gtxml;
+	NotesArea *dlg = NULL;
+	GError *err = NULL;
+	GtkBuilder *builder = NULL;
 
 	dlg = g_new0(NotesArea, 1);
 
-	gtxml = gtt_glade_xml_new("glade/notes.glade", "top window");
-	dlg->gtxml = gtxml;
+	builder = gtk_builder_new(); /* "glade/notes.glade", "top window"); */
+	if (!gtk_builder_add_from_file(builder, "ui/notes-area.xml", &err))
+	{
+		g_warning("Couldn't load builder file: %s", err->message);
+		g_error_free(err);
+	}
+	dlg->builder = builder;
 
-	dlg->vpane = GTK_PANED(glade_xml_get_widget(gtxml, "notes vpane"));
+	dlg->vpane = GTK_PANED(gtk_builder_get_object(builder, "notes vpane"));
 	dlg->projects_tree_holder =
-			GTK_CONTAINER(glade_xml_get_widget(gtxml, "ctree holder"));
-	dlg->hpane = GTK_PANED(glade_xml_get_widget(gtxml, "leftright hpane"));
+			GTK_CONTAINER(gtk_builder_get_object(builder, "ctree holder"));
+	dlg->hpane = GTK_PANED(gtk_builder_get_object(builder, "leftright hpane"));
 	dlg->close_proj =
-			GTK_BUTTON(glade_xml_get_widget(gtxml, "close proj button"));
+			GTK_BUTTON(gtk_builder_get_object(builder, "close proj button"));
 	dlg->close_task =
-			GTK_BUTTON(glade_xml_get_widget(gtxml, "close diary button"));
+			GTK_BUTTON(gtk_builder_get_object(builder, "close diary button"));
 	dlg->new_task =
-			GTK_BUTTON(glade_xml_get_widget(gtxml, "new_diary_entry_button"));
+			GTK_BUTTON(gtk_builder_get_object(builder, "new_diary_entry_button"));
 	dlg->edit_task =
-			GTK_BUTTON(glade_xml_get_widget(gtxml, "edit_diary_entry_button"));
+			GTK_BUTTON(gtk_builder_get_object(builder, "edit_diary_entry_button"));
 
 	dlg->proj_title = CONNECT_ENTRY("proj title entry", proj_title_changed);
 	dlg->proj_desc = CONNECT_ENTRY("proj desc entry", proj_desc_changed);
 	dlg->task_combo =
-			GTK_COMBO_BOX(glade_xml_get_widget(gtxml, "diary_entry_combo"));
+			GTK_COMBO_BOX(gtk_builder_get_object(builder, "diary_entry_combo"));
 
 	gtk_combo_box_set_model(dlg->task_combo, NULL);
 	GtkCellRenderer *cell;
@@ -568,7 +565,7 @@ projects_tree_clicked(GtkWidget *ptree, GdkEvent *event, gpointer data)
 		return FALSE;
 	}
 
-	menu = menus_get_popup();
+	/* TODO menu = menus_get_popup(); */
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, 3, bevent->time);
 
 	return FALSE;

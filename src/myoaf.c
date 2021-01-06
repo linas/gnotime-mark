@@ -5,9 +5,6 @@
    eliminated.
 */
 
-
-
-
 #include <gtk/gtk.h>
 #if 0
 #include <liboaf/liboaf.h>
@@ -15,8 +12,6 @@
 #endif
 
 #include "myoaf.h"
-
-
 
 void
 edit_calendar(GtkWidget *w, gpointer data)
@@ -94,5 +89,3 @@ srv->location_info, srv->hostname);
 printf ("duude query = %p item=%p\n", sl, cal);
 #endif
 }
-
-

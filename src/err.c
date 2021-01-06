@@ -25,14 +25,13 @@
 #include <X11/Xlib.h>
 #include <signal.h>
 
-
 #undef DIE_ON_NORMAL_ERROR
-
 
 /* =================================================== */
 /* error handlers for 'unavoidable' system errors */
 
-static void die(void)
+static void
+die(void)
 {
 	fprintf(stderr, " - saving and dying\n");
 	save_all();
@@ -40,17 +39,16 @@ static void die(void)
 	exit(1);
 }
 
-
-
-static void sig_handler(int signum)
+static void
+sig_handler(int signum)
 {
 	fprintf(stderr, "%s: Signal %d caught", GTT_APP_NAME, signum);
 	die();
 }
 
-
 #ifdef DIE_ON_NORMAL_ERROR
-static int x11_error_handler(Display *d, XErrorEvent *e)
+static int
+x11_error_handler(Display *d, XErrorEvent *e)
 {
 	fprintf(stderr, "%s: X11 error caight", GTT_APP_NAME);
 	die();
@@ -58,18 +56,21 @@ static int x11_error_handler(Display *d, XErrorEvent *e)
 }
 #endif
 
-static int x11_io_error_handler(Display *d)
+static int
+x11_io_error_handler(Display *d)
 {
 	fprintf(stderr, "%s: fatal X11 io error caight", GTT_APP_NAME);
 	die();
 	return 0; /* keep the compiler happy */
 }
 
-void err_init(void)
+void
+err_init(void)
 {
 	static int inited = 0;
-	
-	if (inited) return;
+
+	if (inited)
+		return;
 #ifdef DIE_ON_NORMAL_ERROR
 	XSetErrorHandler(x11_error_handler);
 #endif

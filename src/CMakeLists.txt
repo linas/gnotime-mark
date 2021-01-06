@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.18.4 FATAL_ERROR)
 
+configure_file(../cmake_config.h.in config.h @ONLY)
+
 add_executable(${PROJECT_NAME}
     active-dialog.c
     app.c
@@ -39,3 +41,5 @@ add_executable(${PROJECT_NAME}
     vfs-io.c
     xml-read.c
     xml-write.c)
+target_include_directories(${PROJECT_NAME}
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

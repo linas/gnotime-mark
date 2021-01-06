@@ -40,4 +40,5 @@ srcs = [
 ]
 
 executable('gnotime', srcs,
+           include_directories: [top_inc],
 )

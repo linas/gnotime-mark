@@ -43,3 +43,12 @@ add_executable(${PROJECT_NAME}
     xml-write.c)
 target_include_directories(${PROJECT_NAME}
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(${PROJECT_NAME}
+    PkgConfig::GLIB2
+    PkgConfig::GTK2
+    PkgConfig::GUILE2
+    PkgConfig::LIBXML2
+    PkgConfig::POPT
+    PkgConfig::X11
+    PkgConfig::XSS_EXTENSION
+    m)

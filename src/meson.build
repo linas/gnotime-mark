@@ -1,3 +1,13 @@
+deps = [
+  glib_dep,
+  gtk_dep,
+  guile_dep,
+  libxml_dep,
+  popt_dep,
+  x11_dep,
+  xss_dep,
+]
+
 srcs = [
   'active-dialog.c',
   'app.c',
@@ -40,5 +50,6 @@ srcs = [
 ]
 
 executable('gnotime', srcs,
+           dependencies: deps,
            include_directories: [top_inc],
 )

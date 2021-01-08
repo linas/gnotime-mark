@@ -1,4 +1,10 @@
 #ifndef GTT_CONFIG_H_
 #define GTT_CONFIG_H_
 
+#cmakedefine GETTEXT_PACKAGE "@GETTEXT_PACKAGE@"
+#cmakedefine GTTDATADIR "@GTTDATADIR@"
+#cmakedefine GTTGLADEDIR "@GTTGLADEDIR@"
+#cmakedefine PACKAGE "@PACKAGE@"
+#cmakedefine VERSION "@VERSION@"
+
 #endif /* GTT_CONFIG_H_ */

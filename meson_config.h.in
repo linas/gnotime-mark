@@ -1,4 +1,10 @@
 #ifndef GTT_CONFIG_H_
 #define GTT_CONFIG_H_
 
+#define GETTEXT_PACKAGE "@gettext_package@"
+#define GTTDATADIR "@gttdatadir@"
+#define GTTGLADEDIR "@gttgladedir@"
+#define PACKAGE "@package@"
+#define VERSION "@version@"
+
 #endif /* GTT_CONFIG_H_ */

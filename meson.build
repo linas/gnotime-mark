@@ -21,6 +21,11 @@ x11_dep = dependency('x11', version: x11_req_version)
 xss_dep = dependency('xscrnsaver', version: xss_req_version)
 
 conf_data = configuration_data()
+conf_data.set('gettext_package', 'gnotime-2.0')
+conf_data.set('gttdatadir', '/usr/local/share/gnotime')
+conf_data.set('gttgladedir', '/usr/local/share/gnotime')
+conf_data.set('package', meson.project_name())
+conf_data.set('version', meson.project_version())
 configure_file(configuration: conf_data,
                input: 'meson_config.h.in',
                output: 'config.h')

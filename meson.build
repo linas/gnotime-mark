@@ -5,7 +5,7 @@ project('gnotime', ['c'],
 add_project_link_arguments('-lm', language: ['c'])
 
 glib_req_version = '>= 2.66.4'
-gtk_req_version = '>= 2.24.32'
+gtk_req_version = '>= 3.24.24'
 guile_req_version = '>= 2.2.7'
 libxml_req_version = '>= 2.9.10'
 popt_req_version = '>= 1.18'
@@ -13,7 +13,7 @@ x11_req_version = '>= 1.6.2'
 xss_req_version = '>= 1.2.3'
 
 glib_dep = dependency('glib-2.0', version: glib_req_version)
-gtk_dep = dependency('gtk+-2.0', version: gtk_req_version)
+gtk_dep = dependency('gtk+-3.0', version: gtk_req_version)
 guile_dep = dependency('guile-2.2', version: guile_req_version)
 libxml_dep = dependency('libxml-2.0', version: libxml_req_version)
 popt_dep = dependency('popt', version: popt_req_version)

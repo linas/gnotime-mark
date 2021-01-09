@@ -7,7 +7,7 @@ project(gnotime
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(GLIB2 REQUIRED IMPORTED_TARGET glib-2.0>=2.66.4)
-pkg_check_modules(GTK2 REQUIRED IMPORTED_TARGET gtk+-2.0>=2.24.32)
+pkg_check_modules(GTK3 REQUIRED IMPORTED_TARGET gtk+-3.0>=3.24.24)
 pkg_check_modules(GUILE2 REQUIRED IMPORTED_TARGET guile-2.2>=2.2.7)
 pkg_check_modules(LIBXML2 REQUIRED IMPORTED_TARGET libxml-2.0>=2.9.10)
 pkg_check_modules(POPT REQUIRED IMPORTED_TARGET popt>=1.18)

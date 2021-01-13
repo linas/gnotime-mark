@@ -6,10 +6,10 @@
  * This is not a part of the standard GnoTime distribution, its just for hacking around.
  */
 /* ------------------------------------------------------------------ */
-#include <sys/types.h>
+#include <gio/gio.h>
 #include <glib.h>
 #include <gtk/gtk.h>
-#include <libgnomevfs/gnome-vfs.h>
+#include <sys/types.h>
 
 /* See http://developer.gnome.org/doc/API/2.0/gnome-vfs-2.0/
  * for a good set of API documentation for GnomeVFS clients.
@@ -23,49 +23,44 @@
 void
 gtt_save_buffer (const gchar *uri, const char * buf)
 {
-	GnomeVFSHandle   *handle;
-	GnomeVFSResult    result;
+	GFile * const file_uri = g_file_new_for_uri(uri);
 
-	GnomeVFSURI *parsed_uri;
-	parsed_uri = gnome_vfs_uri_new (uri);
-
-	gboolean exists = gnome_vfs_uri_exists (parsed_uri);
+	const gboolean exists = g_file_query_exists (file_uri);
 	if (exists)
 	{
 		// file exists are you sure you want to over-write?
 	}
 
-	// result = gnome_vfs_open (&handle, uri, GNOME_VFS_OPEN_WRITE);
-	result = gnome_vfs_create (&handle, uri, GNOME_VFS_OPEN_WRITE,
-	                 FALSE, 0644);
+	GError * err = NULL;
+	file_ostream = g_file_append_to(file_uri, G_FILE_CREATE_NONE, NULL, &err);
 
-	if (GNOME_VFS_OK != result)
+	if (!file_ostream || err)
 	{
-		const gchar * errmsg = gnome_vfs_result_to_string (result);
-printf ("duuude pen error=%s\n", errmsg);
+		printf ("duuude pen error=%d\n", err->code);
 		return;
 	}
 
-	GnomeVFSFileSize buflen = strlen (buf);
-	GnomeVFSFileSize bytes_written = 0;
-	size_t off = 0;
-	while (GNOME_VFS_OK == result)
+	gsize buflen = strlen(buf);
+	gssize bytes_written = 0;
+	gsize off = 0;
+	while ((0 <= bytes_written) && !err)
 	{
-		result = gnome_vfs_write (handle, &buf[off],
-		                         buflen, &bytes_written);
+		bytes_written = g_output_stream_write(file_ostream, &buf[off], buflen, NULL, &err);
 		off += bytes_written;
 		buflen -= bytes_written;
 
 		printf ("duude wrote %lld bytes left=%d\n", bytes_written, buflen);
 		if (0>= buflen) break;
 	}
-	if (GNOME_VFS_OK != result)
+	if (err)
 	{
-		const gchar * errmsg = gnome_vfs_result_to_string (result);
-printf ("duuude write error=%s\n", errmsg);
+		printf ("duuude write error=%d\n", err->code);
 		return;
 	}
-	gnome_vfs_close (handle);
+	if (!g_output_stream_close(G_OUTPUT_STREAM(file_ostream), NULL, &err) || err) {
+		/* TODO: Report error */
+	}
+	g_object_unref (file_uri);
 }
 
 #define BUF_SIZE 8192
@@ -73,22 +68,26 @@ printf ("duuude write error=%s\n", errmsg);
 void
 load_gorp (const gchar *uri)
 {
-	GnomeVFSHandle   *handle;
-	GnomeVFSResult    result;
 	gchar             buffer[BUF_SIZE];
-	GnomeVFSFileSize  bytes_read;  /* actually a long long */
 
-	result = gnome_vfs_open (&handle, uri, GNOME_VFS_OPEN_READ);
+	GError * err = NULL;
+	GFile * const file_obj = g_file_new_for_uri(uri);
+	GFileInputStream * const file_istream = g_file_read(file_obj, NULL, &err);
+	if (!file_istream || err) {
+		/* TODO: Handle or report error */
+	}
 
-printf ("duude attempt to read %s\n", uri);
-	while (GNOME_VFS_OK == result)
+	printf ("duude attempt to read %s\n", uri);
+	while (!err)
 	{
-		result = gnome_vfs_read (handle, buffer,
-		                         BUF_SIZE, &bytes_read);
+		g_input_stream_read(G_INPUT_STREAM(file-istream), buffer, BUF_SIZE, NULL, &err);
 
 		printf ("duude got %lld %s\n", bytes_read, buffer);
 	}
-	gnome_vfs_close (handle);
+	if (!g_input_stream_close(G_INPUT_STREAM(file_istream), NULL, &err) || err) {
+		/* TODO: Handle or report error */
+	}
+	g_object_unref(file_obj);
 }
 
 int
@@ -98,8 +97,6 @@ main (int argc, char **argv)
 	         g_print ("Run with %s <uri>\n", argv[0]);
 	          exit (1);
 	}
-
-	 gnome_vfs_init ();
 
 	 // load_gorp (argv[1]);
 	 char *msg="qewrtyuiop duuuude";

@@ -21,12 +21,13 @@
 #include <gnome.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <libgnomevfs/gnome-vfs.h>
 
 #include "cur-proj.h"
 #include "log.h"
 #include "prefs.h"
 #include "proj.h"
+
+#include <gio/gio.h>
 
 #define CAN_LOG ((config_logfile_name!=NULL)&&(config_logfile_use))
 
@@ -35,10 +36,10 @@ static gboolean
 log_write(time_t t, const char *logstr)
 {
 	char date[256];
+	GError * err = NULL;
 	char *filename;
-	GnomeVFSHandle   *handle;
-	GnomeVFSResult    result;
-
+	GFile * file_obj = NULL;
+	GFileOutputStream * file_ostream = NULL;
 	g_return_val_if_fail (logstr != NULL, FALSE);
 
 	if (!CAN_LOG) return TRUE;
@@ -47,20 +48,23 @@ log_write(time_t t, const char *logstr)
 	    (config_logfile_name[1] == '/') &&
 	    (config_logfile_name[2] != 0))
 	{
-		filename = gnome_util_prepend_user_home(&config_logfile_name[2]);
-
-		result = gnome_vfs_create (&handle, filename,
-		                          GNOME_VFS_OPEN_WRITE, FALSE, 0644);
+		filename = g_build_filename(g_get_home_dir(), &config_logfile_name[2], NULL);
+		file_obj = g_file_new_for_path(filename);
 		g_free (filename);
 	} else {
-		result = gnome_vfs_create (&handle, config_logfile_name,
-		                          GNOME_VFS_OPEN_WRITE, FALSE, 0644);
+		file_obj = g_file_new_for_path(config_logfile_name);
 	}
+	file_ostream = g_file_append_to(file_obj, G_FILE_CREATE_NONE, NULL, &err);
 
-	if (GNOME_VFS_OK != result)
+	if (!file_ostream || err)
 	{
-		g_warning (_("Cannot open logfile %s for append: %s"),
-			   config_logfile_name, gnome_vfs_result_to_string (result));
+		g_warning (_("Cannot open logfile %s for append: %d"),
+			   config_logfile_name, err->code);
+		if (file_ostream) {
+			g_output_stream_close(G_OUTPUT_STREAM(file_ostream), NULL, &err);
+			/* TODO: Report error */
+		}
+		g_object_unref(file_obj);
 		return FALSE;
 	}
 
@@ -71,14 +75,16 @@ log_write(time_t t, const char *logstr)
 	int rc = strftime (date, sizeof (date), _("%b %d %H:%M:%S"), localtime(&t));
 	if (0 >= rc) strcpy (date, "???");
 
-	/* Append to end of file */
-	gnome_vfs_seek (handle, GNOME_VFS_SEEK_END, 0);
-	GnomeVFSFileSize bytes_written;
-	gnome_vfs_write (handle, date, strlen(date), &bytes_written);
-	gnome_vfs_write (handle, logstr, strlen(logstr), &bytes_written);
-	gnome_vfs_write (handle, "\n", 1, &bytes_written);
+	/* Append to end of file (TODO: Add error handling) */
+	g_output_stream_write(G_OUTPUT_STREAM(file_ostream), date, strlen(date), NULL, &err);
+	g_output_stream_write(G_OUTPUT_STREAM(file_ostream), logstr, strlen(logstr), NULL, &err);
+	g_output_stream_write(G_OUTPUT_STREAM(file_ostream), "\n", 1, NULL, &err);
 	
-	gnome_vfs_close (handle);
+	if (!g_output_stream_close(G_OUTPUT_STREAM(file_ostream), NULL, &err) || err) {
+		/* TODO: Report error */
+	}
+	g_object_unref(file_obj);
+
 	return TRUE;
 }
 

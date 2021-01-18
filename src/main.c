@@ -860,7 +860,14 @@ main(int argc, char *argv[])
 
 	gnome_program_init(PACKAGE, VERSION, LIBGNOMEUI_MODULE, argc, argv,
 	                   GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
-	gnome_window_icon_set_default_from_file(GNOME_ICONDIR "/gnome-cromagnon.png");
+
+	if (!gtk_window_set_default_icon_from_file(
+					GNOME_ICONDIR "/gnome-cromagnon.png", &err))
+	{
+		g_warning("Failed to set default window icon: %s\n", err->message);
+		g_error_free(err);
+		err = NULL;
+	}
 
 	gnome_vfs_init();
 

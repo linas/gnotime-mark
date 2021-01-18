@@ -60,7 +60,10 @@ PKGCONFIG += \
     libgnome-2.0 \
     libgnomeui-2.0 \
     libgtkhtml-3.14 \
+    libxml-2.0 \
     qof \
+    x11 \
+    xscrnsaver \
 
 SOURCES += \
     src/active-dialog.c \
@@ -98,6 +101,6 @@ SOURCES += \
     src/timer.c \
     src/toolbar.c \
     src/util.c \
-    src/vfs-io.c \
+    # src/vfs-io.c \
     src/xml-read.c \
     src/xml-write.c \

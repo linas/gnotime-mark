@@ -18,7 +18,6 @@
  */
 
 #include <config.h>
-#include <gnome.h>
 #include <string.h>
 
 #include "app.h"
@@ -161,16 +160,15 @@ free_data(GtkWidget *dlg, gpointer data)
 void
 new_project(GtkWidget *widget, gpointer data)
 {
-	GtkWidget *w, *t, *title, *d, *desc;
+	GtkWidget *w, *t, *d;
 	GtkDialog *dlg;
 	GtkBox *vbox;
 	GtkWidget **entries = g_new0(GtkWidget *, 2);
 	GtkWidget *table;
 
-	title = gnome_entry_new("project_title");
-	desc = gnome_entry_new("project_description");
-	entries[0] = gnome_entry_gtk_entry(GNOME_ENTRY(title));
-	entries[1] = gnome_entry_gtk_entry(GNOME_ENTRY(desc));
+	/* TODO: implement some history mechanism again */
+	entries[0] = gtk_entry_new();
+	entries[1] = gtk_entry_new();
 
 	/* Create new dialog box */
 	w = gtk_dialog_new_with_buttons(_("New Project..."),
@@ -191,18 +189,18 @@ new_project(GtkWidget *widget, gpointer data)
 	table = gtk_table_new(2, 2, FALSE);
 	gtk_table_attach(GTK_TABLE(table), t, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
 	                 GTK_FILL | GTK_EXPAND, 2, 1);
-	gtk_table_attach(GTK_TABLE(table), title, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND,
-	                 GTK_FILL | GTK_EXPAND, 2, 1);
+	gtk_table_attach(GTK_TABLE(table), entries[0], 1, 2, 0, 1,
+	                 GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
 	gtk_table_attach(GTK_TABLE(table), d, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND,
 	                 GTK_FILL | GTK_EXPAND, 2, 1);
-	gtk_table_attach(GTK_TABLE(table), desc, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND,
-	                 GTK_FILL | GTK_EXPAND, 2, 1);
+	gtk_table_attach(GTK_TABLE(table), entries[1], 1, 2, 1, 2,
+	                 GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
 
 	gtk_box_pack_start(vbox, table, FALSE, FALSE, 2);
 	gtk_widget_show(t);
-	gtk_widget_show(title);
+	gtk_widget_show(entries[0]);
 	gtk_widget_show(d);
-	gtk_widget_show(desc);
+	gtk_widget_show(entries[1]);
 	gtk_widget_show(table);
 
 	gtk_widget_grab_focus(entries[0]);

@@ -837,15 +837,28 @@ main(int argc, char *argv[])
 #endif /*  WNOHANG/SA_NOCLDWAIT */
 
 	static char *geometry_string = NULL;
-	static const struct poptOption geo_options[] = {
-			{"geometry", 'g', POPT_ARG_STRING, &geometry_string, 0,
+	static const GOptionEntry cmdline_opts[] = {
+			{"geometry", 'g', 0, G_OPTION_ARG_STRING, &geometry_string,
 	     N_("Specify geometry"), N_("GEOMETRY")},
-			{"select-project", 's', POPT_ARG_STRING, &first_proj_title, 0,
+			{"select-project", 's', 0, G_OPTION_ARG_STRING, &first_proj_title,
 	     N_("Select a project on startup"), N_("PROJECT")},
-			{NULL, '\0', 0, NULL, 0}};
+			{NULL}};
+
+	GError *err = NULL;
+	GOptionContext *opt_ctxt =
+			g_option_context_new("- effort tracking made easy");
+	g_option_context_add_main_entries(opt_ctxt, cmdline_opts, GETTEXT_PACKAGE);
+	if (!g_option_context_parse(opt_ctxt, &argc, &argv, &err))
+	{
+		g_print("Option parsing failed: %s\n", err->message);
+		g_error_free(err);
+		err = NULL;
+		exit(1);
+	}
+	g_option_context_free(opt_ctxt);
+	opt_ctxt = NULL;
 
 	gnome_program_init(PACKAGE, VERSION, LIBGNOMEUI_MODULE, argc, argv,
-	                   GNOME_PARAM_POPT_TABLE, geo_options,
 	                   GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
 	gnome_window_icon_set_default_from_file(GNOME_ICONDIR "/gnome-cromagnon.png");
 

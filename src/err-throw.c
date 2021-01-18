@@ -16,19 +16,16 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glib.h>
-#include <gnome.h> /* needed only to define the _() macro */
-
 #include "err-throw.h"
+
+#include <glib/gi18n.h>
 
 static GttErrCode err = GTT_NO_ERR;
 
 GttErrCode
 gtt_err_get_code(void)
 {
-    return err;
+	return err;
 }
 
 void
@@ -41,9 +38,11 @@ gtt_err_set_code(GttErrCode code)
 		return;
 	}
 
-	/* if the error code is already set, don't over-write it */
+	/* if another error code is already set, don't over-write it */
 	if (GTT_NO_ERR != err)
+	{
 		return;
+	}
 
 	/* Otherwise set it. */
 	err = code;
@@ -55,6 +54,7 @@ char *
 gtt_err_to_string(GttErrCode code, const char *filename)
 {
 	char *ret = NULL;
+
 	switch (code)
 	{
 	case GTT_NO_ERR:
@@ -92,7 +92,6 @@ gtt_err_to_string(GttErrCode code, const char *filename)
 		ret = g_strdup_printf(_("Cannot write the config file\n\t%s\n"), filename);
 		break;
 	}
+
 	return ret;
 }
-
-/* =========================== END OF FILE ======================== */

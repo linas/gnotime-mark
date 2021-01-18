@@ -25,6 +25,12 @@
 
 static GttErrCode err = GTT_NO_ERR;
 
+GttErrCode
+gtt_err_get_code(void)
+{
+    return err;
+}
+
 void
 gtt_err_set_code(GttErrCode code)
 {
@@ -41,12 +47,6 @@ gtt_err_set_code(GttErrCode code)
 
 	/* Otherwise set it. */
 	err = code;
-}
-
-GttErrCode
-gtt_err_get_code(void)
-{
-	return err;
 }
 
 /* ================================================================ */

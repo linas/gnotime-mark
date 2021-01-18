@@ -484,7 +484,7 @@ read_data(gboolean reloading)
 	}
 
 	post_read_data();
-	g_free(xml_filepath);
+	/* TODO g_free(xml_filepath); double free */
 	return;
 }
 

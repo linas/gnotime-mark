@@ -41,7 +41,41 @@
 
 #include "util.h"
 
-/* ============================================================== */
+GtkBuilder *
+gtt_gtk_builder_new(const char *filename)
+{
+	g_return_val_if_fail(filename != NULL, NULL);
+
+	GtkBuilder *builder = NULL;
+	GError *err = NULL;
+	if (g_file_test(filename, G_FILE_TEST_EXISTS))
+	{
+		builder = gtk_builder_new();
+		if (!gtk_builder_add_from_file(builder, filename, &err))
+		{
+			g_warning("Couldn't load builder file: %s", err->message);
+			g_error_free(err);
+			g_object_unref(builder);
+			builder = NULL;
+		}
+	}
+
+	if (builder == NULL)
+	{
+		char *file = g_build_filename(GTTGLADEDIR, filename, NULL);
+		builder = gtk_builder_new();
+		if (!gtk_builder_add_from_file(builder, file, &err))
+		{
+			g_warning("Couldn't load builder file: %s", err->message);
+			g_error_free(err);
+			g_object_unref(builder);
+			builder = NULL;
+		}
+		g_free(file);
+	}
+
+	return builder;
+}
 
 void
 xxxgtk_textview_set_text(GtkTextView *text, const char *str)

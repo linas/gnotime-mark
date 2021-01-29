@@ -17,21 +17,15 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <gnome.h>
-#include <libgnomevfs/gnome-vfs.h>
-#include <string.h>
-
-#include "app.h"
 #include "export.h"
+#include "app.h"
 #include "ghtml.h"
-#include "proj.h"
+
+#include <glib/gi18n.h>
 
 /* Project data export */
 
 #define gtt_sure_string(x) ((x) ? (x) : "")
-
-/* ======================================================= */
 
 typedef struct export_format_s export_format_t;
 
@@ -39,10 +33,14 @@ struct export_format_s
 {
 	GtkFileChooser *picker; /* URI picker (file selection) */
 	const char *uri;        /* aka filename */
-	GnomeVFSHandle *handle; /* file handle */
-	GttGhtml *ghtml;        /* output device */
-	const char *template;   /* output template */
+	GFile *file;
+	GFileOutputStream *ostream;
+	GttGhtml *ghtml;      /* output device */
+	const char *template; /* output template */
 };
+
+static export_format_t *export_format_new(void);
+static void export_show_error_message(GtkWindow *parent, char *msg);
 
 static export_format_t *
 export_format_new(void)
@@ -72,7 +70,6 @@ export_show_error_message(GtkWindow *parent, char *msg)
 	gtk_widget_destroy(dialog);
 }
 
-/* ======================================================= */
 /*
  * Print out the projects using the standard guile-based
  * printing infrastructure.
@@ -81,16 +78,17 @@ export_show_error_message(GtkWindow *parent, char *msg)
 static void
 export_write(GttGhtml *gxp, const char *str, size_t len, export_format_t *xp)
 {
-	GnomeVFSFileSize buflen = len;
-	GnomeVFSFileSize bytes_written = 0;
-	GnomeVFSResult result = GNOME_VFS_OK;
-	size_t off = 0;
-
-	while ((buflen > 0) && (result == GNOME_VFS_OK))
+	gsize bytes_written = 0;
+	GError *err = NULL;
+	if (!g_output_stream_write_all(G_OUTPUT_STREAM(xp->ostream), str, len,
+	                               &bytes_written, NULL, NULL) ||
+	    err)
 	{
-		result = gnome_vfs_write(xp->handle, &str[off], buflen, &bytes_written);
-		off += bytes_written;
-		buflen -= bytes_written;
+		char *msg = g_strdup_printf(_("Failed to write to file %s: %s"), xp->uri,
+		                            err->message);
+		export_show_error_message(GTK_WINDOW(xp->picker), msg);
+		g_free(msg);
+		g_error_free(err);
 	}
 }
 
@@ -127,8 +125,6 @@ export_projects(export_format_t *xp)
 	return 0;
 }
 
-/* ======================================================= */
-
 static void
 export_really(GtkWidget *widget, export_format_t *xp)
 {
@@ -136,14 +132,18 @@ export_really(GtkWidget *widget, export_format_t *xp)
 
 	xp->uri = gtk_file_chooser_get_filename(xp->picker);
 
-	GnomeVFSResult result;
-	result =
-			gnome_vfs_create(&xp->handle, xp->uri, GNOME_VFS_OPEN_WRITE, FALSE, 0644);
-	if (GNOME_VFS_OK != result)
+	GError *err = NULL;
+	xp->file = g_file_new_for_path(xp->uri);
+	xp->ostream =
+			g_file_replace(xp->file, NULL, FALSE, G_FILE_CREATE_PRIVATE, NULL, &err);
+	if (!xp->ostream || err)
 	{
-		char *msg = g_strdup_printf(_("File %s could not be opened"), xp->uri);
+		char *msg = g_strdup_printf(_("File %s could not be opened: %s"), xp->uri,
+		                            err->message);
 		export_show_error_message(GTK_WINDOW(xp->picker), msg);
 		g_free(msg);
+		g_error_free(err);
+
 		return;
 	}
 
@@ -154,10 +154,16 @@ export_really(GtkWidget *widget, export_format_t *xp)
 		                          _("Error occured during export"));
 		return;
 	}
-	gnome_vfs_close(xp->handle);
+	if (!g_output_stream_close(G_OUTPUT_STREAM(xp->ostream), NULL, &err) || err)
+	{
+		char *msg = g_strdup_printf(_("File %s could not be closed: %s"), xp->uri,
+		                            err->message);
+		export_show_error_message(GTK_WINDOW(xp->picker), msg);
+		g_free(msg);
+		g_error_free(err);
+	}
+	g_object_unref(xp->file);
 }
-
-/* ======================================================= */
 
 void
 export_file_picker(GtkWidget *widget, gpointer data)
@@ -184,5 +190,3 @@ export_file_picker(GtkWidget *widget, gpointer data)
 	}
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 }
-
-/* ======================= END OF FILE ======================= */

@@ -42,6 +42,8 @@
 #include "query.h"
 #include "util.h"
 
+#include <glib/gi18n.h>
+
 /* Design problems:
  * The way this is currently defined, there is no type safety, and
  * we could easily be slipping the wrong addresses to the wrong places.

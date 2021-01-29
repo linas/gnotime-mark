@@ -101,6 +101,5 @@ SOURCES += \
     src/timer.c \
     src/toolbar.c \
     src/util.c \
-    # src/vfs-io.c \
     src/xml-read.c \
     src/xml-write.c \

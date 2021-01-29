@@ -20,7 +20,6 @@
 
 #define _GNU_SOURCE
 #include <glib.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include <libguile.h>
 #include <libguile/backtrace.h>
 #include <limits.h>
@@ -1580,33 +1579,39 @@ gtt_ghtml_display(GttGhtml *ghtml, const char *filepath, GttProject *prj)
 	}
 
 	/* Try to get the ghtml file ... */
-	GnomeVFSResult result;
-	GnomeVFSHandle *handle;
-	result = gnome_vfs_open(&handle, filepath, GNOME_VFS_OPEN_READ);
-	if ((GNOME_VFS_OK != result) && (0 == ghtml->open_count))
+	GError *err = NULL;
+	GFile *file_obj = g_file_new_for_path(filepath);
+	GFileInputStream *istream = g_file_read(file_obj, NULL, &err);
+	if (!istream || err)
 	{
 		if (ghtml->error)
 		{
-			(ghtml->error)(ghtml, 404, filepath, ghtml->user_data);
+			(ghtml->error(ghtml, 404, filepath, ghtml->user_data));
 		}
-		return;
+		g_error_free(err);
+		err = NULL;
 	}
 	ghtml->ref_path = filepath;
 
 	/* Read in the whole file.  Hopefully its not huge */
 	template = g_string_new(NULL);
-	while (GNOME_VFS_OK == result)
+	while (TRUE)
 	{
 #define BUFF_SIZE 4000
 		char buff[BUFF_SIZE + 1];
-		GnomeVFSFileSize bytes_read;
-		result = gnome_vfs_read(handle, buff, BUFF_SIZE, &bytes_read);
+		gssize bytes_read = g_input_stream_read(G_INPUT_STREAM(istream), buff,
+		                                        BUFF_SIZE, NULL, &err);
 		if (0 >= bytes_read)
+		{
 			break; /* EOF I presume */
+		}
 		buff[bytes_read] = 0x0;
 		g_string_append(template, buff);
 	}
-	gnome_vfs_close(handle);
+	g_input_stream_close(G_INPUT_STREAM(istream), NULL, NULL);
+	istream = NULL;
+	g_object_unref(file_obj);
+	file_obj = NULL;
 
 	/* ugh. gag. choke. puke. */
 	ghtml_guile_global_hack = ghtml;

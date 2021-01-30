@@ -23,7 +23,6 @@
 #include <glade/glade.h>
 #include <gnome.h>
 #include <gtkhtml/gtkhtml.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include <sched.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,6 +39,8 @@
 #include "props-invl.h"
 #include "props-task.h"
 #include "util.h"
+
+#include <gio/gio.h>
 
 /* This struct is a mish-mash of stuff relating to the
  * HTML display window, and the various actions and etc.
@@ -76,8 +77,9 @@ typedef struct wiggy_s
 	guint hover_timeout_id;
 	guint hover_kill_id;
 
-	GnomeVFSHandle *handle; /* file handle to save to */
-	GttPlugin *plg;         /* file path save history */
+	GFile *file_obj;                 /* file handle to save to */
+	GFileOutputStream *file_ostream; /* file stream to write to */
+	GttPlugin *plg;                  /* file path save history */
 
 	/* Publish-to-URL dialog */
 	GtkWidget *publish_popup;
@@ -156,20 +158,25 @@ wiggy_error(GttGhtml *pl, int err, const char *msg, gpointer ud)
 static void
 file_write_helper(GttGhtml *pl, const char *str, size_t len, gpointer data)
 {
+	GError *err = NULL;
 	Wiggy *wig = (Wiggy *)data;
-	GnomeVFSFileSize buflen = len;
-	GnomeVFSFileSize bytes_written = 0;
+	size_t buflen = len;
+	gssize bytes_written = 0;
 	size_t off = 0;
 	while (1)
 	{
-		GnomeVFSResult result;
-		result = gnome_vfs_write(wig->handle, &str[off], buflen, &bytes_written);
+		bytes_written = g_output_stream_write(G_OUTPUT_STREAM(wig->file_ostream),
+		                                      &str[off], buflen, NULL, &err);
 		off += bytes_written;
 		buflen -= bytes_written;
 		if (0 >= buflen)
+		{
 			break;
-		if (GNOME_VFS_OK != result)
+		}
+		if (0 > bytes_written)
+		{
 			break;
+		}
 	}
 }
 
@@ -193,20 +200,21 @@ static void
 save_to_gnomevfs(Wiggy *wig, const char *filename)
 {
 	/* Try to open the file for writing */
-	GnomeVFSResult result;
-	result = gnome_vfs_create(&wig->handle, filename, GNOME_VFS_OPEN_WRITE, FALSE,
-	                          0644);
+	GError *err = NULL;
+	wig->file_obj = g_file_new_for_uri(filename);
+	wig->file_ostream = g_file_replace(wig->file_obj, NULL, FALSE,
+	                                   G_FILE_CREATE_PRIVATE, NULL, &err);
 
-	if (GNOME_VFS_OK != result)
+	if (!wig->file_ostream || err)
 	{
-		GtkWidget *mb;
-		mb = gtk_message_dialog_new(
+		GtkWidget *const mb = gtk_message_dialog_new(
 				GTK_WINDOW(wig->top), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 				GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-				_("Unable to open the file %s\n%s"), filename,
-				gnome_vfs_result_to_string(result));
+				_("Unable to open the file %s\n%s"), filename, err->message);
 		g_signal_connect(G_OBJECT(mb), "response", G_CALLBACK(gtk_widget_destroy),
 		                 mb);
+		g_error_free(err);
+		g_object_unref(wig->file_obj);
 		gtk_widget_show(mb);
 	} else
 	{
@@ -218,8 +226,10 @@ save_to_gnomevfs(Wiggy *wig, const char *filename)
 		gtt_ghtml_display(wig->gh, wig->filepath, wig->prj);
 		gtt_ghtml_show_links(wig->gh, TRUE);
 
-		gnome_vfs_close(wig->handle);
-		wig->handle = NULL;
+		g_input_stream_close(G_INPUT_STREAM(wig->file_ostream), NULL, &err);
+		wig->file_ostream = NULL;
+		g_object_unref(wig->file_obj);
+		wig->file_obj = NULL;
 
 		/* Reset the html out handlers back to the browser */
 		gtt_ghtml_set_stream(wig->gh, wig, wiggy_open, wiggy_write, wiggy_close,
@@ -808,25 +818,31 @@ html_url_requested_cb(GtkHTML *doc, const gchar *url, GtkHTMLStream *handle,
 	Wiggy *wig = data;
 	const char *path = gtt_ghtml_resolve_path(url, wig->filepath);
 	if (!path)
+	{
 		return;
+	}
 
-	GnomeVFSResult result;
-	GnomeVFSHandle *vfs;
-	result = gnome_vfs_open(&vfs, path, GNOME_VFS_OPEN_READ);
-
-	if (GNOME_VFS_OK != result)
+	GError *err = NULL;
+	GFile *const html_file = g_file_new_for_path(path);
+	GFileInputStream *const html_istream = g_file_read(html_file, NULL, &err);
+	if (!html_istream || err)
+	{
+		g_object_unref(html_file);
 		return;
+	}
 
 #define BSZ 16000
 	char buff[BSZ];
-	GnomeVFSFileSize bytes_read;
-	result = gnome_vfs_read(vfs, buff, BSZ, &bytes_read);
-	while (GNOME_VFS_OK == result)
+	gssize bytes_read =
+			g_input_stream_read(G_INPUT_STREAM(html_istream), buff, BSZ, NULL, &err);
+	while (0 < bytes_read)
 	{
 		gtk_html_write(doc, handle, buff, bytes_read);
-		result = gnome_vfs_read(vfs, buff, BSZ, &bytes_read);
+		bytes_read = g_input_stream_read(G_INPUT_STREAM(html_istream), buff, BSZ,
+		                                 NULL, &err);
 	}
-	gnome_vfs_close(vfs);
+	g_input_stream_close(G_INPUT_STREAM(html_istream), NULL, &err);
+	g_object_unref(html_file);
 }
 
 /* ============================================================== */

@@ -120,15 +120,15 @@ lock_gtt(void)
 
 	if (warn)
 	{
-		GtkWidget *warning;
-		warning = gnome_message_box_new(
+		GtkWidget *warning = gtk_message_dialog_new(
+				NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL,
 				_("There seems to be another GnoTime running.\n"
-		      "Press OK to start GnoTime anyway, or press Cancel to quit."),
-				GNOME_MESSAGE_BOX_WARNING, GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
-		if (gnome_dialog_run_and_close(GNOME_DIALOG(warning)) != 0)
+		      "Press OK to start GnoTime anyway, or press Cancel to quit."));
+		if (gtk_dialog_run(GTK_DIALOG(warning)) != GTK_RESPONSE_OK)
 		{
 			exit(0);
 		}
+		gtk_widget_destroy(warning);
 	}
 	f = fopen(fname, "wt");
 	if (NULL == f)

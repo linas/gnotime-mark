@@ -72,7 +72,7 @@ some of the packages required to build GnoTime:
 
 -- guile-1.6-dev
 -- guile-1.6-slib
--- libgtkhtml3-dev
+-- libwebkitgtk-dev
 -- docbook-utils  (to build the documents subdirectory)
 
 

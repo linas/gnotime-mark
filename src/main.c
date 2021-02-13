@@ -874,7 +874,6 @@ main(int argc, char *argv[])
 
 	glade_init();
 
-	/* gconf init is needed by gtkhtml */
 	gconf_init(argc, argv, NULL);
 
 #ifdef HAVE_DECL_WNOHANG

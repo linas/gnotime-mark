@@ -59,9 +59,9 @@ PKGCONFIG += \
     libglade-2.0 \
     libgnome-2.0 \
     libgnomeui-2.0 \
-    libgtkhtml-3.14 \
     libxml-2.0 \
     qof \
+    webkit-1.0 \
     x11 \
     xscrnsaver \
 

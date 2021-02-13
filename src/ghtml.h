@@ -29,7 +29,7 @@
  * can be sent anywhere desired. For example, this could, in theory
  * be used inside a cgi-bin script.  (This is a plannned, multi-user,
  * web-based version that we hope to code up someday).  Currently,
- * the stream is used to push data into GtkHTML, and also to fwrite()
+ * the stream is used to push data into WebKitWebView, and also to fwrite()
  * for the save-to-file function.
  *
  * The X that can be Y is not the true X.

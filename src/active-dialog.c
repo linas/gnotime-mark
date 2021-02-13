@@ -22,8 +22,6 @@
 #include <gnome.h>
 #include <string.h>
 
-#include <qof.h>
-
 #include "active-dialog.h"
 #include "cur-proj.h"
 #include "dialog.h"

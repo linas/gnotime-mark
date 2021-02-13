@@ -27,8 +27,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <qof.h>
-
 #include <locale.h>
 #include <monetary.h>
 

@@ -24,8 +24,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <qof.h>
-
 #include "app.h"
 #include "ghtml-deprecated.h"
 #include "ghtml.h"

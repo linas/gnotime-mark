@@ -28,8 +28,6 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/scrnsaver.h>
 
-#include <qof.h>
-
 #include "app.h"
 #include "cur-proj.h"
 #include "dialog.h"

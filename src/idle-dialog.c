@@ -17,22 +17,19 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <gdk/gdkx.h>
-#include <glib.h>
-#include <gnome.h>
-#include <string.h>
-
-#include <X11/Xlib.h>
-#include <X11/extensions/scrnsaver.h>
-
+#include "idle-dialog.h"
 #include "app.h"
 #include "cur-proj.h"
 #include "dialog.h"
-#include "idle-dialog.h"
 #include "proj.h"
 #include "util.h"
+
+#include <gdk/gdkx.h>
+#include <glib/gi18n.h>
+#include <gtk/gtk.h>
+
+#include <X11/Xlib.h>
+#include <X11/extensions/scrnsaver.h>
 
 int config_idle_timeout = -1;
 

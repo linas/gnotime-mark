@@ -39,18 +39,27 @@ struct export_format_s
 	const char *template; /* output template */
 };
 
+static void export_err(GttGhtml *gxp, int errcode, const char *msg,
+                       export_format_t *xp);
 static export_format_t *export_format_new(void);
+static gint export_projects(export_format_t *xp);
+static void export_really(GtkWidget *widget, export_format_t *xp);
 static void export_show_error_message(GtkWindow *parent, char *msg);
+static void export_write(GttGhtml *gxp, const char *str, size_t len,
+                         export_format_t *xp);
 
 static export_format_t *
 export_format_new(void)
 {
-	export_format_t *rc;
-	rc = g_new0(export_format_t, 1);
+	export_format_t *const rc = g_new0(export_format_t, 1);
+
 	rc->picker = NULL;
 	rc->uri = NULL;
+	rc->file = NULL;
+	rc->ostream = NULL;
 	rc->ghtml = NULL;
 	rc->template = NULL;
+
 	return rc;
 }
 
@@ -61,7 +70,7 @@ export_format_new(void)
 static void
 export_show_error_message(GtkWindow *parent, char *msg)
 {
-	GtkWidget *dialog = gtk_message_dialog_new_with_markup(
+	GtkWidget *const dialog = gtk_message_dialog_new_with_markup(
 			parent, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
 			_("<b>Gnotime export error</b>"));
 	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s",
@@ -103,12 +112,12 @@ export_err(GttGhtml *gxp, int errcode, const char *msg, export_format_t *xp)
 static gint
 export_projects(export_format_t *xp)
 {
-	GttProject *prj;
-
 	/* Get the currently selected project */
-	prj = gtt_projects_tree_get_selected_project(projects_tree);
+	GttProject *const prj = gtt_projects_tree_get_selected_project(projects_tree);
 	if (!prj)
+	{
 		return 0;
+	}
 
 	xp->ghtml = gtt_ghtml_new();
 	gtt_ghtml_set_stream(xp->ghtml, xp, NULL, (GttGhtmlWriteStream)export_write,
@@ -128,8 +137,6 @@ export_projects(export_format_t *xp)
 static void
 export_really(GtkWidget *widget, export_format_t *xp)
 {
-	gboolean rc;
-
 	xp->uri = gtk_file_chooser_get_filename(xp->picker);
 
 	GError *err = NULL;
@@ -147,7 +154,7 @@ export_really(GtkWidget *widget, export_format_t *xp)
 		return;
 	}
 
-	rc = export_projects(xp);
+	gboolean rc = export_projects(xp);
 	if (rc)
 	{
 		export_show_error_message(GTK_WINDOW(xp->picker),

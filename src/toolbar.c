@@ -17,20 +17,17 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <gnome.h>
-#include <string.h>
-
+#include "toolbar.h"
 #include "app.h"
 #include "dialog.h"
-#include "gtt.h"
 #include "journal.h"
 #include "menucmd.h"
 #include "menus.h"
 #include "myoaf.h"
 #include "prefs.h"
 #include "timer.h"
-#include "toolbar.h"
+
+#include <gnome.h>
 
 typedef struct _MyToolbar MyToolbar;
 
@@ -54,15 +51,17 @@ struct _MyToolbar
 	int spc;
 };
 
+static GtkWidget *toolbar_append_stock_button(
+		GtkToolbar *toolbar, const gchar *text, const gchar *tooltip_text,
+		const gchar *stock_icon_id, GtkSignalFunc callback, gpointer user_data);
+
 MyToolbar *mytbar = NULL;
 
-/* ================================================================= */
 /* This routine updates the appearence/behaviour of the toolbar.
  * In particular, the 'paste' button becomes active when there
  * is something to paste, and the timer button toggles it's
  * image when a project timer is started/stopped.
  */
-
 void
 toolbar_set_states(void)
 {
@@ -85,9 +84,12 @@ toolbar_set_states(void)
 	if (mytbar->tbar && mytbar->tbar->tooltips)
 	{
 		if (config_show_tb_tips)
+		{
 			gtk_tooltips_enable(mytbar->tbar->tooltips);
-		else
+		} else
+		{
 			gtk_tooltips_disable(mytbar->tbar->tooltips);
+		}
 	}
 
 	if (mytbar->paste)
@@ -104,7 +106,6 @@ toolbar_set_states(void)
 	}
 }
 
-/* ================================================================= */
 /* A small utility routine to use a stock image with custom text,
  * and put the whole thing into the toolbar
  */
@@ -114,20 +115,17 @@ toolbar_append_stock_button(GtkToolbar *toolbar, const gchar *text,
                             const gchar *stock_icon_id, GtkSignalFunc callback,
                             gpointer user_data)
 {
-	GtkWidget *w, *image;
-
-	image = gtk_image_new_from_stock(stock_icon_id, GTK_ICON_SIZE_LARGE_TOOLBAR);
-	w = gtk_toolbar_append_item(toolbar, text, tooltip_text, NULL, image,
-	                            callback, user_data);
+	GtkWidget *const image =
+			gtk_image_new_from_stock(stock_icon_id, GTK_ICON_SIZE_LARGE_TOOLBAR);
+	GtkWidget *const w = gtk_toolbar_append_item(
+			toolbar, text, tooltip_text, NULL, image, callback, user_data);
 	return w;
 }
 
-/* ================================================================= */
 /* Assemble the buttons in the toolbar.  Which ones
  * are visible depends on the config settings.
  * Returns a pointer to the (still hidden) GtkToolbar
  */
-
 GtkWidget *
 build_toolbar(void)
 {
@@ -242,10 +240,8 @@ build_toolbar(void)
 	return GTK_WIDGET(mytbar->tbar);
 }
 
-/* ================================================================= */
 /* TODO: I have to completely rebuild the toolbar, when I want to add or
    remove items. There should be a better way now */
-
 #define ZAP(w)                                                                 \
 	if (w)                                                                       \
 	{                                                                            \
@@ -263,15 +259,16 @@ build_toolbar(void)
 void
 update_toolbar_sections(void)
 {
-	GtkContainer *tbc;
-	GtkWidget *tb;
-
 	if (!app_window)
+	{
 		return;
+	}
 	if (!mytbar)
+	{
 		return;
+	}
 
-	tbc = GTK_CONTAINER(mytbar->tbar);
+	GtkContainer *const tbc = GTK_CONTAINER(mytbar->tbar);
 	ZING(mytbar->spa);
 	ZING(mytbar->spb);
 	ZING(mytbar->spc);
@@ -288,8 +285,6 @@ update_toolbar_sections(void)
 	ZAP(mytbar->help);
 	ZAP(mytbar->exit);
 
-	tb = build_toolbar();
+	GtkWidget *const tb = build_toolbar();
 	gtk_widget_show(tb);
 }
-
-/* ======================= END OF FILE ======================= */

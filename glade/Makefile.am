@@ -4,7 +4,6 @@ gttgladedir = $(datadir)/gnotime/glade
 gttglade_DATA =              \
   active.glade               \
   column_menu.glade          \
-  idle.glade                 \
   interval_edit.glade        \
   interval_popup.glade       \
   journal.glade              \

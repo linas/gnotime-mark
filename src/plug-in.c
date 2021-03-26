@@ -121,11 +121,12 @@ new_plugin_create_cb(GtkWidget *w, gpointer data)
 	if (!exists)
 	{
 		gchar *msg;
-		GtkWidget *mb;
 		msg = g_strdup_printf(_("Unable to open the report file %s\n"), path);
-		mb = gnome_message_box_new(msg, GNOME_MESSAGE_BOX_ERROR, GTK_STOCK_CLOSE,
-		                           NULL);
-		gtk_widget_show(mb);
+		GtkWidget *mb =
+				gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
+		                           GTK_BUTTONS_CLOSE, "%s", msg);
+		gtk_dialog_run(GTK_DIALOG(mb));
+		gtk_widget_destroy(mb);
 		/* g_free (msg);   XXX memory leak needs fixing. */
 	} else
 	{

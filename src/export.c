@@ -19,13 +19,14 @@
 
 #include <config.h>
 #include <gnome.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include <string.h>
 
 #include "app.h"
 #include "export.h"
 #include "ghtml.h"
 #include "proj.h"
+
+#include <gio/gio.h>
 
 /* Project data export */
 
@@ -37,11 +38,12 @@ typedef struct export_format_s export_format_t;
 
 struct export_format_s
 {
-	GtkFileChooser *picker; /* URI picker (file selection) */
-	const char *uri;        /* aka filename */
-	GnomeVFSHandle *handle; /* file handle */
-	GttGhtml *ghtml;        /* output device */
-	const char *template;   /* output template */
+	GtkFileChooser *picker;     /* URI picker (file selection) */
+	const char *uri;            /* aka filename */
+	GFile *ofile;               /* file to write to */
+	GFileOutputStream *ostream; /* output stream to write to */
+	GttGhtml *ghtml;            /* output device */
+	const char *template;       /* output template */
 };
 
 static export_format_t *
@@ -81,14 +83,15 @@ export_show_error_message(GtkWindow *parent, char *msg)
 static void
 export_write(GttGhtml *gxp, const char *str, size_t len, export_format_t *xp)
 {
-	GnomeVFSFileSize buflen = len;
-	GnomeVFSFileSize bytes_written = 0;
-	GnomeVFSResult result = GNOME_VFS_OK;
+	gsize buflen = len;
+	gssize bytes_written = 0;
 	size_t off = 0;
 
-	while ((buflen > 0) && (result == GNOME_VFS_OK))
+	GError *error = NULL;
+	while ((buflen > 0) && (-1 != bytes_written) && (NULL == error))
 	{
-		result = gnome_vfs_write(xp->handle, &str[off], buflen, &bytes_written);
+		bytes_written = g_output_stream_write(G_OUTPUT_STREAM(xp->ostream),
+		                                      &str[off], buflen, NULL, &error);
 		off += bytes_written;
 		buflen -= bytes_written;
 	}
@@ -136,14 +139,26 @@ export_really(GtkWidget *widget, export_format_t *xp)
 
 	xp->uri = gtk_file_chooser_get_filename(xp->picker);
 
-	GnomeVFSResult result;
-	result =
-			gnome_vfs_create(&xp->handle, xp->uri, GNOME_VFS_OPEN_WRITE, FALSE, 0644);
-	if (GNOME_VFS_OK != result)
+	GError *error = NULL;
+	xp->ofile = g_file_new_for_path(xp->uri);
+	xp->ostream = g_file_replace(xp->ofile, NULL, FALSE, G_FILE_CREATE_PRIVATE,
+	                             NULL, &error);
+	if ((NULL == xp->ostream) || (NULL != error))
 	{
 		char *msg = g_strdup_printf(_("File %s could not be opened"), xp->uri);
 		export_show_error_message(GTK_WINDOW(xp->picker), msg);
 		g_free(msg);
+		g_object_unref(xp->ofile);
+		xp->ofile = NULL;
+		if (error)
+		{
+			g_error_free(error);
+		}
+		if (xp->ostream)
+		{
+			g_object_unref(xp->ostream);
+			xp->ostream = NULL;
+		}
 		return;
 	}
 
@@ -154,7 +169,18 @@ export_really(GtkWidget *widget, export_format_t *xp)
 		                          _("Error occured during export"));
 		return;
 	}
-	gnome_vfs_close(xp->handle);
+	if (!g_output_stream_close(G_OUTPUT_STREAM(xp->ostream), NULL, &error) ||
+	    error)
+	{
+		// TODO: Report error
+		g_clear_error(&error);
+		g_object_unref(xp->ostream);
+		xp->ostream = NULL;
+	}
+	g_object_unref(xp->ostream);
+	xp->ostream = NULL;
+	g_object_unref(xp->ofile);
+	xp->ofile = NULL;
 }
 
 /* ======================================================= */

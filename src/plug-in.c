@@ -17,10 +17,10 @@
  */
 
 #include "config.h"
+#include <gio/gio.h>
 #include <glade/glade.h>
 #include <glib.h>
 #include <gnome.h>
-#include <libgnomevfs/gnome-vfs.h>
 
 #include "app.h"
 #include "gconf-io.h"
@@ -114,10 +114,10 @@ new_plugin_create_cb(GtkWidget *w, gpointer data)
 	tip = gtk_entry_get_text(dlg->plugin_tooltip);
 
 	/* Do a basic sanity check */
-	GnomeVFSURI *parsed_uri;
-	parsed_uri = gnome_vfs_uri_new(path);
-	gboolean exists = gnome_vfs_uri_exists(parsed_uri);
-	gnome_vfs_uri_unref(parsed_uri);
+	GFile *parsed_file = g_file_new_for_uri(path);
+	const gboolean exists = g_file_query_exists(parsed_file, NULL);
+	g_object_unref(parsed_file);
+	parsed_file = NULL;
 	if (!exists)
 	{
 		gchar *msg;

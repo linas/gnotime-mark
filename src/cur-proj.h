@@ -19,7 +19,7 @@
 #ifndef GTT_CUR_PROJ_H_
 #define GTT_CUR_PROJ_H_
 
-#include <proj.h>
+#include "proj.h"
 
 extern GttProject *cur_proj;
 void cur_proj_set(GttProject *p);

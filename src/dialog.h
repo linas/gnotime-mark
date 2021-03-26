@@ -18,6 +18,8 @@
 #ifndef GTT_DIALOG_H_
 #define GTT_DIALOG_H_
 
+#include <gtk/gtk.h>
+
 /* Popup the appropriate help/documentaiton subsystem */
 void gtt_help_popup(GtkWidget *widget, gpointer data);
 

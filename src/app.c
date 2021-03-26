@@ -39,6 +39,7 @@
 #include "notes-area.h"
 #include "prefs.h"
 #include "props-proj.h"
+#include "status-icon.h"
 #include "timer.h"
 #include "toolbar.h"
 #include "util.h"

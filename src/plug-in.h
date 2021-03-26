@@ -19,8 +19,9 @@
 #ifndef GTT_PLUG_IN_H_
 #define GTT_PLUG_IN_H_
 
-#include <glib.h>
 #include <gtk/gtk.h>
+
+#include <glib.h>
 
 /**
  * Somewhat misnamed, this is really just a description of the

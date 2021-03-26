@@ -19,8 +19,7 @@
 #ifndef GTT_H_
 #define GTT_H_
 
-
-#include <gnome.h>
+#include <glib.h>
 
 #define GTT_APP_TITLE        "Gnome Time Tracker"
 #define GTT_APP_PROPER_NAME  "GnoTime"

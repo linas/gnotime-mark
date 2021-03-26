@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include <glib/gi18n.h>
 
 #include <qof.h>
 

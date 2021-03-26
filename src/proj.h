@@ -20,14 +20,14 @@
 #ifndef GTT_PROJ_H_
 #define GTT_PROJ_H_
 
-#include <glib.h>
 #include <qof.h>
+
+#include <glib.h>
 
 /* The data structures for GnoTime are written in a quasi-object-oriented
  * style.  All data is encapsulated in opaque structs, and can be accessed
  * only through the setters and getters defined in this file.
  */
-
 
 #ifdef TIME_WITH_SYS_TIME
 #include <sys/time.h>

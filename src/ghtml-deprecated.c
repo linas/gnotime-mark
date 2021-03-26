@@ -26,6 +26,8 @@
 
 #include <qof.h>
 
+#include <glib/gi18n.h>
+
 #include "app.h"
 #include "gtt.h"
 #include "ghtml.h"

@@ -16,7 +16,6 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 #ifndef GTT_PREFS_H_
 #define GTT_PREFS_H_
 
@@ -70,18 +69,18 @@ extern int config_weekstart_offset;
 extern int config_time_format;
 
 extern char *config_currency_symbol;
-extern int  config_currency_use_locale;
-#define TIME_FORMAT_AM_PM  1
-#define TIME_FORMAT_24_HS  2
+extern int config_currency_use_locale;
+#define TIME_FORMAT_AM_PM 1
+#define TIME_FORMAT_24_HS 2
 #define TIME_FORMAT_LOCALE 3
 
 /* Pop up a dialog box for setting user preferences */
-void prefs_dialog_show (void);
+void prefs_dialog_show(void);
 
 /* update the list of visible columns in the main projects tree based
    on current user preference */
-void prefs_update_projects_view_columns (void);
-void prefs_update_projects_view (void);
-void prefs_set_show_secs (void);
+void prefs_update_projects_view_columns(void);
+void prefs_update_projects_view(void);
+void prefs_set_show_secs(void);
 
 #endif /* GTT_PREFS_H_ */

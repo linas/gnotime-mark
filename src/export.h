@@ -23,6 +23,6 @@
 #include <gtk/gtk.h>
 
 /* bring up dialog for picking the export format, file, etc. */
-void export_file_picker (GtkWidget *widget, gpointer data);
+void export_file_picker(GtkWidget *widget, gpointer data);
 
 #endif /* GTT_EXPORT_H_ */

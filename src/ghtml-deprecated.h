@@ -21,7 +21,6 @@
 
 #include "ghtml.h"
 
-void gtt_ghtml_deprecated_init (GttGhtml *);
+void gtt_ghtml_deprecated_init(GttGhtml *);
 
 #endif /* GTT_GHTML_DEPRECATED_H_ */
-

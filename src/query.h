@@ -47,7 +47,6 @@ struct GttBucket_s
 	GList *intervals; /* List of GttIntervals in the bucket */
 };
 
-
 /* The following routines are needed to implement a
  *    calendar report in GTT.
  *
@@ -80,13 +79,13 @@ struct GttBucket_s
  *    included in the day totals.
  */
 
-GArray * gtt_project_get_daily_buckets (GttProject *proj,
-					      gboolean include_subprojects);
+GArray *gtt_project_get_daily_buckets(GttProject *proj,
+                                      gboolean include_subprojects);
 
-time_t   gtt_project_get_earliest_start (GttProject *proj,
-					      gboolean include_subprojects);
+time_t gtt_project_get_earliest_start(GttProject *proj,
+                                      gboolean include_subprojects);
 
-time_t   gtt_project_get_latest_stop (GttProject *proj,
-					      gboolean include_subprojects);
+time_t gtt_project_get_latest_stop(GttProject *proj,
+                                   gboolean include_subprojects);
 
 #endif /* GTT_QUERY_H_ */

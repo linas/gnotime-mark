@@ -16,7 +16,6 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 #ifndef GTT_PROPS_PROJ_H_
 #define GTT_PROPS_PROJ_H_
 
@@ -28,6 +27,5 @@
  */
 void prop_dialog_set_project(GttProject *proj);
 void prop_dialog_show(GttProject *proj);
-
 
 #endif /* GTT_PROPS_PROJ_H_ */

@@ -1352,7 +1352,6 @@ do_show_report(const char *report, GttPlugin *plg, KvpFrame *kvpf,
 char *
 gtt_ghtml_resolve_path(const char *path_frag, const char *reference_path)
 {
-	const GList *list;
 	char buff[PATH_MAX], *path;
 
 	if (!path_frag)
@@ -1374,28 +1373,26 @@ gtt_ghtml_resolve_path(const char *path_frag, const char *reference_path)
 	}
 
 	/* Next, check each language that the user is willing to look at. */
-	list = gnome_i18n_get_language_list("LC_MESSAGES");
-	for (; list; list = list->next)
+	const gchar *const *langs = g_get_language_names();
+	while (*langs)
 	{
-		const char *lang = list->data;
-
 		/* See if gnotime/ghtml/<lang>/<path_frag> exists. */
 		/* Look in the local build dir first (for testing) */
 
-		snprintf(buff, PATH_MAX, "ghtml/%s/%s", lang, path_frag);
+		snprintf(buff, PATH_MAX, "ghtml/%s/%s", *langs, path_frag);
 		path = gnome_program_locate_file(NULL, GNOME_FILE_DOMAIN_DATADIR, buff,
 		                                 TRUE, NULL);
 		if (path)
 			return path;
 
-		snprintf(buff, PATH_MAX, "gnotime/ghtml/%s/%s", lang, path_frag);
+		snprintf(buff, PATH_MAX, "gnotime/ghtml/%s/%s", *langs, path_frag);
 		path = gnome_program_locate_file(NULL, GNOME_FILE_DOMAIN_DATADIR, buff,
 		                                 TRUE, NULL);
 		if (path)
 			return path;
 
 		/* Backwards compat, check the gtt dir, not just the gnotime dir */
-		snprintf(buff, PATH_MAX, "gtt/ghtml/%s/%s", lang, path_frag);
+		snprintf(buff, PATH_MAX, "gtt/ghtml/%s/%s", *langs, path_frag);
 		path = gnome_program_locate_file(NULL, GNOME_FILE_DOMAIN_DATADIR, buff,
 		                                 TRUE, NULL);
 		if (path)
@@ -1408,9 +1405,12 @@ gtt_ghtml_resolve_path(const char *path_frag, const char *reference_path)
 		 *
 		 * -warlord 2001-11-29
 		 */
-		snprintf(buff, PATH_MAX, GTTDATADIR "/ghtml/%s/%s", lang, path_frag);
+		snprintf(buff, PATH_MAX, GTTDATADIR "/ghtml/%s/%s", *langs, path_frag);
 		if (g_file_test((buff), G_FILE_TEST_EXISTS))
+		{
 			return g_strdup(buff);
+		}
+		++langs;
 	}
 	return g_strdup(path_frag);
 }

@@ -20,7 +20,6 @@
 
 #include <glade/glade.h>
 #include <glib.h>
-#include <gnome.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -33,8 +32,14 @@ struct EditIntervalDialog_s
 	GttInterval *interval;
 	GladeXML *gtxml;
 	GtkWidget *interval_edit;
-	GtkWidget *start_widget;
-	GtkWidget *stop_widget;
+	GtkWidget *start_calendar;
+	GtkWidget *start_hour;
+	GtkWidget *start_minute;
+	GtkWidget *start_second;
+	GtkWidget *stop_calendar;
+	GtkWidget *stop_hour;
+	GtkWidget *stop_minute;
+	GtkWidget *stop_second;
 	GtkWidget *fuzz_widget;
 };
 
@@ -51,8 +56,33 @@ interval_edit_apply_cb(GtkWidget *w, gpointer data)
 	time_t start, stop, tmp;
 	int fuzz, min_invl;
 
-	start = gnome_date_edit_get_time(GNOME_DATE_EDIT(dlg->start_widget));
-	stop = gnome_date_edit_get_time(GNOME_DATE_EDIT(dlg->stop_widget));
+	gint day = 0, month = 0, year = 0;
+	const gint start_hour =
+			gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(dlg->start_hour));
+	const gint start_minute =
+			gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(dlg->start_minute));
+	const gint start_second =
+			gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(dlg->start_second));
+	g_object_get(G_OBJECT(dlg->start_calendar), "day", &day, "month", &month,
+	             "year", &year, NULL);
+	GDateTime *start_date_time = g_date_time_new_local(
+			year, month, day, start_hour, start_minute, start_second);
+	start = g_date_time_to_unix(start_date_time);
+	g_date_time_unref(start_date_time);
+	start_date_time = NULL;
+	const gint stop_hour =
+			gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(dlg->stop_hour));
+	const gint stop_minute =
+			gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(dlg->stop_minute));
+	const gint stop_second =
+			gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(dlg->stop_second));
+	g_object_get(G_OBJECT(dlg->stop_calendar), "day", &day, "month", &month,
+	             "year", &year, NULL);
+	GDateTime *stop_date_time = g_date_time_new_local(year, month, day, stop_hour,
+	                                                  stop_minute, stop_second);
+	stop = g_date_time_to_unix(stop_date_time);
+	g_date_time_unref(stop_date_time);
+	stop_date_time = NULL;
 
 	/* If user reversed start and stop, flip them back */
 	if (start > stop)
@@ -113,7 +143,6 @@ interval_edit_cancel_cb(GtkWidget *w, gpointer data)
 void
 edit_interval_set_interval(EditIntervalDialog *dlg, GttInterval *ivl)
 {
-	GtkWidget *w;
 	GtkOptionMenu *fw;
 	time_t start, stop;
 	int fuzz;
@@ -124,23 +153,58 @@ edit_interval_set_interval(EditIntervalDialog *dlg, GttInterval *ivl)
 
 	if (!ivl)
 	{
-		w = dlg->start_widget;
-		gnome_date_edit_set_time(GNOME_DATE_EDIT(w), 0);
-		w = dlg->stop_widget;
-		gnome_date_edit_set_time(GNOME_DATE_EDIT(w), 0);
+		GDateTime *now = g_date_time_new_now_local();
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->start_hour),
+		                          g_date_time_get_hour(now));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->start_minute),
+		                          g_date_time_get_minute(now));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->start_second),
+		                          g_date_time_get_second(now));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->stop_hour),
+		                          g_date_time_get_hour(now));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->stop_minute),
+		                          g_date_time_get_minute(now));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->stop_second),
+		                          g_date_time_get_second(now));
+		g_date_time_unref(now);
+		now = NULL;
 
 		fw = GTK_OPTION_MENU(dlg->fuzz_widget);
 		gtk_option_menu_set_history(fw, 0);
 		return;
 	}
 
-	w = dlg->start_widget;
 	start = gtt_interval_get_start(ivl);
-	gnome_date_edit_set_time(GNOME_DATE_EDIT(w), start);
+	GDateTime *start_time = g_date_time_new_from_unix_utc(start);
+	gint day = g_date_time_get_day_of_month(start_time);
+	gint month = g_date_time_get_month(start_time);
+	gint year = g_date_time_get_year(start_time);
+	g_object_set(G_OBJECT(dlg->start_calendar), "day", &day, "month", &month,
+	             "year", &year, NULL);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->start_hour),
+	                          g_date_time_get_hour(start_time));
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->start_minute),
+	                          g_date_time_get_minute(start_time));
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->start_second),
+	                          g_date_time_get_second(start_time));
+	g_date_time_unref(start_time);
+	start_time = NULL;
 
-	w = dlg->stop_widget;
 	stop = gtt_interval_get_stop(ivl);
-	gnome_date_edit_set_time(GNOME_DATE_EDIT(w), stop);
+	GDateTime *stop_time = g_date_time_new_from_unix_utc(stop);
+	day = g_date_time_get_day_of_month(stop_time);
+	month = g_date_time_get_month(stop_time);
+	year = g_date_time_get_year(stop_time);
+	g_object_set(G_OBJECT(dlg->stop_calendar), "day", &day, "month", &month,
+	             "year", &year, NULL);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->stop_hour),
+	                          g_date_time_get_hour(stop_time));
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->stop_minute),
+	                          g_date_time_get_minute(stop_time));
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(dlg->stop_second),
+	                          g_date_time_get_second(stop_time));
+	g_date_time_unref(stop_time);
+	stop_time = NULL;
 
 	fuzz = gtt_interval_get_fuzz(dlg->interval);
 	fw = GTK_OPTION_MENU(dlg->fuzz_widget);
@@ -194,8 +258,14 @@ edit_interval_dialog_new(void)
 	glade_xml_signal_connect_data(glxml, "on_cancel_button_clicked",
 	                              GTK_SIGNAL_FUNC(interval_edit_cancel_cb), dlg);
 
-	dlg->start_widget = glade_xml_get_widget(glxml, "start_date");
-	dlg->stop_widget = glade_xml_get_widget(glxml, "stop_date");
+	dlg->start_calendar = glade_xml_get_widget(glxml, "calendar_start");
+	dlg->start_hour = glade_xml_get_widget(glxml, "spinbutton_start_hour");
+	dlg->start_minute = glade_xml_get_widget(glxml, "spinbutton_start_minute");
+	dlg->start_second = glade_xml_get_widget(glxml, "spinbutton_start_second");
+	dlg->stop_calendar = glade_xml_get_widget(glxml, "calendar_stop");
+	dlg->stop_hour = glade_xml_get_widget(glxml, "spinbutton_stop_hour");
+	dlg->stop_minute = glade_xml_get_widget(glxml, "spinbutton_stop_minute");
+	dlg->stop_second = glade_xml_get_widget(glxml, "spinbutton_stop_second");
 	dlg->fuzz_widget = glade_xml_get_widget(glxml, "fuzz_menu");
 
 	/* ----------------------------------------------- */

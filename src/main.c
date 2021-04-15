@@ -120,15 +120,15 @@ lock_gtt(void)
 
 	if (warn)
 	{
-		GtkWidget *warning;
-		warning = gnome_message_box_new(
-				_("There seems to be another GnoTime running.\n"
-		      "Press OK to start GnoTime anyway, or press Cancel to quit."),
-				GNOME_MESSAGE_BOX_WARNING, GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
-		if (gnome_dialog_run_and_close(GNOME_DIALOG(warning)) != 0)
+		GtkWidget *const warning = gtk_message_dialog_new(
+				NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL,
+				_("There seems to be another GnoTime running.\nPress OK to start "
+		      "GnoTime anyway, or press Cancel to quit."));
+		if (GTK_RESPONSE_OK != gtk_dialog_run(GTK_DIALOG(warning)))
 		{
 			exit(0);
 		}
+		gtk_widget_destroy(warning);
 	}
 	f = fopen(fname, "wt");
 	if (NULL == f)
@@ -849,7 +849,12 @@ main(int argc, char *argv[])
 	}
 	gnome_program_init(PACKAGE, VERSION, LIBGNOMEUI_MODULE, argc, argv,
 	                   GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
-	gnome_window_icon_set_default_from_file(GNOME_ICONDIR "/gnome-cromagnon.png");
+	if (!gtk_window_set_default_icon_from_file(
+					GNOME_ICONDIR "/gnome-cromagnon.png", &error))
+	{
+		g_print("Failed to set default icon from file: %s\n", error->message);
+		g_clear_error(&error);
+	}
 
 	bindtextdomain(GETTEXT_PACKAGE, GNOMELOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");

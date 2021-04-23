@@ -60,7 +60,7 @@
 char *first_proj_title = NULL; /* command line over-ride */
 
 static gboolean first_time_ever = FALSE; /* has gtt ever run before? */
-
+static GSettings *gsettings = NULL;
 GttProjectList *master_list = NULL;
 
 const char *
@@ -869,6 +869,13 @@ main(int argc, char *argv[])
 
 	/* gconf init is needed by gtkhtml */
 	gconf_init(argc, argv, NULL);
+	gsettings = g_settings_new("com.github.markuspg.gnotime");
+	if (NULL == gsettings)
+	{
+		g_print("Failed to create GSettings object for schema"
+		        " \"com.github.markuspg.gnotime\"");
+		return 1;
+	}
 
 #ifdef HAVE_DECL_WNOHANG
 	/* Create a signal handler to reap zombie processes.  Most portable */

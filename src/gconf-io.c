@@ -46,6 +46,8 @@ extern int run_timer;
 
 #define GTT_GCONF "/apps/gnotime"
 
+static void set_bool(GSettings *gsettings, const gchar *key, gboolean value);
+
 /* ======================================================= */
 
 void
@@ -88,7 +90,7 @@ gtt_save_reports_menu(void)
 /* XXX fixme -- this should really use GConfChangeSet */
 
 void
-gtt_gconf_save(void)
+gtt_gconf_save(GSettings *gsettings)
 {
 	char s[120];
 	int x, y, w, h;
@@ -118,43 +120,50 @@ gtt_gconf_save(void)
 	}
 	/* ------------- */
 	/* save the configure dialog values */
-	SETBOOL("/Display/ShowSecs", config_show_secs);
-	SETBOOL("/Display/ShowStatusbar", config_show_statusbar);
-	SETBOOL("/Display/ShowSubProjects", config_show_subprojects);
-	SETBOOL("/Display/ShowTableHeader", config_show_clist_titles);
-	SETBOOL("/Display/ShowTimeCurrent", config_show_title_current);
-	SETBOOL("/Display/ShowTimeDay", config_show_title_day);
-	SETBOOL("/Display/ShowTimeYesterday", config_show_title_yesterday);
-	SETBOOL("/Display/ShowTimeWeek", config_show_title_week);
-	SETBOOL("/Display/ShowTimeLastWeek", config_show_title_lastweek);
-	SETBOOL("/Display/ShowTimeMonth", config_show_title_month);
-	SETBOOL("/Display/ShowTimeYear", config_show_title_year);
-	SETBOOL("/Display/ShowTimeEver", config_show_title_ever);
-	SETBOOL("/Display/ShowDesc", config_show_title_desc);
-	SETBOOL("/Display/ShowTask", config_show_title_task);
-	SETBOOL("/Display/ShowEstimatedStart", config_show_title_estimated_start);
-	SETBOOL("/Display/ShowEstimatedEnd", config_show_title_estimated_end);
-	SETBOOL("/Display/ShowDueDate", config_show_title_due_date);
-	SETBOOL("/Display/ShowSizing", config_show_title_sizing);
-	SETBOOL("/Display/ShowPercentComplete", config_show_title_percent_complete);
-	SETBOOL("/Display/ShowUrgency", config_show_title_urgency);
-	SETBOOL("/Display/ShowImportance", config_show_title_importance);
-	SETBOOL("/Display/ShowStatus", config_show_title_status);
+	GSettings *gsettings_display = g_settings_get_child(gsettings, "display");
+	set_bool(gsettings_display, "show-secs", config_show_secs);
+	set_bool(gsettings_display, "show-statusbar", config_show_statusbar);
+	set_bool(gsettings_display, "show-sub-projects", config_show_subprojects);
+	set_bool(gsettings_display, "show-table-header", config_show_clist_titles);
+	set_bool(gsettings_display, "show-time-current", config_show_title_current);
+	set_bool(gsettings_display, "show-time-day", config_show_title_day);
+	set_bool(gsettings_display, "show-time-yesterday",
+	         config_show_title_yesterday);
+	set_bool(gsettings_display, "show-time-week", config_show_title_week);
+	set_bool(gsettings_display, "show-time-last-week",
+	         config_show_title_lastweek);
+	set_bool(gsettings_display, "show-time-month", config_show_title_month);
+	set_bool(gsettings_display, "show-time-year", config_show_title_year);
+	set_bool(gsettings_display, "show-time-ever", config_show_title_ever);
+	set_bool(gsettings_display, "show-desc", config_show_title_desc);
+	set_bool(gsettings_display, "show-task", config_show_title_task);
+	set_bool(gsettings_display, "show-estimated-start",
+	         config_show_title_estimated_start);
+	set_bool(gsettings_display, "show-estimated-end",
+	         config_show_title_estimated_end);
+	set_bool(gsettings_display, "show-due-date", config_show_title_due_date);
+	set_bool(gsettings_display, "show-sizing", config_show_title_sizing);
+	set_bool(gsettings_display, "show-percent-complete",
+	         config_show_title_percent_complete);
+	set_bool(gsettings_display, "show-urgency", config_show_title_urgency);
+	set_bool(gsettings_display, "show-importance", config_show_title_importance);
+	set_bool(gsettings_display, "show-status", config_show_title_status);
 
 	xpn = gtt_projects_tree_get_expander_state(projects_tree);
 	SETSTR("/Display/ExpanderState", xpn);
 
 	/* ------------- */
-	SETBOOL("/Toolbar/ShowToolbar", config_show_toolbar);
-	SETBOOL("/Toolbar/ShowTips", config_show_tb_tips);
-	SETBOOL("/Toolbar/ShowNew", config_show_tb_new);
-	SETBOOL("/Toolbar/ShowCCP", config_show_tb_ccp);
-	SETBOOL("/Toolbar/ShowJournal", config_show_tb_journal);
-	SETBOOL("/Toolbar/ShowProp", config_show_tb_prop);
-	SETBOOL("/Toolbar/ShowTimer", config_show_tb_timer);
-	SETBOOL("/Toolbar/ShowPref", config_show_tb_pref);
-	SETBOOL("/Toolbar/ShowHelp", config_show_tb_help);
-	SETBOOL("/Toolbar/ShowExit", config_show_tb_exit);
+	GSettings *gsettings_toolbar = g_settings_get_child(gsettings, "toolbar");
+	set_bool(gsettings_toolbar, "show-toolbar", config_show_toolbar);
+	set_bool(gsettings_toolbar, "show-tips", config_show_tb_tips);
+	set_bool(gsettings_toolbar, "show-new", config_show_tb_new);
+	set_bool(gsettings_toolbar, "show-ccp", config_show_tb_ccp);
+	set_bool(gsettings_toolbar, "show-journal", config_show_tb_journal);
+	set_bool(gsettings_toolbar, "show-prop", config_show_tb_prop);
+	set_bool(gsettings_toolbar, "show-timer", config_show_tb_timer);
+	set_bool(gsettings_toolbar, "show-pref", config_show_tb_pref);
+	set_bool(gsettings_toolbar, "show-help", config_show_tb_help);
+	set_bool(gsettings_toolbar, "show-exit", config_show_tb_exit);
 
 	/* ------------- */
 	if (config_shell_start)
@@ -174,7 +183,8 @@ gtt_gconf_save(void)
 	}
 
 	/* ------------- */
-	SETBOOL("/LogFile/Use", config_logfile_use);
+	GSettings *gsettings_log = g_settings_get_child(gsettings, "log-file");
+	set_bool(gsettings_log, "use", config_logfile_use);
 	if (config_logfile_name)
 	{
 		SETSTR("/LogFile/Filename", config_logfile_name);
@@ -238,7 +248,8 @@ gtt_gconf_save(void)
 	SETINT("/time_format", config_time_format);
 
 	SETSTR("/Report/CurrencySymbol", config_currency_symbol);
-	SETBOOL("/Report/CurrencyUseLocale", config_currency_use_locale);
+	GSettings *gsettings_report = g_settings_get_child(gsettings, "report");
+	set_bool(gsettings_report, "currency-use-locale", config_currency_use_locale);
 
 	/* Write out the user's report menu structure */
 	gtt_save_reports_menu();
@@ -341,7 +352,7 @@ gtt_restore_reports_menu(GnomeApp *app)
 /* ======================================================= */
 
 void
-gtt_gconf_load(void)
+gtt_gconf_load(GSettings *gsettings)
 {
 	int i, num;
 	int _n, _c, _j, _p, _t, _o, _h, _e;
@@ -405,48 +416,72 @@ gtt_gconf_load(void)
 		notes_area_set_pane_sizes(global_na, vp, hp);
 	}
 
-	config_show_secs = GETBOOL("/Display/ShowSecs", FALSE);
+	GSettings *gsettings_display = g_settings_get_child(gsettings, "display");
+	config_show_secs = g_settings_get_boolean(gsettings_display, "show-secs");
 
 	prefs_set_show_secs();
 
-	config_show_clist_titles = GETBOOL("/Display/ShowTableHeader", FALSE);
-	config_show_subprojects = GETBOOL("/Display/ShowSubProjects", TRUE);
-	config_show_statusbar = GETBOOL("/Display/ShowStatusbar", TRUE);
+	config_show_clist_titles =
+			g_settings_get_boolean(gsettings_display, "show-table-header");
+	config_show_subprojects =
+			g_settings_get_boolean(gsettings_display, "show-sub-projects");
+	config_show_statusbar =
+			g_settings_get_boolean(gsettings_display, "show-statusbar");
 
-	config_show_title_ever = GETBOOL("/Display/ShowTimeEver", TRUE);
-	config_show_title_day = GETBOOL("/Display/ShowTimeDay", TRUE);
-	config_show_title_yesterday = GETBOOL("/Display/ShowTimeYesterday", FALSE);
-	config_show_title_week = GETBOOL("/Display/ShowTimeWeek", FALSE);
-	config_show_title_lastweek = GETBOOL("/Display/ShowTimeLastWeek", FALSE);
-	config_show_title_month = GETBOOL("/Display/ShowTimeMonth", FALSE);
-	config_show_title_year = GETBOOL("/Display/ShowTimeYear", FALSE);
-	config_show_title_current = GETBOOL("/Display/ShowTimeCurrent", FALSE);
-	config_show_title_desc = GETBOOL("/Display/ShowDesc", TRUE);
-	config_show_title_task = GETBOOL("/Display/ShowTask", TRUE);
+	config_show_title_ever =
+			g_settings_get_boolean(gsettings_display, "show-time-ever");
+	config_show_title_day =
+			g_settings_get_boolean(gsettings_display, "show-time-day");
+	config_show_title_yesterday =
+			g_settings_get_boolean(gsettings_display, "show-time-yesterday");
+	config_show_title_week =
+			g_settings_get_boolean(gsettings_display, "show-time-week");
+	config_show_title_lastweek =
+			g_settings_get_boolean(gsettings_display, "show-time-last-week");
+	config_show_title_month =
+			g_settings_get_boolean(gsettings_display, "show-time-month");
+	config_show_title_year =
+			g_settings_get_boolean(gsettings_display, "show-time-year");
+	config_show_title_current =
+			g_settings_get_boolean(gsettings_display, "show-time-yesterday");
+	config_show_title_desc =
+			g_settings_get_boolean(gsettings_display, "show-desc");
+	config_show_title_task =
+			g_settings_get_boolean(gsettings_display, "show-task");
 	config_show_title_estimated_start =
-			GETBOOL("/Display/ShowEstimatedStart", FALSE);
-	config_show_title_estimated_end = GETBOOL("/Display/ShowEstimatedEnd", FALSE);
-	config_show_title_due_date = GETBOOL("/Display/ShowDueDate", FALSE);
-	config_show_title_sizing = GETBOOL("/Display/ShowSizing", FALSE);
+			g_settings_get_boolean(gsettings_display, "show-estimated-start");
+	config_show_title_estimated_end =
+			g_settings_get_boolean(gsettings_display, "show-estimated-end");
+	config_show_title_due_date =
+			g_settings_get_boolean(gsettings_display, "show-due-date");
+	config_show_title_sizing =
+			g_settings_get_boolean(gsettings_display, "show-sizing");
 	config_show_title_percent_complete =
-			GETBOOL("/Display/ShowPercentComplete", FALSE);
-	config_show_title_urgency = GETBOOL("/Display/ShowUrgency", TRUE);
-	config_show_title_importance = GETBOOL("/Display/ShowImportance", TRUE);
-	config_show_title_status = GETBOOL("/Display/ShowStatus", FALSE);
+			g_settings_get_boolean(gsettings_display, "show-percent-complete");
+	config_show_title_urgency =
+			g_settings_get_boolean(gsettings_display, "show-urgency");
+	config_show_title_importance =
+			g_settings_get_boolean(gsettings_display, "show-importance");
+	config_show_title_status =
+			g_settings_get_boolean(gsettings_display, "show-status");
 
 	prefs_update_projects_view();
 
 	/* ------------ */
-	config_show_toolbar = GETBOOL("/Toolbar/ShowToolbar", TRUE);
-	config_show_tb_tips = GETBOOL("/Toolbar/ShowTips", TRUE);
-	config_show_tb_new = GETBOOL("/Toolbar/ShowNew", TRUE);
-	config_show_tb_ccp = GETBOOL("/Toolbar/ShowCCP", FALSE);
-	config_show_tb_journal = GETBOOL("/Toolbar/ShowJournal", TRUE);
-	config_show_tb_prop = GETBOOL("/Toolbar/ShowProp", TRUE);
-	config_show_tb_timer = GETBOOL("/Toolbar/ShowTimer", TRUE);
-	config_show_tb_pref = GETBOOL("/Toolbar/ShowPref", FALSE);
-	config_show_tb_help = GETBOOL("/Toolbar/ShowHelp", TRUE);
-	config_show_tb_exit = GETBOOL("/Toolbar/ShowExit", TRUE);
+	GSettings *gsettings_toolbar = g_settings_get_child(gsettings, "toolbar");
+	config_show_toolbar =
+			g_settings_get_boolean(gsettings_toolbar, "show-toolbar");
+	config_show_tb_tips = g_settings_get_boolean(gsettings_toolbar, "show-tips");
+	config_show_tb_new = g_settings_get_boolean(gsettings_toolbar, "show-new");
+	config_show_tb_ccp = g_settings_get_boolean(gsettings_toolbar, "show-ccp");
+	config_show_tb_journal =
+			g_settings_get_boolean(gsettings_toolbar, "show-journal");
+	config_show_tb_prop = g_settings_get_boolean(gsettings_toolbar, "show-prop");
+	config_show_tb_timer =
+			g_settings_get_boolean(gsettings_toolbar, "show-timer");
+	config_show_tb_pref = g_settings_get_boolean(gsettings_toolbar, "show-pref");
+	config_show_tb_help = g_settings_get_boolean(gsettings_toolbar, "show-help");
+	config_show_tb_exit = g_settings_get_boolean(gsettings_toolbar, "show-exit");
 
 	/* ------------ */
 	config_shell_start =
@@ -457,7 +492,8 @@ gtt_gconf_load(void)
 	                                   " %H-%M-%S hours=%h min=%m secs=%s");
 
 	/* ------------ */
-	config_logfile_use = GETBOOL("/LogFile/Use", FALSE);
+	GSettings *gsettings_log = g_settings_get_child(gsettings, "log-file");
+	config_logfile_use = g_settings_get_boolean(gsettings_log, "use");
 	config_logfile_name = GETSTR("/LogFile/Filename", NULL);
 	config_logfile_start = GETSTR("/LogFile/EntryStart", _("project %t started"));
 	config_logfile_stop = GETSTR("/LogFile/EntryStop", _("stopped project %t"));
@@ -466,8 +502,10 @@ gtt_gconf_load(void)
 	/* ------------ */
 	config_time_format = GETINT("/time_format", 3);
 
+	GSettings *gsettings_report = g_settings_get_child(gsettings, "report");
 	config_currency_symbol = GETSTR("/Report/CurrencySymbol", "$");
-	config_currency_use_locale = GETBOOL("/Report/CurrencyUseLocale", TRUE);
+	config_currency_use_locale =
+			g_settings_get_boolean(gsettings_report, "currency-use-locale");
 	/* ------------ */
 	save_count = GETINT("/Data/SaveCount", 0);
 	config_data_url = GETSTR("/Data/URL", XML_DATA_FILENAME);
@@ -518,4 +556,13 @@ gtt_gconf_get_expander(void)
 	return GETSTR("/Display/ExpanderState", NULL);
 }
 
-/* =========================== END OF FILE ========================= */
+static void
+set_bool(GSettings *gsettings, const gchar *key, gboolean value)
+{
+	const gboolean rc = g_settings_set_boolean(gsettings, key, value);
+
+	if (FALSE == rc)
+	{
+		printf("Failed to set GSettings option: %s\n", key);
+	}
+}

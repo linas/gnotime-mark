@@ -1,5 +1,187 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
   <schema id="com.github.markuspg.gnotime" path="/com/github/markuspg/gnotime/">
+    <child name="display" schema="com.github.markuspg.gnotime.display"/>
+    <child name="log-file" schema="com.github.markuspg.gnotime.log-file"/>
+    <child name="report" schema="com.github.markuspg.gnotime.report"/>
+    <child name="toolbar" schema="com.github.markuspg.gnotime.toolbar"/>
+  </schema>
+  <schema id="com.github.markuspg.gnotime.display" path="/com/github/markuspg/gnotime/display/">
+    <key name="show-desc" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-due-date" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-estimated-end" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-estimated-start" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-importance" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-percent-complete" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-secs" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-sizing" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-status" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-sub-projects" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-statusbar" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-table-header" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-task" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-time-current" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-time-day" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-time-ever" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-time-last-week" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-time-month" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-time-week" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-time-year" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-time-yesterday" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-urgency" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+  </schema>
+  <schema id="com.github.markuspg.gnotime.log-file" path="/com/github/markuspg/gnotime/log-file/">
+    <key name="use" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+  </schema>
+  <schema id="com.github.markuspg.gnotime.report" path="/com/github/markuspg/gnotime/report/">
+    <key name="currency-use-locale" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+  </schema>
+  <schema id="com.github.markuspg.gnotime.toolbar" path="/com/github/markuspg/gnotime/toolbar/">
+    <key name="show-ccp" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-exit" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-help" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-journal" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-new" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-pref" type="b">
+      <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-prop" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-timer" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-tips" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="show-toolbar" type="b">
+      <default>true</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
   </schema>
 </schemalist>

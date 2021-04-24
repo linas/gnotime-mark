@@ -509,7 +509,7 @@ read_config(void)
 
 	/* Try ... */
 	gtt_err_set_code(GTT_NO_ERR);
-	gtt_load_config();
+	gtt_load_config(gsettings);
 
 	/* Catch ... */
 	conf_errcode = gtt_err_get_code();
@@ -659,7 +659,7 @@ save_all(void)
 
 	/* Try ... */
 	gtt_err_set_code(GTT_NO_ERR);
-	gtt_save_config();
+	gtt_save_config(gsettings);
 
 	/* Catch */
 	errcode = gtt_err_get_code();
@@ -680,7 +680,7 @@ save_properties(void)
 
 	/* Try ... */
 	gtt_err_set_code(GTT_NO_ERR);
-	gtt_save_config();
+	gtt_save_config(gsettings);
 
 	/* Catch */
 	errcode = gtt_err_get_code();

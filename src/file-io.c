@@ -547,7 +547,7 @@ gtt_load_gnome_config(const char *prefix)
 /* ======================================================= */
 
 void
-gtt_load_config(void)
+gtt_load_config(GSettings *gsettings)
 {
 	const char *h;
 	char *s;
@@ -555,7 +555,7 @@ gtt_load_config(void)
 	/* Check for gconf2, and use that if it exists */
 	if (gtt_gconf_exists())
 	{
-		gtt_gconf_load();
+		gtt_gconf_load(gsettings);
 		gtt_config_filepath = NULL;
 		return;
 	}
@@ -676,9 +676,9 @@ gtt_post_ctree_config(void)
 /* Save only the GUI configuration info, not the actual data */
 
 void
-gtt_save_config(void)
+gtt_save_config(GSettings *gsettings)
 {
-	gtt_gconf_save();
+	gtt_gconf_save(gsettings);
 }
 
 /* ======================================================= */

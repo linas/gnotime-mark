@@ -19,19 +19,20 @@
 #ifndef GTT_GCONF_IO_H_
 #define GTT_GCONF_IO_H_
 
+#include <gio/gio.h>
 #include <glib.h>
 
 /**
  * The gtt_gconf_save() routine will save all of the GTT attributes
  * into the Gnome2 Gconf attribute system.
  */
-void gtt_gconf_save(void);
+void gtt_gconf_save(GSettings *gsettings);
 
 /**
  * The gtt_gconf_load() routine will fetch all of the GTT attributes
  * from the Gnome2 Gconf attribute system.
  */
-void gtt_gconf_load(void);
+void gtt_gconf_load(GSettings *gsettings);
 
 /**
  * The gtt_gconf_exists() routine returns TRUE if the Gnome2 GConf system

@@ -22,6 +22,7 @@
 #define GTT_GCONF_IO_P_H_
 
 #include <gconf/gconf-client.h>
+#include <gio/gio.h>
 #include <glib.h>
 
 /* ======================================================= */
@@ -36,15 +37,6 @@
 				printf("%s", err_ret->message);                                        \
 			printf("\n");                                                            \
 		}                                                                          \
-	}
-
-#define SETBOOL(dir, val)                                                      \
-	{                                                                            \
-		gboolean rc;                                                               \
-		GError *err_ret = NULL;                                                    \
-                                                                               \
-		rc = gconf_client_set_bool(client, GTT_GCONF dir, val, &err_ret);          \
-		CHKERR(rc, err_ret, dir);                                                  \
 	}
 
 #define F_SETINT(dir, val)                                                     \
@@ -101,17 +93,6 @@
 			printf("%s\n\t", err_ret->message);                                      \
 		printf("Using default value\n");                                           \
 	}
-
-#define GETBOOL(dir, default_val)                                              \
-	({                                                                           \
-		gboolean retval;                                                           \
-		GError *err_ret = NULL;                                                    \
-		GConfValue *gcv;                                                           \
-		gcv = gconf_client_get(client, GTT_GCONF dir, &err_ret);                   \
-		CHKGET(gcv, err_ret, dir, default_val)                                     \
-		else retval = gconf_value_get_bool(gcv);                                   \
-		retval;                                                                    \
-	})
 
 #define F_GETINT(dir, default_val)                                             \
 	({                                                                           \

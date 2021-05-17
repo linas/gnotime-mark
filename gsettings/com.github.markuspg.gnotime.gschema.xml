@@ -4,6 +4,7 @@
     <child name="display" schema="com.github.markuspg.gnotime.display"/>
     <child name="geometry" schema="com.github.markuspg.gnotime.geometry"/>
     <child name="log-file" schema="com.github.markuspg.gnotime.log-file"/>
+    <child name="misc" schema="com.github.markuspg.gnotime.misc"/>
     <child name="report" schema="com.github.markuspg.gnotime.report"/>
     <child name="toolbar" schema="com.github.markuspg.gnotime.toolbar"/>
   </schema>
@@ -154,6 +155,48 @@
   <schema id="com.github.markuspg.gnotime.log-file" path="/com/github/markuspg/gnotime/log-file/">
     <key name="use" type="b">
       <default>false</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+  </schema>
+  <schema id="com.github.markuspg.gnotime.misc" path="/com/github/markuspg/gnotime/misc/">
+    <key name="autosave-period" type="i">
+      <default>60</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="curr-project" type="i">
+      <default>-1</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="day-start-offset" type="i">
+      <default>0</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="idle-timeout" type="i">
+      <default>300</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="last-timer" type="s">
+      <default>"-1"</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="no-project-timeout" type="i">
+      <default>300</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="timer-running" type="i">
+      <default>0</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="week-start-offset" type="i">
+      <default>0</default>
       <summary>TBD</summary>
       <description>TDB</description>
     </key>

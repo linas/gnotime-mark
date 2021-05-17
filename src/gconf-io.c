@@ -46,8 +46,10 @@ extern int run_timer;
 
 #define GTT_GCONF "/apps/gnotime"
 
+static void gtt_restore_reports_menu(GnomeApp *app, GSettings *gsettings);
 static void set_bool(GSettings *gsettings, const gchar *key, gboolean value);
 static void set_int(GSettings *gsettings, const char *key, gint value);
+static void set_str(GSettings *gsettings, const char *key, const gchar *value);
 
 /* ======================================================= */
 
@@ -236,16 +238,17 @@ gtt_gconf_save(GSettings *gsettings)
 	/* ------------- */
 	/* Use string for time, to avoid integer conversion problems */
 	g_snprintf(s, sizeof(s), "%ld", time(0));
-	SETSTR("/Misc/LastTimer", s);
-	SETINT("/Misc/IdleTimeout", config_idle_timeout);
-	SETINT("/Misc/NoProjectTimeout", config_no_project_timeout);
-	SETINT("/Misc/AutosavePeriod", config_autosave_period);
-	SETINT("/Misc/TimerRunning", timer_is_running());
-	SETINT("/Misc/CurrProject", gtt_project_get_id(cur_proj));
+	GSettings *gsettings_misc = g_settings_get_child(gsettings, "misc");
+	set_str(gsettings_misc, "last-timer", s);
+	set_int(gsettings_misc, "idle-timeout", config_idle_timeout);
+	set_int(gsettings_misc, "no-project-timeout", config_no_project_timeout);
+	set_int(gsettings_misc, "autosave-period", config_autosave_period);
+	set_int(gsettings_misc, "timer-running", timer_is_running());
+	set_int(gsettings_misc, "curr-project", gtt_project_get_id(cur_proj));
 	SETINT("/Misc/NumProjects", -1);
 
-	SETINT("/Misc/DayStartOffset", config_daystart_offset);
-	SETINT("/Misc/WeekStartOffset", config_weekstart_offset);
+	set_int(gsettings_misc, "day-start-offset", config_daystart_offset);
+	set_int(gsettings_misc, "week-start-offset", config_weekstart_offset);
 
 	SETINT("/time_format", config_time_format);
 
@@ -302,8 +305,8 @@ gtt_gconf_exists(void)
 
 /* ======================================================= */
 
-void
-gtt_restore_reports_menu(GnomeApp *app)
+static void
+gtt_restore_reports_menu(GnomeApp *app, GSettings *gsettings)
 {
 	int i, num;
 	char s[120], *p;
@@ -383,13 +386,18 @@ gtt_gconf_load(GSettings *gsettings)
 	_e = config_show_tb_exit;
 
 	/* Get last running project */
-	cur_proj_id = GETINT("/Misc/CurrProject", -1);
+	GSettings *gsettings_misc = g_settings_get_child(gsettings, "misc");
+	g_settings_get_int(gsettings_misc, "curr-project");
 
-	config_idle_timeout = GETINT("/Misc/IdleTimeout", 300);
-	config_no_project_timeout = GETINT("/Misc/NoProjectTimeout", 300);
-	config_autosave_period = GETINT("/Misc/AutosavePeriod", 60);
-	config_daystart_offset = GETINT("/Misc/DayStartOffset", 0);
-	config_weekstart_offset = GETINT("/Misc/WeekStartOffset", 0);
+	config_idle_timeout = g_settings_get_int(gsettings_misc, "idle-timeout");
+	config_no_project_timeout =
+			g_settings_get_int(gsettings_misc, "no-project-timeout");
+	config_autosave_period =
+			g_settings_get_int(gsettings_misc, "autosave-period");
+	config_daystart_offset =
+			g_settings_get_int(gsettings_misc, "day-start-offset");
+	config_weekstart_offset =
+			g_settings_get_int(gsettings_misc, "week-start-offset");
 
 	GSettings *gsettings_geometry = g_settings_get_child(gsettings, "geometry");
 	/* Reset the main window width and height to the values
@@ -527,11 +535,14 @@ gtt_gconf_load(GSettings *gsettings)
 	}
 
 	/* Read in the user-defined report locations */
-	gtt_restore_reports_menu(GNOME_APP(app_window));
+	gtt_restore_reports_menu(GNOME_APP(app_window), gsettings);
 
-	run_timer = GETINT("/Misc/TimerRunning", 0);
+	run_timer = g_settings_get_int(gsettings_misc, "timer-running");
 	/* Use string for time, to avoid unsigned-long problems */
-	last_timer = (time_t)atol(GETSTR("/Misc/LastTimer", "-1"));
+	gchar *tmp_timer = g_settings_get_string(gsettings_misc, "last-timer");
+	last_timer = (time_t)atol(tmp_timer);
+	g_free(tmp_timer);
+	tmp_timer = NULL;
 
 	/* redraw the GUI */
 	if (config_show_statusbar)
@@ -574,6 +585,17 @@ static void
 set_int(GSettings *gsettings, const char *key, gint value)
 {
 	const gboolean rc = g_settings_set_int(gsettings, key, value);
+
+	if (FALSE == rc)
+	{
+		printf("Failed to set GSettings option: %s\n", key);
+	}
+}
+
+static void
+set_str(GSettings *gsettings, const char *key, const gchar *value)
+{
+	const gboolean rc = g_settings_set_string(gsettings, key, value);
 
 	if (FALSE == rc)
 	{

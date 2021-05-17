@@ -47,6 +47,7 @@ extern int run_timer;
 #define GTT_GCONF "/apps/gnotime"
 
 static void set_bool(GSettings *gsettings, const gchar *key, gboolean value);
+static void set_int(GSettings *gsettings, const char *key, gint value);
 
 /* ======================================================= */
 
@@ -107,16 +108,17 @@ gtt_gconf_save(GSettings *gsettings)
 	/* save the window location and size */
 	gdk_window_get_origin(app_window->window, &x, &y);
 	gdk_window_get_size(app_window->window, &w, &h);
-	SETINT("/Geometry/Width", w);
-	SETINT("/Geometry/Height", h);
-	SETINT("/Geometry/X", x);
-	SETINT("/Geometry/Y", y);
+	GSettings *gsettings_geometry = g_settings_get_child(gsettings, "geometry");
+	set_int(gsettings_geometry, "width", w);
+	set_int(gsettings_geometry, "height", h);
+	set_int(gsettings_geometry, "x", x);
+	set_int(gsettings_geometry, "y", y);
 
 	{
 		int vp, hp;
 		notes_area_get_pane_sizes(global_na, &vp, &hp);
-		SETINT("/Geometry/VPaned", vp);
-		SETINT("/Geometry/HPaned", hp);
+		set_int(gsettings_geometry, "v-paned", vp);
+		set_int(gsettings_geometry, "h-paned", hp);
 	}
 	/* ------------- */
 	/* save the configure dialog values */
@@ -389,6 +391,7 @@ gtt_gconf_load(GSettings *gsettings)
 	config_daystart_offset = GETINT("/Misc/DayStartOffset", 0);
 	config_weekstart_offset = GETINT("/Misc/WeekStartOffset", 0);
 
+	GSettings *gsettings_geometry = g_settings_get_child(gsettings, "geometry");
 	/* Reset the main window width and height to the values
 	 * last stored in the config file.  Note that if the user
 	 * specified command-line flags, then the command line
@@ -396,23 +399,23 @@ gtt_gconf_load(GSettings *gsettings)
 	if (!geom_place_override)
 	{
 		int x, y;
-		x = GETINT("/Geometry/X", 10);
-		y = GETINT("/Geometry/Y", 10);
+		x = g_settings_get_int(gsettings_geometry, "x");
+		y = g_settings_get_int(gsettings_geometry, "y");
 		gtk_widget_set_uposition(GTK_WIDGET(app_window), x, y);
 	}
 	if (!geom_size_override)
 	{
 		int w, h;
-		w = GETINT("/Geometry/Width", 442);
-		h = GETINT("/Geometry/Height", 272);
+		w = g_settings_get_int(gsettings_geometry, "width");
+		h = g_settings_get_int(gsettings_geometry, "height");
 
 		gtk_window_set_default_size(GTK_WINDOW(app_window), w, h);
 	}
 
 	{
 		int vp, hp;
-		vp = GETINT("/Geometry/VPaned", 250);
-		hp = GETINT("/Geometry/HPaned", 220);
+		vp = g_settings_get_int(gsettings_geometry, "v-paned");
+		hp = g_settings_get_int(gsettings_geometry, "h-paned");
 		notes_area_set_pane_sizes(global_na, vp, hp);
 	}
 
@@ -560,6 +563,17 @@ static void
 set_bool(GSettings *gsettings, const gchar *key, gboolean value)
 {
 	const gboolean rc = g_settings_set_boolean(gsettings, key, value);
+
+	if (FALSE == rc)
+	{
+		printf("Failed to set GSettings option: %s\n", key);
+	}
+}
+
+static void
+set_int(GSettings *gsettings, const char *key, gint value)
+{
+	const gboolean rc = g_settings_set_int(gsettings, key, value);
 
 	if (FALSE == rc)
 	{

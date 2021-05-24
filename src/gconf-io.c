@@ -49,9 +49,12 @@ static GSettings *global_gsettings = NULL;
 
 #define GTT_GCONF "/apps/gnotime"
 
+static gchar *get_nullable_str(GSettings *gsettings, const char *key);
 static void gtt_restore_reports_menu(GnomeApp *app, GSettings *gsettings);
 static void set_bool(GSettings *gsettings, const gchar *key, gboolean value);
 static void set_int(GSettings *gsettings, const char *key, gint value);
+static void set_nullable_str(GSettings *gsettings, const char *key,
+                             const gchar *value);
 static void set_str(GSettings *gsettings, const char *key, const gchar *value);
 
 /* ======================================================= */
@@ -158,10 +161,7 @@ gtt_gconf_save(GSettings *gsettings)
 	set_bool(gsettings_display, "show-status", config_show_title_status);
 
 	xpn = gtt_projects_tree_get_expander_state(projects_tree);
-	GVariant *new_expander_state = g_variant_new("ms", xpn);
-	g_settings_set_value(gsettings_display, "expander-state", new_expander_state);
-	g_variant_unref(new_expander_state);
-	new_expander_state = NULL;
+	set_nullable_str(gsettings_display, "expander-state", xpn);
 
 	/* ------------- */
 	GSettings *gsettings_toolbar = g_settings_get_child(gsettings, "toolbar");
@@ -177,21 +177,9 @@ gtt_gconf_save(GSettings *gsettings)
 	set_bool(gsettings_toolbar, "show-exit", config_show_tb_exit);
 
 	/* ------------- */
-	if (config_shell_start)
-	{
-		SETSTR("/Actions/StartCommand", config_shell_start);
-	} else
-	{
-		UNSET("/Actions/StartCommand");
-	}
-
-	if (config_shell_stop)
-	{
-		SETSTR("/Actions/StopCommand", config_shell_stop);
-	} else
-	{
-		UNSET("/Actions/StopCommand");
-	}
+	GSettings *gsettings_actions = g_settings_get_child(gsettings, "actions");
+	set_nullable_str(gsettings_actions, "start-command", config_shell_start);
+	set_nullable_str(gsettings_actions, "stop-command", config_shell_stop);
 
 	/* ------------- */
 	GSettings *gsettings_log = g_settings_get_child(gsettings, "log-file");
@@ -518,12 +506,9 @@ gtt_gconf_load(GSettings *gsettings)
 	config_show_tb_exit = g_settings_get_boolean(gsettings_toolbar, "show-exit");
 
 	/* ------------ */
-	config_shell_start =
-			GETSTR("/Actions/StartCommand", "echo start id=%D \\\"%t\\\"-\\\"%d\\\" "
-	                                    "%T  %H-%M-%S hours=%h min=%m secs=%s");
-	config_shell_stop =
-			GETSTR("/Actions/StopCommand", "echo stop id=%D \\\"%t\\\"-\\\"%d\\\" %T "
-	                                   " %H-%M-%S hours=%h min=%m secs=%s");
+	GSettings *gsettings_actions = g_settings_get_child(gsettings, "actions");
+	config_shell_start = get_nullable_str(gsettings_actions, "start-command");
+	config_shell_stop = get_nullable_str(gsettings_actions, "stop-command");
 
 	/* ------------ */
 	GSettings *gsettings_log = g_settings_get_child(gsettings, "log-file");
@@ -593,18 +578,24 @@ gchar *
 gtt_gconf_get_expander(GSettings *gsettings)
 {
 	GSettings *gsettings_display = g_settings_get_child(gsettings, "display");
-	GVariant *tmp = g_settings_get_value(gsettings_display, "expander-state");
-	GVariant *str = g_variant_get_maybe(tmp);
+	return get_nullable_str(gsettings_display, "expander-state");
+}
+
+static gchar *
+get_nullable_str(GSettings *gsettings, const char *key)
+{
+	GVariant *outer_val = g_settings_get_value(gsettings, key);
+	GVariant *nullable_val = g_variant_get_maybe(outer_val);
 	gchar *ret_str = NULL;
-	if (str)
+	if (nullable_val)
 	{
 		gsize str_size;
-		ret_str = g_variant_dup_string(str, &str_size);
+		ret_str = g_variant_dup_string(nullable_val, &str_size);
 	}
-	g_variant_unref(str);
-	str = NULL;
-	g_variant_unref(tmp);
-	tmp = NULL;
+	g_variant_unref(nullable_val);
+	nullable_val = NULL;
+	g_variant_unref(outer_val);
+	outer_val = NULL;
 
 	return ret_str;
 }
@@ -624,6 +615,20 @@ static void
 set_int(GSettings *gsettings, const char *key, gint value)
 {
 	const gboolean rc = g_settings_set_int(gsettings, key, value);
+
+	if (FALSE == rc)
+	{
+		printf("Failed to set GSettings option: %s\n", key);
+	}
+}
+
+static void
+set_nullable_str(GSettings *gsettings, const char *key, const gchar *value)
+{
+	GVariant *new_val = g_variant_new("ms", value);
+	const gboolean rc = g_settings_set_value(gsettings, key, new_val);
+	g_variant_unref(new_val);
+	new_val = NULL;
 
 	if (FALSE == rc)
 	{

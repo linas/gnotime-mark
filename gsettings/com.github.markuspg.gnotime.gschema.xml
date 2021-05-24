@@ -203,6 +203,16 @@
       <summary>TBD</summary>
       <description>TDB</description>
     </key>
+    <key name="num-projects" type="i">
+      <default>-1</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="num-reports" type="i">
+      <default>0</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
     <key name="timer-running" type="i">
       <default>0</default>
       <summary>TBD</summary>

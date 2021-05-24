@@ -44,6 +44,9 @@ extern time_t last_timer;      /* XXX */
 extern int cur_proj_id;
 extern int run_timer;
 
+/* TODO: Get rid of this global state */
+static GSettings *global_gsettings = NULL;
+
 #define GTT_GCONF "/apps/gnotime"
 
 static void gtt_restore_reports_menu(GnomeApp *app, GSettings *gsettings);
@@ -85,7 +88,8 @@ gtt_save_reports_menu(void)
 		*p = 0;
 		gtt_save_gnomeui_to_gconf(client, s, &reports_menu[i]);
 	}
-	SETINT("/Misc/NumReports", i);
+	GSettings *gsettings_misc = g_settings_get_child(global_gsettings, "misc");
+	g_settings_set_int(gsettings_misc, "num-reports", i);
 }
 
 /* ======================================================= */
@@ -262,7 +266,7 @@ gtt_gconf_save(GSettings *gsettings)
 	set_int(gsettings_misc, "autosave-period", config_autosave_period);
 	set_int(gsettings_misc, "timer-running", timer_is_running());
 	set_int(gsettings_misc, "curr-project", gtt_project_get_id(cur_proj));
-	SETINT("/Misc/NumProjects", -1);
+	g_settings_set_int(gsettings_misc, "num-projects", -1);
 
 	set_int(gsettings_misc, "day-start-offset", config_daystart_offset);
 	set_int(gsettings_misc, "week-start-offset", config_weekstart_offset);
@@ -333,7 +337,8 @@ gtt_restore_reports_menu(GnomeApp *app, GSettings *gsettings)
 	client = gconf_client_get_default();
 
 	/* Read in the user-defined report locations */
-	num = GETINT("/Misc/NumReports", 0);
+	GSettings *gsettings_misc = g_settings_get_child(gsettings, "misc");
+	num = g_settings_get_int(gsettings_misc, "num-reports");
 	reports_menu = g_new0(GnomeUIInfo, num + 1);
 
 	for (i = 0; i < num; i++)
@@ -376,6 +381,7 @@ gtt_restore_reports_menu(GnomeApp *app, GSettings *gsettings)
 void
 gtt_gconf_load(GSettings *gsettings)
 {
+	global_gsettings = gsettings;
 	int i;
 	int _n, _c, _j, _p, _t, _o, _h, _e;
 	GConfClient *client;

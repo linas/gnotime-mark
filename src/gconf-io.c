@@ -154,7 +154,10 @@ gtt_gconf_save(GSettings *gsettings)
 	set_bool(gsettings_display, "show-status", config_show_title_status);
 
 	xpn = gtt_projects_tree_get_expander_state(projects_tree);
-	SETSTR("/Display/ExpanderState", xpn);
+	GVariant *new_expander_state = g_variant_new("ms", xpn);
+	g_settings_set_value(gsettings_display, "expander-state", new_expander_state);
+	g_variant_unref(new_expander_state);
+	new_expander_state = NULL;
 
 	/* ------------- */
 	GSettings *gsettings_toolbar = g_settings_get_child(gsettings, "toolbar");
@@ -581,10 +584,23 @@ gtt_gconf_load(GSettings *gsettings)
 }
 
 gchar *
-gtt_gconf_get_expander(void)
+gtt_gconf_get_expander(GSettings *gsettings)
 {
-	GConfClient *client = gconf_client_get_default();
-	return GETSTR("/Display/ExpanderState", NULL);
+	GSettings *gsettings_display = g_settings_get_child(gsettings, "display");
+	GVariant *tmp = g_settings_get_value(gsettings_display, "expander-state");
+	GVariant *str = g_variant_get_maybe(tmp);
+	gchar *ret_str = NULL;
+	if (str)
+	{
+		gsize str_size;
+		ret_str = g_variant_dup_string(str, &str_size);
+	}
+	g_variant_unref(str);
+	str = NULL;
+	g_variant_unref(tmp);
+	tmp = NULL;
+
+	return ret_str;
 }
 
 static void

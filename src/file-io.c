@@ -650,7 +650,7 @@ gtt_post_data_config(void)
 }
 
 void
-gtt_post_ctree_config(void)
+gtt_post_ctree_config(GSettings *gsettings)
 {
 	gchar *xpn = NULL;
 
@@ -661,7 +661,7 @@ gtt_post_ctree_config(void)
 	/* Restore the expander state */
 	if (gtt_gconf_exists())
 	{
-		xpn = gtt_gconf_get_expander();
+		xpn = gtt_gconf_get_expander(gsettings);
 	} else
 	{
 		xpn = gnome_config_get_string(GTT_CONF "/Display/ExpanderState");

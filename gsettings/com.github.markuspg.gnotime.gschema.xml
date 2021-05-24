@@ -17,6 +17,11 @@
     </key>
   </schema>
   <schema id="com.github.markuspg.gnotime.display" path="/com/github/markuspg/gnotime/display/">
+    <key name="expander-state" type="ms">
+      <default>nothing</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
     <key name="show-desc" type="b">
       <default>true</default>
       <summary>TBD</summary>

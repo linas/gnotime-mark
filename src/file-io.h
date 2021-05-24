@@ -50,7 +50,7 @@ void gtt_load_config(GSettings *gsettings);
  */
 
 void gtt_post_data_config(void);
-void gtt_post_ctree_config(void);
+void gtt_post_ctree_config(GSettings *gsettings);
 
 /* Returns the 'real path' to the config file that was/would be used */
 const char *gtt_get_config_filepath(void);

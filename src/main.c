@@ -205,7 +205,7 @@ post_read_data(void)
 	//	ctree_setup(global_ptw, master_list);
 	gtt_projects_tree_populate(projects_tree,
 	                           gtt_project_list_get_list(master_list), TRUE);
-	gtt_post_ctree_config();
+	gtt_post_ctree_config(gsettings);
 	menu_set_states();
 	toolbar_set_states();
 	init_timer();

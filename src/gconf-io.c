@@ -254,10 +254,10 @@ gtt_gconf_save(GSettings *gsettings)
 	set_int(gsettings_misc, "day-start-offset", config_daystart_offset);
 	set_int(gsettings_misc, "week-start-offset", config_weekstart_offset);
 
-	SETINT("/time_format", config_time_format);
+	set_int(gsettings, "time-format", config_time_format);
 
-	SETSTR("/Report/CurrencySymbol", config_currency_symbol);
 	GSettings *gsettings_report = g_settings_get_child(gsettings, "report");
+	set_str(gsettings_report, "currency-symbol", config_currency_symbol);
 	set_bool(gsettings_report, "currency-use-locale", config_currency_use_locale);
 
 	/* Write out the user's report menu structure */
@@ -514,10 +514,11 @@ gtt_gconf_load(GSettings *gsettings)
 	config_logfile_min_secs = g_settings_get_int(gsettings_log, "min-secs");
 
 	/* ------------ */
-	config_time_format = GETINT("/time_format", 3);
+	g_settings_get_int(gsettings, "time-format");
 
 	GSettings *gsettings_report = g_settings_get_child(gsettings, "report");
-	config_currency_symbol = GETSTR("/Report/CurrencySymbol", "$");
+	config_currency_symbol =
+			g_settings_get_string(gsettings_report, "currency-symbol");
 	config_currency_use_locale =
 			g_settings_get_boolean(gsettings_report, "currency-use-locale");
 	/* ------------ */

@@ -10,6 +10,11 @@
     <child name="misc" schema="com.github.markuspg.gnotime.misc"/>
     <child name="report" schema="com.github.markuspg.gnotime.report"/>
     <child name="toolbar" schema="com.github.markuspg.gnotime.toolbar"/>
+    <key name="time-format" type="i">
+      <default>3</default>
+      <summary>TBD</summary>
+      <description>TBD</description>
+    </key>
   </schema>
   <schema id="com.github.markuspg.gnotime.actions" path="/com/github/markuspg/gnotime/actions/">
     <key name="start-command" type="ms">
@@ -271,6 +276,11 @@
     </key>
   </schema>
   <schema id="com.github.markuspg.gnotime.report" path="/com/github/markuspg/gnotime/report/">
+    <key name="currency-symbol" type="s">
+      <default>"$"</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
     <key name="currency-use-locale" type="b">
       <default>true</default>
       <summary>TBD</summary>

@@ -184,31 +184,25 @@ gtt_gconf_save(GSettings *gsettings)
 	/* ------------- */
 	GSettings *gsettings_log = g_settings_get_child(gsettings, "log-file");
 	set_bool(gsettings_log, "use", config_logfile_use);
-	if (config_logfile_name)
-	{
-		SETSTR("/LogFile/Filename", config_logfile_name);
-	} else
-	{
-		UNSET("/LogFile/Filename");
-	}
+	set_nullable_str(gsettings_log, "filename", config_logfile_name);
 
 	if (config_logfile_start)
 	{
-		SETSTR("/LogFile/EntryStart", config_logfile_start);
+		set_str(gsettings_log, "entry-start", config_logfile_start);
 	} else
 	{
-		SETSTR("/LogFile/EntryStart", "");
+		set_str(gsettings_log, "entry-start", "");
 	}
 
 	if (config_logfile_stop)
 	{
-		SETSTR("/LogFile/EntryStop", config_logfile_stop);
+		set_str(gsettings_log, "entry-stop", config_logfile_stop);
 	} else
 	{
-		SETSTR("/LogFile/EntryStop", "");
+		set_str(gsettings_log, "entry-stop", "");
 	}
 
-	SETINT("/LogFile/MinSecs", config_logfile_min_secs);
+	set_int(gsettings_log, "min-secs", config_logfile_min_secs);
 
 	/* ------------- */
 	SETSTR("/Data/URL", config_data_url);
@@ -513,10 +507,10 @@ gtt_gconf_load(GSettings *gsettings)
 	/* ------------ */
 	GSettings *gsettings_log = g_settings_get_child(gsettings, "log-file");
 	config_logfile_use = g_settings_get_boolean(gsettings_log, "use");
-	config_logfile_name = GETSTR("/LogFile/Filename", NULL);
-	config_logfile_start = GETSTR("/LogFile/EntryStart", _("project %t started"));
-	config_logfile_stop = GETSTR("/LogFile/EntryStop", _("stopped project %t"));
-	config_logfile_min_secs = GETINT("/LogFile/MinSecs", 3);
+	config_logfile_name = get_nullable_str(gsettings_log, "filename");
+	config_logfile_start = g_settings_get_string(gsettings_log, "entry-start");
+	config_logfile_stop = g_settings_get_string(gsettings_log, "entry-stop");
+	config_logfile_min_secs = g_settings_get_int(gsettings_log, "min-secs");
 
 	/* ------------ */
 	config_time_format = GETINT("/time_format", 3);
@@ -592,8 +586,11 @@ get_nullable_str(GSettings *gsettings, const char *key)
 		gsize str_size;
 		ret_str = g_variant_dup_string(nullable_val, &str_size);
 	}
-	g_variant_unref(nullable_val);
-	nullable_val = NULL;
+	if (nullable_val)
+	{
+		g_variant_unref(nullable_val);
+		nullable_val = NULL;
+	}
 	g_variant_unref(outer_val);
 	outer_val = NULL;
 

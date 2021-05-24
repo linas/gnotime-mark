@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist>
+<schemalist gettext-domain="gnotime">
   <schema id="com.github.markuspg.gnotime" path="/com/github/markuspg/gnotime/">
     <child name="actions" schema="com.github.markuspg.gnotime.actions"/>
     <child name="clist" schema="com.github.markuspg.gnotime.clist"/>
@@ -179,6 +179,26 @@
     </key>
   </schema>
   <schema id="com.github.markuspg.gnotime.log-file" path="/com/github/markuspg/gnotime/log-file/">
+    <key name="entry-start" type="s">
+      <default l10n="messages">"project %t started"</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="entry-stop" type="s">
+      <default l10n="messages">"stopped project %t"</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="filename" type="ms">
+      <default>nothing</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
+    <key name="min-secs" type="i">
+      <default>3</default>
+      <summary>TBD</summary>
+      <description>TDB</description>
+    </key>
     <key name="use" type="b">
       <default>false</default>
       <summary>TBD</summary>

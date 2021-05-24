@@ -228,11 +228,25 @@ gtt_gconf_save(GSettings *gsettings)
 			w = gtt_projects_tree_get_col_width(projects_tree, i);
 			if (0 > w)
 				break;
-			list = g_slist_prepend(list, (gpointer)w);
+			list = g_slist_prepend(list, g_variant_new_int32(w));
 		}
+
 		list = g_slist_reverse(list);
-		SETLIST("/CList/ColumnWidths", GCONF_VALUE_INT, list);
+		const guint list_length = g_slist_length(list);
+		GVariantType *int_array_variant_type = g_variant_type_new("ai");
+		GVariantBuilder *builder = g_variant_builder_new(int_array_variant_type);
+		for (i = 0; i < list_length; ++i)
+		{
+			g_variant_builder_add_value(builder, g_slist_nth(list, i)->data);
+		}
+		GSettings *gsettings_clist = g_settings_get_child(gsettings, "clist");
+		GVariant *val_arr = g_variant_builder_end(builder);
+		g_settings_set_value(gsettings_clist, "column-widths", val_arr);
 		g_slist_free(list);
+		g_variant_builder_unref(builder);
+		builder = NULL;
+		g_variant_type_free(int_array_variant_type);
+		int_array_variant_type = NULL;
 	}
 
 	/* ------------- */
@@ -359,7 +373,7 @@ gtt_restore_reports_menu(GnomeApp *app, GSettings *gsettings)
 void
 gtt_gconf_load(GSettings *gsettings)
 {
-	int i, num;
+	int i;
 	int _n, _c, _j, _p, _t, _o, _h, _e;
 	GConfClient *client;
 
@@ -523,15 +537,18 @@ gtt_gconf_load(GSettings *gsettings)
 
 	/* ------------ */
 	{
-		GSList *node, *list = GETINTLIST("/CList/ColumnWidths");
-		for (i = 0, node = list; node != NULL; node = node->next, i++)
+		GSettings *gsettings_clist = g_settings_get_child(gsettings, "clist");
+		GVariant *col_widths =
+				g_settings_get_value(gsettings_clist, "column-widths");
+		gsize n_col_widths = g_variant_n_children(col_widths);
+		for (i = 0; i < n_col_widths; ++i)
 		{
-			num = (long)(node->data);
-			if (-1 < num)
-			{
-				gtt_projects_tree_set_col_width(projects_tree, i, num);
-			}
+			gint col_width;
+			g_variant_get_child(col_widths, i, "i", &col_width);
+			gtt_projects_tree_set_col_width(projects_tree, i, col_width);
 		}
+		g_variant_unref(col_widths);
+		col_widths = NULL;
 	}
 
 	/* Read in the user-defined report locations */

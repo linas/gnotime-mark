@@ -205,8 +205,9 @@ gtt_gconf_save(GSettings *gsettings)
 	set_int(gsettings_log, "min-secs", config_logfile_min_secs);
 
 	/* ------------- */
-	SETSTR("/Data/URL", config_data_url);
-	SETINT("/Data/SaveCount", save_count);
+	GSettings *gsettings_data = g_settings_get_child(gsettings, "data");
+	g_settings_set_string(gsettings_data, "url", config_data_url);
+	g_settings_set_int(gsettings_data, "save-count", save_count);
 
 	/* ------------- */
 	{
@@ -520,8 +521,9 @@ gtt_gconf_load(GSettings *gsettings)
 	config_currency_use_locale =
 			g_settings_get_boolean(gsettings_report, "currency-use-locale");
 	/* ------------ */
-	save_count = GETINT("/Data/SaveCount", 0);
-	config_data_url = GETSTR("/Data/URL", XML_DATA_FILENAME);
+	GSettings *gsettings_data = g_settings_get_child(gsettings, "data");
+	save_count = g_settings_get_int(gsettings_data, "save-count");
+	config_data_url = g_settings_get_string(gsettings_data, "url");
 
 	/* ------------ */
 	{

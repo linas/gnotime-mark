@@ -3,6 +3,7 @@
   <schema id="com.github.markuspg.gnotime" path="/com/github/markuspg/gnotime/">
     <child name="actions" schema="com.github.markuspg.gnotime.actions"/>
     <child name="clist" schema="com.github.markuspg.gnotime.clist"/>
+    <child name="data" schema="com.github.markuspg.gnotime.data"/>
     <child name="display" schema="com.github.markuspg.gnotime.display"/>
     <child name="geometry" schema="com.github.markuspg.gnotime.geometry"/>
     <child name="log-file" schema="com.github.markuspg.gnotime.log-file"/>
@@ -25,6 +26,18 @@
   <schema id="com.github.markuspg.gnotime.clist" path="/com/github/markuspg/gnotime/clist/">
     <key name="column-widths" type="ai">
       <default>[]</default>
+      <summary>TBD</summary>
+      <description>TBD</description>
+    </key>
+  </schema>
+  <schema id="com.github.markuspg.gnotime.data" path="/com/github/markuspg/gnotime/data/">
+    <key name="save-count" type="i">
+      <default>0</default>
+      <summary>TBD</summary>
+      <description>TBD</description>
+    </key>
+    <key name="url" type="s">
+      <default>"gnotime.d/gnotime-data.xml"</default>
       <summary>TBD</summary>
       <description>TBD</description>
     </key>

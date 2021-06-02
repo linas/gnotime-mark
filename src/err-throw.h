@@ -19,6 +19,8 @@
 #ifndef GTT_ERR_THROW_H_
 #define GTT_ERR_THROW_H_
 
+#include <glib.h>
+
 typedef enum
 {
 	GTT_NO_ERR = 0,
@@ -31,27 +33,10 @@ typedef enum
 	GTT_CANT_WRITE_CONFIG
 } GttErrCode;
 
-/*
- * These two routines can be used to implement a poor-man's
- * try-catch block by doing as follows:
- *
- *  gtt_err_set_code (GTT_NO_ERR);  // start of try block
- *  { do stuff ... }
- *  switch (gtt_err_get_code()) {     // catch block
- *     case GTT_NO ERR: break;
- *     case GTT_BOGUS_ERROR: { try to recover...}
- *  }
- */
-
 GttErrCode gtt_err_get_code(void);
 
-void gtt_err_set_code(GttErrCode);
+void gtt_err_set_code(GttErrCode code);
 
-/* The gtt_err_to_string() routine returns a handy-dandy human-readable
- *    error message, suitable for framing.  Be sure to free the returned
- *    string using g_free when done.
- */
-
-char *gtt_err_to_string(GttErrCode code, const char *filename);
+gchar *gtt_err_to_string(GttErrCode code, const char *filename);
 
 #endif /* GTT_ERR_THROW_H_ */

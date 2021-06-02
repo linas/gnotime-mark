@@ -16,45 +16,68 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
-#include <glib.h>
-#include <gnome.h> /* needed only to define the _() macro */
-
 #include "err-throw.h"
+
+#include <glib/gi18n.h>
 
 static GttErrCode err = GTT_NO_ERR;
 
-void
-gtt_err_set_code(GttErrCode code)
-{
-	/* clear the error if requested. */
-	if (GTT_NO_ERR == code)
-	{
-		err = GTT_NO_ERR;
-		return;
-	}
-
-	/* if the error code is already set, don't over-write it */
-	if (GTT_NO_ERR != err)
-		return;
-
-	/* Otherwise set it. */
-	err = code;
-}
-
+/**
+ * @brief Retrieve the currently set error code
+ * @return  The currently set error code
+ */
 GttErrCode
 gtt_err_get_code(void)
 {
 	return err;
 }
 
-/* ================================================================ */
+/**
+ * @brief Set an error code
+ * @param code The error code to be set
+ *
+ * This in conjunction with gtt_err_get_code can be utilized to implement a
+ * poor-man's try-catch block by doing e.g. as follows:
+ *
+ *     gtt_err_set_code (GTT_NO_ERR);  // start of try block
+ *       { do stuff ... }
+ *     switch (gtt_err_get_code()) {     // catch block
+ *       case GTT_NO ERR: break;
+ *       case GTT_BOGUS_ERROR: { try to recover...}
+ *     }
+ */
+void
+gtt_err_set_code(const GttErrCode code)
+{
+	/* Clear the error if requested. */
+	if (GTT_NO_ERR == code)
+	{
+		err = GTT_NO_ERR;
+		return;
+	}
 
-char *
-gtt_err_to_string(GttErrCode code, const char *filename)
+	/* If there is an error code already set, don't overwrite it */
+	if (GTT_NO_ERR != err)
+	{
+		return;
+	}
+
+	/* Otherwise set it */
+	err = code;
+}
+
+/**
+ * @brief Returns a human readable error message for the passed error code
+ * @param code The error code for which a human-readable error message shall be
+ * created
+ * @param filename A filename (required for all *FILE* error codes
+ * @return A newly allocated string containing the error message
+ */
+gchar *
+gtt_err_to_string(const GttErrCode code, const char *const filename)
 {
 	char *ret = NULL;
+
 	switch (code)
 	{
 	case GTT_NO_ERR:
@@ -92,7 +115,6 @@ gtt_err_to_string(GttErrCode code, const char *filename)
 		ret = g_strdup_printf(_("Cannot write the config file\n\t%s\n"), filename);
 		break;
 	}
+
 	return ret;
 }
-
-/* =========================== END OF FILE ======================== */

@@ -32,15 +32,15 @@
 
 #include "app.h"
 #include "dialog.h"
-#include "journal.h"
 #include "ghtml.h"
+#include "interval.h"
+#include "journal.h"
 #include "menus.h"
 #include "plug-in.h"
 #include "proj.h"
 #include "props-invl.h"
 #include "props-task.h"
 #include "util.h"
-
 
 /* This struct is a mish-mash of stuff relating to the
  * HTML display window, and the various actions and etc.

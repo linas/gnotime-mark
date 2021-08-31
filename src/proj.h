@@ -601,7 +601,6 @@ time_t   gtt_task_get_secs_latest (GttTask *tsk);
  * The is_running flag indicates whether the timer is running on this
  * interval.
  */
-GttInterval *   gtt_interval_new (void);
 void      gtt_interval_destroy (GttInterval *);
 
 void      gtt_interval_set_start (GttInterval *, time_t);

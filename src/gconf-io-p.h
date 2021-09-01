@@ -148,4 +148,4 @@
    l;                                                                  \
 })
 
-#endif /* GTT_GCONF_IO_P_H_ */
+#endif // GTT_GCONF_IO_P_H_

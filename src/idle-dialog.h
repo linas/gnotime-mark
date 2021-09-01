@@ -70,4 +70,4 @@ void idle_dialog_deactivate_timer (GttIdleDialog *id);
 
 gboolean idle_dialog_is_visible(GttIdleDialog *id);
 
-#endif /* GTT_IDLE_DIALOG_H_ */
+#endif // GTT_IDLE_DIALOG_H_

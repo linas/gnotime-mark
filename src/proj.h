@@ -250,24 +250,12 @@ GttProject * 	gtt_project_locate_from_id (int prj_id);
  *    invoked.
  *
  * The gtt_project_thaw() routine causes notifiers to be sent.
- *
- * The gtt_interval_thaw() routine causes notifiers to be sent.
- *    Also, it will run the interval-scrub routines at this point.
- *    The scrubbing may cause the indicated interval to be deleted
- *    (e.g. merged into the interval above/below it).   To avoid
- *    a dangleing pointer to freed memory, doon't use the input
- *    pointer again; instead replace it with the returned value.
- *    This thaw routine will return a pointer to either the
- *    input interval, or, if it was deleted, to another nearby
- *    interval.
  */
 
 void		gtt_project_freeze (GttProject *prj);
 void		gtt_project_thaw (GttProject *prj);
 void		gtt_task_freeze (GttTask *tsk);
 void		gtt_task_thaw (GttTask *tsk);
-void		gtt_interval_freeze (GttInterval *ivl);
-GttInterval * gtt_interval_thaw (GttInterval *ivl);
 
 void		gtt_project_add_notifier (GttProject *,
 			GttProjectChanged, gpointer);
@@ -600,34 +588,10 @@ time_t   gtt_task_get_secs_latest (GttTask *tsk);
  * The is_running flag indicates whether the timer is running on this
  * interval.
  */
-void      gtt_interval_destroy (GttInterval *);
 
-void      gtt_interval_set_start (GttInterval *, time_t);
-void      gtt_interval_set_stop (GttInterval *, time_t);
-void      gtt_interval_set_running (GttInterval *, gboolean);
-void      gtt_interval_set_fuzz (GttInterval *, int);
-
-/* The gtt_interval_new_insert_after() routine creates a new interval
- *    and inserts it after the interval "where".  It returns the new
- *    interval.
- *
- * The gtt_interval_merge_up() routine merges the given interval with
- *    the immediately more recent one above it.  It does this by
- *    decrementing the start time.  The resulting interval has the
- *    max of the two fuzz factors, and is running if the first was.
- *    The merged interval is returned.
- *
- * The gtt_interval_merge_down() routine does the same, except that
- *    it merges with the next interval by incrementing its stop time.
- *
- * The gtt_interval_split() routine splits the list of intervals
+/* The gtt_interval_split() routine splits the list of intervals
  *    into two pieces, with the indicated interval and everything
  *    following it going after the specified.
  */
-GttInterval *   gtt_interval_new_insert_after (GttInterval *where);
-GttInterval *   gtt_interval_merge_up (GttInterval *);
-GttInterval *   gtt_interval_merge_down (GttInterval *);
-void            gtt_interval_split (GttInterval *, GttTask *);
-GttTask *       gtt_interval_get_parent (GttInterval *);
 
 #endif // GTT_PROJ_H_

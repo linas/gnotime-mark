@@ -76,21 +76,6 @@ int save_count = 0;
 /* RC_NAME is old, depricated; stays here for backwards compat. */
 #define RC_NAME ".gtimetrackerrc"
 
-static const char *
-build_rc_name_old(void)
-{
-	static char *buf = NULL;
-
-	if (g_getenv("HOME") != NULL) {
-		buf = g_concat_dir_and_file (g_getenv ("HOME"), RC_NAME);
-	} else {
-		buf = g_strdup (RC_NAME);
-	}
-	return buf;
-}
-
-
-
 static void
 read_tb_sects_old(char *s)
 {
@@ -121,7 +106,7 @@ project_list_load_old(void)
 	int i;
 	int _n, _c, _p, _t, _o, _h, _e;
 
-	realname = build_rc_name_old();
+	realname = g_build_filename(g_get_home_dir(), RC_NAME, NULL);
 	gtt_config_filepath = realname;
 
 	if (NULL == (f = fopen(realname, "rt")))

@@ -38,12 +38,13 @@
 #include "menus.h"
 #include "notes-area.h"
 #include "prefs.h"
+#include "proj.h"
+#include "projects-tree.h"
 #include "props-proj.h"
+#include "status-icon.h"
 #include "timer.h"
 #include "toolbar.h"
 #include "util.h"
-#include "projects-tree.h"
-#include "proj.h"
 
 /* XXX Most of the globals below should be placed into a single
  * application-wide top-level structure, rather than being allowed

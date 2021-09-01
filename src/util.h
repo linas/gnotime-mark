@@ -19,8 +19,9 @@
 #ifndef GTT_UTIL_H_
 #define GTT_UTIL_H_
 
-#include <gtk/gtktext.h>
 #include <glade/glade.h>
+
+#include <gtk/gtk.h>
 
 /* ------------------------------------------------------------------ */
 /* some gtk-like utilities */

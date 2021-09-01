@@ -43,6 +43,7 @@
 #include "query.h"
 #include "util.h"
 
+#include <glib/gi18n.h>
 
 /* Design problems:
  * The way this is currently defined, there is no type safety, and

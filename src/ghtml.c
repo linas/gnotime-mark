@@ -35,9 +35,10 @@
 
 #include "app.h"
 #include "cur-proj.h"
-#include "gtt.h"
-#include "ghtml.h"
 #include "ghtml-deprecated.h"
+#include "ghtml.h"
+#include "gtt.h"
+#include "interval.h"
 #include "prefs.h"
 #include "proj.h"
 #include "query.h"

@@ -30,12 +30,13 @@
 
 #include <qof.h>
 
+#include "app.h"
 #include "cur-proj.h"
-#include "idle-dialog.h"
 #include "dialog.h"
+#include "idle-dialog.h"
+#include "interval.h"
 #include "proj.h"
 #include "util.h"
-#include "app.h"
 
 int config_idle_timeout = -1;
 

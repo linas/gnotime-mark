@@ -25,6 +25,7 @@
 #include "cur-proj.h"
 #include "err-throw.h"
 #include "gtt.h"
+#include "interval.h"
 #include "proj.h"
 #include "xml-gtt.h"
 

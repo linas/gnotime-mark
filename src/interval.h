@@ -21,8 +21,18 @@
 #ifndef GTT_INTERVAL_H_
 #define GTT_INTERVAL_H_
 
+#include <glib.h>
+
+#include <sys/time.h>
+
 typedef struct gtt_interval_s GttInterval;
 
+int gtt_interval_get_fuzz(const GttInterval *ivl);
+time_t gtt_interval_get_start(const GttInterval *ivl);
+time_t gtt_interval_get_stop(const GttInterval *ivl);
+gboolean gtt_interval_is_first_interval(const GttInterval *ivl);
+gboolean gtt_interval_is_last_interval(const GttInterval *ivl);
+gboolean gtt_interval_is_running(const GttInterval *ivl);
 GttInterval *gtt_interval_new(void);
 
 #endif // GTT_INTERVAL_H_

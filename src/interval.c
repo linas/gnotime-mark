@@ -21,6 +21,84 @@
 #include "interval.h"
 #include "proj_p.h"
 
+int
+gtt_interval_get_fuzz(const GttInterval *const ivl)
+{
+	if (NULL == ivl)
+	{
+		return 0;
+	}
+
+	return ivl->fuzz;
+}
+
+time_t
+gtt_interval_get_start(const GttInterval *const ivl)
+{
+	if (NULL == ivl)
+	{
+		return 0;
+	}
+
+	return ivl->start;
+}
+
+time_t
+gtt_interval_get_stop(const GttInterval *const ivl)
+{
+	if (NULL == ivl)
+	{
+		return 0;
+	}
+
+	return ivl->stop;
+}
+
+gboolean
+gtt_interval_is_first_interval(const GttInterval *const ivl)
+{
+	if ((NULL == ivl) || (NULL == ivl->parent) ||
+	    (NULL == ivl->parent->interval_list))
+	{
+		return TRUE;
+	}
+
+	if ((GttInterval *)ivl->parent->interval_list->data == ivl)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+gboolean
+gtt_interval_is_last_interval(const GttInterval *const ivl)
+{
+	if ((NULL == ivl) || (NULL == ivl->parent) ||
+	    (NULL == ivl->parent->interval_list))
+	{
+		return TRUE;
+	}
+
+	if ((GttInterval *)((g_list_last(ivl->parent->interval_list))->data) == ivl)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+gboolean
+gtt_interval_is_running(const GttInterval *const ivl)
+{
+	if (NULL == ivl)
+	{
+		return FALSE;
+	}
+
+	return (gboolean)ivl->running;
+}
+
 GttInterval *
 gtt_interval_new(void)
 {

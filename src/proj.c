@@ -2517,57 +2517,11 @@ gtt_interval_set_running (GttInterval *ivl, gboolean st)
 	if (ivl->parent) proj_modified (ivl->parent->parent);
 }
 
-time_t
-gtt_interval_get_start (GttInterval * ivl)
-{
-	if (!ivl) return 0;
-	return ivl->start;
-}
-
-time_t
-gtt_interval_get_stop (GttInterval * ivl)
-{
-	if (!ivl) return 0;
-	return ivl->stop;
-}
-
-int
-gtt_interval_get_fuzz (GttInterval * ivl)
-{
-	if (!ivl) return 0;
-	return ivl->fuzz;
-}
-
-gboolean
-gtt_interval_is_running (GttInterval * ivl)
-{
-	if (!ivl) return FALSE;
-	return (gboolean) ivl->running;
-}
-
 GttTask *
 gtt_interval_get_parent (GttInterval * ivl)
 {
 	if (!ivl) return NULL;
 	return ivl->parent;
-}
-
-gboolean
-gtt_interval_is_first_interval (GttInterval *ivl)
-{
-	if (!ivl || !ivl->parent || !ivl->parent->interval_list) return TRUE;
-
-	if ((GttInterval *) ivl->parent->interval_list->data == ivl) return TRUE;
-	return FALSE;
-}
-
-gboolean
-gtt_interval_is_last_interval (GttInterval *ivl)
-{
-	if (!ivl || !ivl->parent || !ivl->parent->interval_list) return TRUE;
-
-	if ((GttInterval *) ((g_list_last(ivl->parent->interval_list))->data) == ivl) return TRUE;
-	return FALSE;
 }
 
 /* ============================================================= */

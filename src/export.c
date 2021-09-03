@@ -18,14 +18,15 @@
  */
 
 #include <config.h>
-#include <gnome.h>
 #include <string.h>
-#include <libgnomevfs/gnome-vfs.h>
 
 #include "app.h"
 #include "export.h"
 #include "ghtml.h"
 #include "proj.h"
+
+#include <gio/gio.h>
+#include <glib/gi18n.h>
 
 /* Project data export */
 
@@ -38,8 +39,9 @@ typedef struct export_format_s export_format_t;
 struct export_format_s
 {
 	GtkFileChooser *picker;    /* URI picker (file selection) */
-	const char       *uri;       /* aka filename */
-	GnomeVFSHandle   *handle;    /* file handle */
+	gchar *uri;                /* aka filename */
+	GFile *ofile;              // File to write the exported data to
+	GFileOutputStream *ostream;  // Output stream to write to the export file
 	GttGhtml         *ghtml;     /* output device */
 	const char       *template;  /* output template */
 };
@@ -83,17 +85,20 @@ static void
 export_write (GttGhtml *gxp, const char *str, size_t len,
 			  export_format_t *xp)
 {
-	GnomeVFSFileSize buflen	 = len;
-	GnomeVFSFileSize bytes_written = 0;
-	GnomeVFSResult result = GNOME_VFS_OK;
-	size_t off = 0;
+	gsize buflen = len;
+	gsize off = 0;
 
-	while ((buflen > 0) && (result == GNOME_VFS_OK))
+	while (0 < buflen)
 	{
-		result = gnome_vfs_write (xp->handle,
-								  &str[off],
-								  buflen,
-								  &bytes_written);
+		GError *error = NULL;
+		gssize bytes_written = g_output_stream_write(
+				G_OUTPUT_STREAM(xp->ostream), &str[off], buflen, NULL, &error);
+		if ((0 > bytes_written) || (NULL != error))
+		{
+			g_warning("Failed to write to export file \"%s\": %s", xp->uri,
+			          error->message);
+			break;
+		}
 		off += bytes_written;
 		buflen -= bytes_written;
 	}
@@ -140,30 +145,40 @@ export_projects (export_format_t *xp)
 static void
 export_really (GtkWidget *widget, export_format_t *xp)
 {
-	gboolean rc;
-
 	xp->uri = gtk_file_chooser_get_filename (xp->picker);
 
-
-	GnomeVFSResult result;
-	result = gnome_vfs_create (&xp->handle, xp->uri, GNOME_VFS_OPEN_WRITE,
-							   FALSE, 0644);
-	if (GNOME_VFS_OK != result)
+	GError *error = NULL;
+	xp->ofile = g_file_new_for_path(xp->uri);
+	xp->ostream =
+			g_file_replace(xp->ofile, NULL, FALSE, G_FILE_CREATE_NONE, NULL, &error);
+	if ((NULL == xp->ostream) || (NULL != error))
 	{
 		char *msg = g_strdup_printf (_("File %s could not be opened"),
 									 xp->uri);
 		export_show_error_message (GTK_WINDOW (xp->picker), msg);
 		g_free (msg);
+		msg = NULL;
+		g_free(xp->uri);
+		xp->uri = NULL;
+		g_clear_error(&error);
+		g_clear_object(&xp->ofile);
 		return;
 	}
 
-	rc = export_projects (xp);
-	if (rc)
+	if (export_projects(xp))
 	{
 		export_show_error_message (GTK_WINDOW (xp->picker), _("Error occured during export"));
-		return;
 	}
-	gnome_vfs_close (xp->handle);
+	if (!g_output_stream_close(G_OUTPUT_STREAM(xp->ostream), NULL, &error))
+	{
+		g_warning("Failed to close export file \"%s\": %s", xp->uri,
+		          error->message);
+		g_clear_error(&error);
+	}
+	g_clear_object(&xp->ostream);
+	g_clear_object(&xp->ofile);
+	g_free(xp->uri);
+	xp->uri = NULL;
 }
 
 /* ======================================================= */

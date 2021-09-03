@@ -23,10 +23,10 @@
 #include "proj_p.h"
 
 void
-gtt_interval_destroy(GttInterval *ivl)
+gtt_interval_destroy(GttInterval *const ivl)
 {
-	if (!ivl)
-		return;
+	g_return_if_fail(NULL != ivl);
+
 	gtt_interval_unhook(ivl);
 	g_free(ivl);
 }
@@ -34,18 +34,16 @@ gtt_interval_destroy(GttInterval *ivl)
 void
 gtt_interval_freeze(GttInterval *const ivl)
 {
-	if (!ivl || !ivl->parent || !ivl->parent->parent)
-		return;
+	g_return_if_fail((NULL != ivl) && (NULL != ivl->parent) &&
+	                 (NULL != ivl->parent->parent));
+
 	ivl->parent->parent->frozen = TRUE;
 }
 
 int
 gtt_interval_get_fuzz(const GttInterval *const ivl)
 {
-	if (NULL == ivl)
-	{
-		return 0;
-	}
+	g_return_val_if_fail(NULL != ivl, 0);
 
 	return ivl->fuzz;
 }
@@ -53,10 +51,7 @@ gtt_interval_get_fuzz(const GttInterval *const ivl)
 GttTask *
 gtt_interval_get_parent(const GttInterval *const ivl)
 {
-	if (NULL == ivl)
-	{
-		return NULL;
-	}
+	g_return_val_if_fail(NULL != ivl, NULL);
 
 	return ivl->parent;
 }
@@ -64,10 +59,7 @@ gtt_interval_get_parent(const GttInterval *const ivl)
 time_t
 gtt_interval_get_start(const GttInterval *const ivl)
 {
-	if (NULL == ivl)
-	{
-		return 0;
-	}
+	g_return_val_if_fail(NULL != ivl, 0);
 
 	return ivl->start;
 }
@@ -75,10 +67,7 @@ gtt_interval_get_start(const GttInterval *const ivl)
 time_t
 gtt_interval_get_stop(const GttInterval *const ivl)
 {
-	if (NULL == ivl)
-	{
-		return 0;
-	}
+	g_return_val_if_fail(NULL != ivl, 0);
 
 	return ivl->stop;
 }
@@ -86,11 +75,9 @@ gtt_interval_get_stop(const GttInterval *const ivl)
 gboolean
 gtt_interval_is_first_interval(const GttInterval *const ivl)
 {
-	if ((NULL == ivl) || (NULL == ivl->parent) ||
-	    (NULL == ivl->parent->interval_list))
-	{
-		return TRUE;
-	}
+	g_return_val_if_fail((NULL != ivl) && (NULL != ivl->parent) &&
+	                         (NULL != ivl->parent->interval_list),
+	                     TRUE);
 
 	if ((GttInterval *)ivl->parent->interval_list->data == ivl)
 	{
@@ -103,11 +90,9 @@ gtt_interval_is_first_interval(const GttInterval *const ivl)
 gboolean
 gtt_interval_is_last_interval(const GttInterval *const ivl)
 {
-	if ((NULL == ivl) || (NULL == ivl->parent) ||
-	    (NULL == ivl->parent->interval_list))
-	{
-		return TRUE;
-	}
+	g_return_val_if_fail((NULL != ivl) && (NULL != ivl->parent) &&
+	                         (NULL != ivl->parent->interval_list),
+	                     TRUE);
 
 	if ((GttInterval *)((g_list_last(ivl->parent->interval_list))->data) == ivl)
 	{
@@ -120,10 +105,7 @@ gtt_interval_is_last_interval(const GttInterval *const ivl)
 gboolean
 gtt_interval_is_running(const GttInterval *const ivl)
 {
-	if (NULL == ivl)
-	{
-		return FALSE;
-	}
+	g_return_val_if_fail(NULL != ivl, FALSE);
 
 	return (gboolean)ivl->running;
 }
@@ -136,14 +118,14 @@ gtt_interval_is_running(const GttInterval *const ivl)
 GttInterval *
 gtt_interval_merge_down(GttInterval *const ivl)
 {
+	g_return_val_if_fail(NULL != ivl, NULL);
+
 	int more_fuzz;
 	int ivl_len;
 	GList *node;
 	GttInterval *merge;
 	GttTask *prnt;
 
-	if (!ivl)
-		return NULL;
 	prnt = ivl->parent;
 	if (!prnt)
 		return NULL;
@@ -191,16 +173,16 @@ gtt_interval_merge_down(GttInterval *const ivl)
  * @return The merged interval
  */
 GttInterval *
-gtt_interval_merge_up(GttInterval *ivl)
+gtt_interval_merge_up(GttInterval *const ivl)
 {
+	g_return_val_if_fail(NULL != ivl, NULL);
+
 	int more_fuzz;
 	int ivl_len;
 	GList *node;
 	GttInterval *merge;
 	GttTask *prnt;
 
-	if (!ivl)
-		return NULL;
 	prnt = ivl->parent;
 	if (!prnt)
 		return NULL;
@@ -260,12 +242,11 @@ gtt_interval_new(void)
 GttInterval *
 gtt_interval_new_insert_after(GttInterval *const where)
 {
+	g_return_val_if_fail(NULL != where, NULL);
+
 	GttInterval *ivl;
 	GttTask *tsk;
 	int idx;
-
-	if (!where)
-		return NULL;
 
 	tsk = where->parent;
 	if (!tsk)
@@ -292,30 +273,30 @@ gtt_interval_new_insert_after(GttInterval *const where)
 }
 
 void
-gtt_interval_set_fuzz(GttInterval *ivl, int st)
+gtt_interval_set_fuzz(GttInterval *const ivl, const int st)
 {
-	if (!ivl)
-		return;
+	g_return_if_fail(NULL != ivl);
+
 	ivl->fuzz = st;
 	if (ivl->parent)
 		proj_modified(ivl->parent->parent);
 }
 
 void
-gtt_interval_set_running(GttInterval *ivl, gboolean st)
+gtt_interval_set_running(GttInterval *const ivl, const gboolean st)
 {
-	if (!ivl)
-		return;
+	g_return_if_fail(NULL != ivl);
+
 	ivl->running = st;
 	if (ivl->parent)
 		proj_modified(ivl->parent->parent);
 }
 
 void
-gtt_interval_set_start(GttInterval *ivl, time_t st)
+gtt_interval_set_start(GttInterval *const ivl, const time_t st)
 {
-	if (!ivl)
-		return;
+	g_return_if_fail(NULL != ivl);
+
 	ivl->start = st;
 	if (st > ivl->stop)
 		ivl->stop = st;
@@ -324,10 +305,10 @@ gtt_interval_set_start(GttInterval *ivl, time_t st)
 }
 
 void
-gtt_interval_set_stop(GttInterval *ivl, time_t st)
+gtt_interval_set_stop(GttInterval *const ivl, const time_t st)
 {
-	if (!ivl)
-		return;
+	g_return_if_fail(NULL != ivl);
+
 	ivl->stop = st;
 	if (st < ivl->start)
 		ivl->start = st;
@@ -343,6 +324,8 @@ gtt_interval_set_stop(GttInterval *ivl, time_t st)
 void
 gtt_interval_split(GttInterval *const ivl, GttTask *const newtask)
 {
+	g_return_if_fail((NULL != ivl) && (NULL != newtask));
+
 	int is_running = 0;
 	gint idx;
 	GttProject *prj;
@@ -350,8 +333,6 @@ gtt_interval_split(GttInterval *const ivl, GttTask *const newtask)
 	GList *node;
 	GttInterval *first_ivl;
 
-	if (!ivl || !newtask)
-		return;
 	prnt = ivl->parent;
 	if (!prnt)
 		return;
@@ -421,8 +402,12 @@ gtt_interval_split(GttInterval *const ivl, GttTask *const newtask)
 GttInterval *
 gtt_interval_thaw(GttInterval *ivl)
 {
-	if (!ivl || !ivl->parent || !ivl->parent->parent)
-		return ivl;
+	g_return_val_if_fail((NULL != ivl) && (NULL != ivl->parent) &&
+	                         (NULL != ivl->parent->parent),
+	                     NULL);
+	g_return_val_if_fail((NULL != ivl->parent) && (NULL != ivl->parent->parent),
+	                     ivl);
+
 	ivl->parent->parent->frozen = FALSE;
 	ivl = scrub_intervals(ivl->parent, ivl);
 	proj_refresh_time(ivl->parent->parent);
@@ -432,8 +417,7 @@ gtt_interval_thaw(GttInterval *ivl)
 void
 gtt_interval_unhook(GttInterval *ivl)
 {
-	if (NULL == ivl->parent)
-		return;
+	g_return_if_fail(NULL != ivl);
 
 	/* Unhook myself from the chain */
 	ivl->parent->interval_list = g_list_remove(ivl->parent->interval_list, ivl);

@@ -613,8 +613,13 @@ task_popup_cb (Wiggy *wig)
 static void
 on_print_clicked_cb (GtkWidget *w, gpointer data)
 {
-	GladeXML  *glxml;
-	glxml = gtt_glade_xml_new ("glade/not-implemented.glade", "Not Implemented");
+	GtkWidget *diag = gtk_message_dialog_new(
+			GTK_IS_WINDOW(w) ? GTK_WINDOW(w) : NULL, GTK_DIALOG_MODAL,
+			GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+			_("This function is not yet implemented!\nComing Soon, I hope!"));
+	gtk_dialog_run(diag);
+	gtk_widget_destroy(diag);
+	diag = NULL;
 }
 #endif
 

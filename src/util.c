@@ -84,6 +84,40 @@ gtt_glade_xml_new (const char *filename, const char *widget)
 	return xml;
 }
 
+GtkBuilder *
+gtt_gtk_builder_new(const char *filename)
+{
+	g_return_val_if_fail(NULL != filename, NULL);
+
+	GtkBuilder *bldr = gtk_builder_new();
+	GError *error = NULL;
+	if (g_file_test(filename, G_FILE_TEST_EXISTS))
+	{
+		if (0 == gtk_builder_add_from_file(bldr, filename, &error))
+		{
+			g_warning("Failed to load UI definition from \"%s\": %s", filename,
+			          error->message);
+			g_clear_error(&error);
+		} else
+		{
+			return bldr;
+		}
+	}
+
+	gchar *file = g_build_filename(GTTGLADEDIR, filename, NULL);
+	if (0 == gtk_builder_add_from_file(bldr, file, &error))
+	{
+		g_warning("Failed to load UI definition from \"%s\": %s", filename,
+		          error->message);
+		g_clear_error(&error);
+		g_clear_object(&bldr);
+	}
+	g_free(file);
+	file = NULL;
+
+	return bldr;
+}
+
 /* ============================================================== */
 /* Used to be in qof, but is now deprecated there. */
 

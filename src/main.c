@@ -44,10 +44,11 @@
 #include "cur-proj.h"
 #include "err-throw.h"
 #include "file-io.h"
+#include "gsettings-io.h"
 #include "gtt.h"
 #include "log.h"
-#include "menus.h"
 #include "menucmd.h"
+#include "menus.h"
 #include "prefs.h"
 #include "proj.h"
 #include "timer.h"
@@ -898,6 +899,8 @@ main(int argc, char *argv[])
 			   G_CALLBACK(session_die), NULL);
 
 	glade_init();
+
+	gtt_gsettings_init();
 
 	/* gconf init is needed by gtkhtml */
 	gconf_init (argc, argv, NULL);

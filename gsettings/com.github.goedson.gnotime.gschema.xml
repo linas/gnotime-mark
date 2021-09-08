@@ -1,5 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gnotime">
   <schema id="com.github.goedson.gnotime" path="/com/github/goedson/gnotime/">
+    <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
+  </schema>
+  <schema id="com.github.goedson.gnotime.geometry" path="/com/github/goedson/gnotime/geometry/">
+    <key name="h-paned" type="i">
+      <default>220</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
+    <key name="height" type="i">
+      <default>272</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
+    <key name="v-paned" type="i">
+      <default>250</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
+    <key name="width" type="i">
+      <default>442</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
+    <key name="x" type="i">
+      <default>10</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
+    <key name="y" type="i">
+      <default>10</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
   </schema>
 </schemalist>

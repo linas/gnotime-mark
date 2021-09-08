@@ -31,6 +31,7 @@
 #include "err-throw.h"
 #include "file-io.h"
 #include "gconf-io.h"
+#include "gsettings-io.h"
 #include "gtt.h"
 #include "menus.h"
 #include "plug-in.h"
@@ -498,6 +499,8 @@ gtt_load_config (void)
 	const char *h;
 	char * s;
 
+	gtt_gsettings_load();
+
 	/* Check for gconf2, and use that if it exists */
 	if (gtt_gconf_exists())
 	{
@@ -624,6 +627,7 @@ gtt_post_ctree_config (void)
 void
 gtt_save_config(void)
 {
+	gtt_gsettings_save();
 	gtt_gconf_save();
 }
 

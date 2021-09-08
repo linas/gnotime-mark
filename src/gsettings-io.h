@@ -24,5 +24,7 @@
 #include <glib.h>
 
 gboolean gtt_gsettings_init();
+void gtt_gsettings_load();
+void gtt_gsettings_save();
 
 #endif // GTT_GSETTINGS_IO_H_

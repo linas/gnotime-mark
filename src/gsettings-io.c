@@ -20,12 +20,15 @@
 
 #include "gsettings-io.h"
 #include "app.h"
+#include "prefs.h"
 
 #include <gio/gio.h>
 
 static GSettings *gsettings = NULL;
 
+static void set_bool(GSettings *gsettings, const gchar *key, gboolean value);
 static void set_int(GSettings *gsettings, const gchar *key, gint value);
+static void set_str(GSettings *gsettings, const gchar *key, const gchar *value);
 
 gboolean
 gtt_gsettings_init()
@@ -72,6 +75,16 @@ gtt_gsettings_load()
 		g_object_unref(geometry_settings);
 		geometry_settings = NULL;
 	}
+
+	{
+		GSettings *report_settings = g_settings_get_child(gsettings, "report");
+		config_currency_symbol =
+				g_settings_get_string(report_settings, "currency-symbol");
+		config_currency_use_locale =
+				g_settings_get_boolean(report_settings, "currency-use-locale");
+		g_object_unref(report_settings);
+		report_settings = NULL;
+	}
 }
 
 void
@@ -93,13 +106,42 @@ gtt_gsettings_save()
 		g_object_unref(geometry_settings);
 		geometry_settings = NULL;
 	}
+
+	{
+		GSettings *report_settings = g_settings_get_child(gsettings, "report");
+		set_str(report_settings, "currency-symbol", config_currency_symbol);
+		set_bool(report_settings, "currency-use-locale",
+		         config_currency_use_locale);
+		g_object_unref(report_settings);
+		report_settings = NULL;
+	}
 }
 
 static void
-set_int(GSettings *gsettings, const gchar *key, gint value)
+set_bool(GSettings *const gsettings, const gchar *const key,
+         const gboolean value)
+{
+	if (!g_settings_set_boolean(gsettings, key, value))
+	{
+		g_warning("Failed to set boolean value %d for key \"%s\"", value, key);
+	}
+}
+
+static void
+set_int(GSettings *const gsettings, const gchar *const key, const gint value)
 {
 	if (!g_settings_set_int(gsettings, key, value))
 	{
 		g_warning("Failed to set integer value %d for key \"%s\"", value, key);
+	}
+}
+
+static void
+set_str(GSettings *const gsettings, const gchar *const key,
+        const gchar *const value)
+{
+	if (!g_settings_set_string(gsettings, key, value))
+	{
+		g_warning("Failed to set string value \"%s\" for key \"%s\"", value, key);
 	}
 }

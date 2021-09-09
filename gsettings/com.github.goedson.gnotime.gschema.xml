@@ -2,6 +2,7 @@
 <schemalist gettext-domain="gnotime">
   <schema id="com.github.goedson.gnotime" path="/com/github/goedson/gnotime/">
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
+    <child name="report" schema="com.github.goedson.gnotime.report"/>
   </schema>
   <schema id="com.github.goedson.gnotime.geometry" path="/com/github/goedson/gnotime/geometry/">
     <key name="h-paned" type="i">
@@ -31,6 +32,18 @@
     </key>
     <key name="y" type="i">
       <default>10</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
+  </schema>
+  <schema id="com.github.goedson.gnotime.report" path="/com/github/goedson/gnotime/report/">
+    <key name="currency-symbol" type="s">
+      <default>"$"</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
+    <key name="currency-use-locale" type="b">
+      <default>true</default>
       <description>TODO</description>
       <summary>TODO</summary>
     </key>

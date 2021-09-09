@@ -78,26 +78,6 @@ int save_count = 0;
 #define RC_NAME ".gtimetrackerrc"
 
 static void
-read_tb_sects_old(char *s)
-{
-	if (s[2] == 'n') {
-		config_show_tb_new = (s[5] == 'n');
-	} else if (s[2] == 'c') {
-		config_show_tb_ccp = (s[5] == 'n');
-	} else if (s[2] == 'p') {
-		config_show_tb_prop = (s[5] == 'n');
-	} else if (s[2] == 't') {
-		config_show_tb_timer = (s[5] == 'n');
-	} else if (s[2] == 'o') {
-		config_show_tb_pref = (s[5] == 'n');
-	} else if (s[2] == 'h') {
-		config_show_tb_help = (s[5] == 'n');
-	} else if (s[2] == 'e') {
-		config_show_tb_exit = (s[5] == 'n');
-	}
-}
-
-static void
 project_list_load_old(void)
 {
 	FILE *f;
@@ -105,7 +85,6 @@ project_list_load_old(void)
 	GttProject *proj = NULL;
 	char s[1024];
 	int i;
-	int _n, _c, _p, _t, _o, _h, _e;
 
 	realname = g_build_filename(g_get_home_dir(), RC_NAME, NULL);
 	gtt_config_filepath = realname;
@@ -122,13 +101,6 @@ project_list_load_old(void)
 	}
 	printf ("GTT: Info: Importing .gtimetrackerrc config file\n");
 
-	_n = config_show_tb_new;
-	_c = config_show_tb_ccp;
-	_p = config_show_tb_prop;
-	_t = config_show_tb_timer;
-	_o = config_show_tb_pref;
-	_h = config_show_tb_help;
-	_e = config_show_tb_exit;
 	errno = 0;
 	while ((!feof(f)) && (!errno)) {
 		if (!fgets(s, 1023, f)) continue;
@@ -146,21 +118,18 @@ project_list_load_old(void)
 			/* show seconds? */
 			config_show_secs = (s[3] == 'n');
 		} else if (s[0] == 'b') {
-			if (s[1] == 'p') {
-				/* show tooltips */
-				config_show_tb_tips = (s[4] == 'n');
-			} else if (s[1] == 'h') {
+			if (s[1] == 'h')
+			{
 				/* show clist titles */
 				config_show_clist_titles = (s[4] == 'n');
-			} else if (s[1] == 's') {
+			} else if (s[1] == 's')
+			{
 				/* show status bar */
 				if (s[4] == 'n') {
 					config_show_statusbar = 1;
 				} else {
 					config_show_statusbar = 0;
 				}
-			} else if (s[1] == '_') {
-				read_tb_sects_old(s);
 			}
 		} else if (s[0] == 'c') {
 			/* start project command */
@@ -221,15 +190,6 @@ project_list_load_old(void)
 	}
 
 	update_status_bar();
-	if ((_n != config_show_tb_new) ||
-	    (_c != config_show_tb_ccp) ||
-	    (_p != config_show_tb_prop) ||
-	    (_t != config_show_tb_timer) ||
-	    (_o != config_show_tb_pref) ||
-	    (_h != config_show_tb_help) ||
-	    (_e != config_show_tb_exit)) {
-		update_toolbar_sections();
-	}
 	return;
 
 err:
@@ -262,7 +222,6 @@ gtt_load_gnome_config (const char *prefix)
 	char *s, *p;
 	int prefix_len;
 	int i, num;
-	int _n, _c, _j, _p, _t, _o, _h, _e;
 
 #define TOKLEN  120
 	prefix_len = 0;
@@ -282,15 +241,6 @@ gtt_load_gnome_config (const char *prefix)
 		 * the project list is destroyed ... */
 		first_proj_title = g_strdup (gtt_project_get_title (cur_proj));
 	}
-
-	_n = config_show_tb_new;
-	_c = config_show_tb_ccp;
-	_j = config_show_tb_journal;
-	_p = config_show_tb_prop;
-	_t = config_show_tb_timer;
-	_o = config_show_tb_pref;
-	_h = config_show_tb_help;
-	_e = config_show_tb_exit;
 
 	/* get last running project */
 	cur_proj_id = GET_INT("/Misc/CurrProject=-1");
@@ -350,17 +300,6 @@ gtt_load_gnome_config (const char *prefix)
 	config_show_title_status = GET_BOOL("/Display/ShowStatus=false");
 	prefs_update_projects_view ();
 
-
-	/* ------------ */
-	config_show_tb_tips = GET_BOOL("/Toolbar/ShowTips=true");
-	config_show_tb_new = GET_BOOL("/Toolbar/ShowNew=true");
-	config_show_tb_ccp = GET_BOOL("/Toolbar/ShowCCP=false");
-	config_show_tb_journal = GET_BOOL("/Toolbar/ShowJournal=true");
-	config_show_tb_prop = GET_BOOL("/Toolbar/ShowProp=true");
-	config_show_tb_timer = GET_BOOL("/Toolbar/ShowTimer=true");
-	config_show_tb_pref = GET_BOOL("/Toolbar/ShowPref=false");
-	config_show_tb_help = GET_BOOL("/Toolbar/ShowHelp=true");
-	config_show_tb_exit = GET_BOOL("/Toolbar/ShowExit=true");
 
 	/* ------------ */
 	config_shell_start = GET_STR("/Actions/StartCommand=echo start id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
@@ -476,17 +415,6 @@ gtt_load_gnome_config (const char *prefix)
 	}
 
 	update_status_bar();
-	if ((_n != config_show_tb_new) ||
-	    (_c != config_show_tb_ccp) ||
-	    (_j != config_show_tb_journal) ||
-	    (_p != config_show_tb_prop) ||
-	    (_t != config_show_tb_timer) ||
-	    (_o != config_show_tb_pref) ||
-	    (_h != config_show_tb_help) ||
-	    (_e != config_show_tb_exit))
-	{
-		update_toolbar_sections();
-	}
 
 	g_free (s);
 }

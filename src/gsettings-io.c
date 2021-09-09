@@ -21,6 +21,7 @@
 #include "gsettings-io.h"
 #include "app.h"
 #include "prefs.h"
+#include "toolbar.h"
 
 #include <gio/gio.h>
 
@@ -85,6 +86,47 @@ gtt_gsettings_load()
 		g_object_unref(report_settings);
 		report_settings = NULL;
 	}
+
+	const gboolean config_show_tb_ccp_before = config_show_tb_ccp;
+	const gboolean config_show_tb_exit_before = config_show_tb_exit;
+	const gboolean config_show_tb_help_before = config_show_tb_help;
+	const gboolean config_show_tb_journal_before = config_show_tb_journal;
+	const gboolean config_show_tb_new_before = config_show_tb_new;
+	const gboolean config_show_tb_pref_before = config_show_tb_pref;
+	const gboolean config_show_tb_prop_before = config_show_tb_prop;
+	const gboolean config_show_tb_timer_before = config_show_tb_timer;
+	const gboolean config_show_tb_tips_before = config_show_tb_tips;
+	{
+		GSettings *toolbar_settings = g_settings_get_child(gsettings, "toolbar");
+		config_show_tb_ccp = g_settings_get_boolean(toolbar_settings, "show-ccp");
+		config_show_tb_exit = g_settings_get_boolean(toolbar_settings, "show-exit");
+		config_show_tb_help = g_settings_get_boolean(toolbar_settings, "show-help");
+		config_show_tb_journal =
+				g_settings_get_boolean(toolbar_settings, "show-journal");
+		config_show_tb_new = g_settings_get_boolean(toolbar_settings, "show-new");
+		config_show_tb_pref = g_settings_get_boolean(toolbar_settings, "show-pref");
+		config_show_tb_prop = g_settings_get_boolean(toolbar_settings, "show-prop");
+		config_show_tb_timer =
+				g_settings_get_boolean(toolbar_settings, "show-timer");
+		config_show_tb_tips = g_settings_get_boolean(toolbar_settings, "show-tips");
+		config_show_toolbar =
+				g_settings_get_boolean(toolbar_settings, "show-toolbar");
+		g_object_unref(toolbar_settings);
+		toolbar_settings = NULL;
+	}
+
+	if ((config_show_tb_ccp_before != config_show_tb_ccp) ||
+	    (config_show_tb_exit_before != config_show_tb_exit) ||
+	    (config_show_tb_help_before != config_show_tb_help) ||
+	    (config_show_tb_journal_before != config_show_tb_journal) ||
+	    (config_show_tb_new_before != config_show_tb_new) ||
+	    (config_show_tb_pref_before != config_show_tb_pref) ||
+	    (config_show_tb_prop_before != config_show_tb_prop) ||
+	    (config_show_tb_timer_before != config_show_tb_timer) ||
+	    (config_show_tb_tips_before != config_show_tb_tips))
+	{
+		update_toolbar_sections();
+	}
 }
 
 void
@@ -114,6 +156,22 @@ gtt_gsettings_save()
 		         config_currency_use_locale);
 		g_object_unref(report_settings);
 		report_settings = NULL;
+	}
+
+	{
+		GSettings *toolbar_settings = g_settings_get_child(gsettings, "toolbar");
+		set_bool(toolbar_settings, "show-ccp", config_show_tb_ccp);
+		set_bool(toolbar_settings, "show-exit", config_show_tb_exit);
+		set_bool(toolbar_settings, "show-help", config_show_tb_help);
+		set_bool(toolbar_settings, "show-new", config_show_tb_new);
+		set_bool(toolbar_settings, "show-journal", config_show_tb_journal);
+		set_bool(toolbar_settings, "show-pref", config_show_tb_pref);
+		set_bool(toolbar_settings, "show-prop", config_show_tb_prop);
+		set_bool(toolbar_settings, "show-timer", config_show_tb_timer);
+		set_bool(toolbar_settings, "show-tips", config_show_tb_tips);
+		set_bool(toolbar_settings, "show-toolbar", config_show_toolbar);
+		g_object_unref(toolbar_settings);
+		toolbar_settings = NULL;
 	}
 }
 

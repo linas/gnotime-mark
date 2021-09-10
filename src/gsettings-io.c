@@ -29,8 +29,11 @@ int save_count = 0;
 
 static GSettings *gsettings = NULL;
 
+static gchar *get_maybe_str(GSettings *gsettings, const gchar *key);
 static void set_bool(GSettings *gsettings, const gchar *key, gboolean value);
 static void set_int(GSettings *gsettings, const gchar *key, gint value);
+static void set_maybe_str(GSettings *gsettings, const gchar *key,
+                          const gchar *value);
 static void set_str(GSettings *gsettings, const gchar *key, const gchar *value);
 
 gboolean
@@ -85,6 +88,17 @@ gtt_gsettings_load()
 
 		g_object_unref(geometry_settings);
 		geometry_settings = NULL;
+	}
+
+	{
+		GSettings *log_file_settings = g_settings_get_child(gsettings, "log-file");
+		config_logfile_start = get_maybe_str(log_file_settings, "entry-start");
+		config_logfile_stop = get_maybe_str(log_file_settings, "entry-stop");
+		config_logfile_name = get_maybe_str(log_file_settings, "filename");
+		config_logfile_min_secs = g_settings_get_int(log_file_settings, "min-secs");
+		config_logfile_use = g_settings_get_boolean(log_file_settings, "use");
+		g_object_unref(log_file_settings);
+		log_file_settings = NULL;
 	}
 
 	{
@@ -167,6 +181,17 @@ gtt_gsettings_save()
 	}
 
 	{
+		GSettings *log_file_settings = g_settings_get_child(gsettings, "log-file");
+		set_maybe_str(log_file_settings, "entry-start", config_logfile_start);
+		set_maybe_str(log_file_settings, "entry-stop", config_logfile_stop);
+		set_maybe_str(log_file_settings, "filename", config_logfile_name);
+		set_int(log_file_settings, "min-secs", config_logfile_min_secs);
+		set_bool(log_file_settings, "use", config_logfile_use);
+		g_object_unref(log_file_settings);
+		log_file_settings = NULL;
+	}
+
+	{
 		GSettings *report_settings = g_settings_get_child(gsettings, "report");
 		set_str(report_settings, "currency-symbol", config_currency_symbol);
 		set_bool(report_settings, "currency-use-locale",
@@ -192,6 +217,27 @@ gtt_gsettings_save()
 	}
 }
 
+static gchar *
+get_maybe_str(GSettings *const gsettings, const gchar *const key)
+{
+	gchar *res = NULL;
+
+	GVariant *outer = g_settings_get_value(gsettings, key);
+
+	GVariant *maybe = g_variant_get_maybe(outer);
+	if (NULL != maybe)
+	{
+		res = g_strdup(g_variant_get_string(maybe, NULL));
+		g_variant_unref(maybe);
+		maybe = NULL;
+	}
+
+	g_variant_unref(outer);
+	outer = NULL;
+
+	return res;
+}
+
 static void
 set_bool(GSettings *const gsettings, const gchar *const key,
          const gboolean value)
@@ -208,6 +254,17 @@ set_int(GSettings *const gsettings, const gchar *const key, const gint value)
 	if (!g_settings_set_int(gsettings, key, value))
 	{
 		g_warning("Failed to set integer value %d for key \"%s\"", value, key);
+	}
+}
+
+static void
+set_maybe_str(GSettings *const gsettings, const gchar *const key,
+              const gchar *const value)
+{
+	if (!g_settings_set(gsettings, key, "ms", value))
+	{
+		g_warning("Failed to set maybe string value \"%s\" for key \"%s\"",
+		          value ? value : "nothing", key);
 	}
 }
 

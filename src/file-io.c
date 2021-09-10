@@ -142,21 +142,8 @@ project_list_load_old(void)
 				s[strlen(s) - 1] = 0;
 			if (config_shell_stop) g_free(config_shell_stop);
 			config_shell_stop = g_strdup(&s[2]);
-		} else if (s[0] == 'l') {
-			if (s[1] == 'u') {
-				/* use logfile? */
-				config_logfile_use = (s[4] == 'n');
-			} else if (s[1] == 'n') {
-				/* logfile name */
-				while (s[strlen(s) - 1] == '\n')
-					s[strlen(s) - 1] = 0;
-				if (config_logfile_name) g_free(config_logfile_name);
-				config_logfile_name = g_strdup(&s[3]);
-			} else if (s[1] == 's') {
-				/* minimum time for a project to get logged */
-				config_logfile_min_secs = atoi(&s[3]);
-			}
-		} else if ((s[0] >= '0') && (s[0] <='9')) {
+		} else if ((s[0] >= '0') && (s[0] <= '9'))
+		{
 			time_t day_secs, ever_secs;
 
 			/* new project */
@@ -303,17 +290,6 @@ gtt_load_gnome_config (const char *prefix)
 	/* ------------ */
 	config_shell_start = GET_STR("/Actions/StartCommand=echo start id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
 	config_shell_stop = GET_STR("/Actions/StopCommand=echo stop id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
-
-	/* ------------ */
-	config_logfile_use = GET_BOOL("/LogFile/Use=false");
-	config_logfile_name = GET_STR("/LogFile/Filename");
-	config_logfile_start = GET_STR("/LogFile/Entry");
-	if (!config_logfile_start)
-		config_logfile_start = g_strdup(_("project %t started"));
-	config_logfile_stop = GET_STR("/LogFile/EntryStop");
-	if (!config_logfile_stop)
-		config_logfile_stop = g_strdup(_("stopped project %t"));
-	config_logfile_min_secs = GET_INT("/LogFile/MinSecs");
 
 	/* ------------ */
 	num = 0;

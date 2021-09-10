@@ -142,28 +142,6 @@ gtt_gconf_save (void)
 	}
 
 	/* ------------- */
-	SETBOOL ("/LogFile/Use", config_logfile_use);
-	if (config_logfile_name) {
-		SETSTR ("/LogFile/Filename", config_logfile_name);
-	} else {
-		UNSET ("/LogFile/Filename");
-	}
-		
-	if (config_logfile_start) {
-		SETSTR ("/LogFile/EntryStart", config_logfile_start);
-	} else {
-		SETSTR ("/LogFile/EntryStart", "");
-	}
-		
-	if (config_logfile_stop) {
-		SETSTR ("/LogFile/EntryStop", config_logfile_stop);
-	} else {
-		SETSTR ("/LogFile/EntryStop", "");
-	}
-
-	SETINT ("/LogFile/MinSecs", config_logfile_min_secs);
-
-	/* ------------- */
 	{
 		long i, w;
 		GSList *list= NULL;
@@ -357,13 +335,6 @@ gtt_gconf_load (void)
 	      "echo start id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
 	config_shell_stop = GETSTR ("/Actions/StopCommand",
 	      "echo stop id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
-
-	/* ------------ */
-	config_logfile_use   = GETBOOL ("/LogFile/Use", FALSE);
-	config_logfile_name  = GETSTR ("/LogFile/Filename", NULL);
-	config_logfile_start = GETSTR ("/LogFile/EntryStart", _("project %t started"));
-	config_logfile_stop  = GETSTR ("/LogFile/EntryStop", _("stopped project %t"));
-	config_logfile_min_secs = GETINT ("/LogFile/MinSecs", 3);
 
 	/* ------------ */
 	config_time_format = GETINT("/time_format", 3);

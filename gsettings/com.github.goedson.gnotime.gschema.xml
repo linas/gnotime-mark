@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gnotime">
   <schema id="com.github.goedson.gnotime" path="/com/github/goedson/gnotime/">
+    <child name="data" schema="com.github.goedson.gnotime.data"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
     <child name="report" schema="com.github.goedson.gnotime.report"/>
     <child name="toolbar" schema="com.github.goedson.gnotime.toolbar"/>
+  </schema>
+  <schema id="com.github.goedson.gnotime.data" path="/com/github/goedson/gnotime/data/">
+    <key name="save-count" type="i">
+      <default>0</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
+    <key name="url" type="s">
+      <default>"gnotime.d/gnotime-data.xml"</default>
+      <description>TODO</description>
+      <summary>TODO</summary>
+    </key>
   </schema>
   <schema id="com.github.goedson.gnotime.geometry" path="/com/github/goedson/gnotime/geometry/">
     <key name="h-paned" type="i">

@@ -38,7 +38,6 @@
 /* XXX these should not be externs, they should be part of
  * some app-global structure.
  */
-extern int save_count; /* XXX */
 extern char *first_proj_title;   /* command line flag */
 extern time_t last_timer;  /* XXX */
 extern int cur_proj_id;
@@ -163,10 +162,6 @@ gtt_gconf_save (void)
 	}
 
 	SETINT ("/LogFile/MinSecs", config_logfile_min_secs);
-
-	/* ------------- */
-	SETSTR ("/Data/URL", config_data_url);
-	SETINT ("/Data/SaveCount", save_count);
 
 	/* ------------- */
 	{
@@ -372,10 +367,6 @@ gtt_gconf_load (void)
 
 	/* ------------ */
 	config_time_format = GETINT("/time_format", 3);
-
-	/* ------------ */
-	save_count = GETINT ("/Data/SaveCount", 0);
-	config_data_url = GETSTR ("/Data/URL", XML_DATA_FILENAME);
 
 	/* ------------ */
 	{

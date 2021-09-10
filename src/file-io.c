@@ -53,7 +53,6 @@ int cur_proj_id = -1;
 int run_timer = FALSE;
 time_t last_timer = -1;
 extern char *first_proj_title;	/* command line flag */
-int save_count = 0;
 
 /* ============================================================= */
 /* Configuration file I/O routines:
@@ -317,14 +316,6 @@ gtt_load_gnome_config (const char *prefix)
 	config_logfile_min_secs = GET_INT("/LogFile/MinSecs");
 
 	/* ------------ */
-	save_count = GET_INT("/Data/SaveCount=0");
-	config_data_url = GET_STR("/Data/URL=" XML_DATA_FILENAME);
-	if (NULL == config_data_url)
-	{
-		config_data_url = XML_DATA_FILENAME;
-	}
-
-	/* ------------ */
 	num = 0;
 	for (i = 0; -1 < num; i++) {
 		g_snprintf(p, TOKLEN, "/CList/ColumnWidth%d=-1", i);
@@ -473,7 +464,6 @@ gtt_load_config (void)
 
 	/* OK, try to load the oldest file format */
 	project_list_load_old ();
-	config_data_url = XML_DATA_FILENAME;
 	return;
 }
 

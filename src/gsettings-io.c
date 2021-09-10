@@ -25,6 +25,8 @@
 
 #include <gio/gio.h>
 
+int save_count = 0;
+
 static GSettings *gsettings = NULL;
 
 static void set_bool(GSettings *gsettings, const gchar *key, gboolean value);
@@ -53,6 +55,14 @@ gtt_gsettings_init()
 void
 gtt_gsettings_load()
 {
+	{
+		GSettings *data_settings = g_settings_get_child(gsettings, "data");
+		save_count = g_settings_get_int(data_settings, "save-count");
+		config_data_url = g_settings_get_string(data_settings, "url");
+		g_object_unref(data_settings);
+		data_settings = NULL;
+	}
+
 	// Restore the main window height and width. Note that commandline flags
 	// specified by the user override the values stored in the configuration
 	{
@@ -132,6 +142,13 @@ gtt_gsettings_load()
 void
 gtt_gsettings_save()
 {
+	{
+		GSettings *data_settings = g_settings_get_child(gsettings, "data");
+		set_int(data_settings, "save-count", save_count);
+		set_str(data_settings, "url", config_data_url);
+		g_object_unref(data_settings);
+		data_settings = NULL;
+	}
 	// Save the window location and size
 	{
 		GSettings *geometry_settings = g_settings_get_child(gsettings, "geometry");

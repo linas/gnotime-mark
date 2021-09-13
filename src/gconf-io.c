@@ -129,19 +129,6 @@ gtt_gconf_save (void)
 	SETSTR ("/Display/ExpanderState", xpn);
 
 	/* ------------- */
-	if (config_shell_start) {
-		SETSTR ("/Actions/StartCommand", config_shell_start);
-	} else {
-		UNSET ("/Actions/StartCommand");
-	}
-
-	if (config_shell_stop) {
-		SETSTR ("/Actions/StopCommand", config_shell_stop);
-	} else {
-		UNSET ("/Actions/StopCommand");
-	}
-
-	/* ------------- */
 	{
 		long i, w;
 		GSList *list= NULL;
@@ -329,12 +316,6 @@ gtt_gconf_load (void)
 	config_show_title_status     = GETBOOL ("/Display/ShowStatus", FALSE);
 
 	prefs_update_projects_view ();
-
-	/* ------------ */
-	config_shell_start = GETSTR ("/Actions/StartCommand",
-	      "echo start id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
-	config_shell_stop = GETSTR ("/Actions/StopCommand",
-	      "echo stop id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
 
 	/* ------------ */
 	config_time_format = GETINT("/time_format", 3);

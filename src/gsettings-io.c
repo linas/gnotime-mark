@@ -59,6 +59,14 @@ void
 gtt_gsettings_load()
 {
 	{
+		GSettings *actions_settings = g_settings_get_child(gsettings, "actions");
+		config_shell_start = get_maybe_str(actions_settings, "start-command");
+		config_shell_stop = get_maybe_str(actions_settings, "stop-command");
+		g_object_unref(actions_settings);
+		actions_settings = NULL;
+	}
+
+	{
 		GSettings *data_settings = g_settings_get_child(gsettings, "data");
 		save_count = g_settings_get_int(data_settings, "save-count");
 		config_data_url = g_settings_get_string(data_settings, "url");
@@ -156,6 +164,14 @@ gtt_gsettings_load()
 void
 gtt_gsettings_save()
 {
+	{
+		GSettings *actions_settings = g_settings_get_child(gsettings, "actions");
+		set_maybe_str(actions_settings, "start-command", config_shell_start);
+		set_maybe_str(actions_settings, "stop-command", config_shell_stop);
+		g_object_unref(actions_settings);
+		actions_settings = NULL;
+	}
+
 	{
 		GSettings *data_settings = g_settings_get_child(gsettings, "data");
 		set_int(data_settings, "save-count", save_count);

@@ -74,6 +74,57 @@ gtt_gsettings_load()
 		data_settings = NULL;
 	}
 
+	{
+		GSettings *display_settings = g_settings_get_child(gsettings, "display");
+		config_show_title_desc =
+				g_settings_get_boolean(display_settings, "show-desc");
+		config_show_title_due_date =
+				g_settings_get_boolean(display_settings, "show-due-date");
+		config_show_title_estimated_end =
+				g_settings_get_boolean(display_settings, "show-estimated-end");
+		config_show_title_estimated_start =
+				g_settings_get_boolean(display_settings, "show-estimated-start");
+		config_show_title_importance =
+				g_settings_get_boolean(display_settings, "show-importance");
+		config_show_title_percent_complete =
+				g_settings_get_boolean(display_settings, "show-percent-complete");
+		config_show_secs = g_settings_get_boolean(display_settings, "show-secs");
+		prefs_set_show_secs();
+		config_show_title_sizing =
+				g_settings_get_boolean(display_settings, "show-sizing");
+		config_show_title_status =
+				g_settings_get_boolean(display_settings, "show-status");
+		config_show_statusbar =
+				g_settings_get_boolean(display_settings, "show-statusbar");
+		config_show_subprojects =
+				g_settings_get_boolean(display_settings, "show-sub-projects");
+		config_show_clist_titles =
+				g_settings_get_boolean(display_settings, "show-table-header");
+		config_show_title_current =
+				g_settings_get_boolean(display_settings, "show-time-current");
+		config_show_title_day =
+				g_settings_get_boolean(display_settings, "show-time-day");
+		config_show_title_ever =
+				g_settings_get_boolean(display_settings, "show-time-ever");
+		config_show_title_lastweek =
+				g_settings_get_boolean(display_settings, "show-time-last-week");
+		config_show_title_month =
+				g_settings_get_boolean(display_settings, "show-time-month");
+		config_show_title_task =
+				g_settings_get_boolean(display_settings, "show-task");
+		config_show_title_week =
+				g_settings_get_boolean(display_settings, "show-time-week");
+		config_show_title_year =
+				g_settings_get_boolean(display_settings, "show-time-year");
+		config_show_title_yesterday =
+				g_settings_get_boolean(display_settings, "show-time-yesterday");
+		config_show_title_urgency =
+				g_settings_get_boolean(display_settings, "show-urgency");
+		g_object_unref(display_settings);
+		display_settings = NULL;
+	}
+	prefs_update_projects_view();
+
 	// Restore the main window height and width. Note that commandline flags
 	// specified by the user override the values stored in the configuration
 	{
@@ -178,6 +229,43 @@ gtt_gsettings_save()
 		set_str(data_settings, "url", config_data_url);
 		g_object_unref(data_settings);
 		data_settings = NULL;
+	}
+
+	{
+		GSettings *display_settings = g_settings_get_child(gsettings, "display");
+		gchar *xpn = gtt_projects_tree_get_expander_state(projects_tree);
+		set_str(display_settings, "expander-state", xpn);
+		g_free(xpn);
+		xpn = NULL;
+		set_bool(display_settings, "show-desc", config_show_title_desc);
+		set_bool(display_settings, "show-due-date", config_show_title_due_date);
+		set_bool(display_settings, "show-estimated-end",
+		         config_show_title_estimated_end);
+		set_bool(display_settings, "show-estimated-start",
+		         config_show_title_estimated_start);
+		set_bool(display_settings, "show-importance", config_show_title_importance);
+		set_bool(display_settings, "show-percent-complete",
+		         config_show_title_percent_complete);
+		set_bool(display_settings, "show-secs", config_show_secs);
+		set_bool(display_settings, "show-sizing", config_show_title_sizing);
+		set_bool(display_settings, "show-status", config_show_title_status);
+		set_bool(display_settings, "show-statusbar", config_show_statusbar);
+		set_bool(display_settings, "show-sub-projects", config_show_subprojects);
+		set_bool(display_settings, "show-table-header", config_show_clist_titles);
+		set_bool(display_settings, "show-task", config_show_title_task);
+		set_bool(display_settings, "show-time-current", config_show_title_current);
+		set_bool(display_settings, "show-time-day", config_show_title_day);
+		set_bool(display_settings, "show-time-ever", config_show_title_ever);
+		set_bool(display_settings, "show-time-last-week",
+		         config_show_title_lastweek);
+		set_bool(display_settings, "show-time-month", config_show_title_month);
+		set_bool(display_settings, "show-time-week", config_show_title_week);
+		set_bool(display_settings, "show-time-year", config_show_title_year);
+		set_bool(display_settings, "show-time-yesterday",
+		         config_show_title_yesterday);
+		set_bool(display_settings, "show-urgency", config_show_title_urgency);
+		g_object_unref(display_settings);
+		display_settings = NULL;
 	}
 	// Save the window location and size
 	{

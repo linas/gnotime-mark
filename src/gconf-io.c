@@ -100,21 +100,6 @@ gtt_gconf_save (void)
 	SETINT ("/dir_exists", 1);
 
 	/* ------------- */
-	{
-		long i, w;
-		GSList *list= NULL;
-		for (i=0, w=0; -1< w; i++)
-		{
-			w = gtt_projects_tree_get_col_width (projects_tree, i);
-			if (0 > w) break;
-			list = g_slist_prepend (list, (gpointer) w);
-		}
-		list = g_slist_reverse (list);
-		SETLIST ("/CList/ColumnWidths", GCONF_VALUE_INT, list);
-		g_slist_free (list);
-	}
-
-	/* ------------- */
 	/* Use string for time, to avoid integer conversion problems */
 	g_snprintf(s, sizeof (s), "%ld", time(0));
 	SETSTR ("/Misc/LastTimer", s);
@@ -233,7 +218,6 @@ gtt_restore_reports_menu (GnomeApp *app)
 void
 gtt_gconf_load (void)
 {
-	int i, num;
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
@@ -262,19 +246,6 @@ gtt_gconf_load (void)
 	/* ------------ */
 	config_time_format = GETINT("/time_format", 3);
 
-	/* ------------ */
-	{
-		GSList *node, *list = GETINTLIST ("/CList/ColumnWidths");
-		for (i=0,node=list; node != NULL; node=node->next, i++)
-		{
-			num = (long)(node->data);
-			if (-1 < num)
-			{
-				gtt_projects_tree_set_col_width (projects_tree, i, num);
-			}
-		}
-	}
-	
 	/* Read in the user-defined report locations */
 	gtt_restore_reports_menu(GNOME_APP(app_window));
 

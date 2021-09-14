@@ -65,14 +65,6 @@
 
 #define SETSTR(dir,val) F_SETSTR (GTT_GCONF dir, val)
 
-#define SETLIST(dir,tipe,val) {                                        \
-   gboolean rc;                                                        \
-   GError *err_ret= NULL;                                              \
-                                                                       \
-   rc = gconf_client_set_list (client, GTT_GCONF dir, tipe, val, &err_ret);  \
-   CHKERR (rc,err_ret,dir);                                            \
-}
-
 #define UNSET(dir) {                                                   \
    gboolean rc;                                                        \
    GError *err_ret= NULL;                                              \
@@ -113,18 +105,6 @@
 
 #define GETINT(dir,default_val) F_GETINT (GTT_GCONF dir, default_val)
 
-#define F_GETLIST(dir,default_val) ({                                  \
-   GSList *retval;                                                     \
-   GError *err_ret= NULL;                                              \
-   GConfValue *gcv;                                                    \
-   gcv = gconf_client_get (client, dir, &err_ret);                     \
-   CHKGET (gcv,err_ret, dir, default_val)                              \
-   else retval = gconf_value_get_list (gcv);                           \
-   retval;                                                             \
-})
-
-#define GETLIST(dir,default_val) F_GETLIST (GTT_GCONF dir,  default_val)
-
 #define F_GETSTR(dir,default_val) ({                                   \
    const char *retval;                                                 \
    GError *err_ret= NULL;                                              \
@@ -136,16 +116,5 @@
 })
 
 #define GETSTR(dir,default_val) F_GETSTR (GTT_GCONF dir, default_val)
-
-/* Convert list of GConfValue to list of the actual values */
-#define GETINTLIST(dir) ({                                             \
-   GSList *l,*n;                                                       \
-   l = GETLIST(dir, NULL);                                             \
-   for (n=l; n; n=n->next) {                                           \
-      /* XXX mem leak?? do we need to free gconf value  ?? */          \
-      n->data = (gpointer) (long) gconf_value_get_int (n->data);       \
-   }                                                                   \
-   l;                                                                  \
-})
 
 #endif // GTT_GCONF_IO_P_H_

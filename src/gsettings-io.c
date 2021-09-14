@@ -29,7 +29,9 @@ int save_count = 0;
 
 static GSettings *gsettings = NULL;
 
+static GSList *get_array_int(GSettings *gsettings, const gchar *key);
 static gchar *get_maybe_str(GSettings *gsettings, const gchar *key);
+static void set_array_int(GSettings *gsettings, const gchar *key, GSList *ints);
 static void set_bool(GSettings *gsettings, const gchar *key, gboolean value);
 static void set_int(GSettings *gsettings, const gchar *key, gint value);
 static void set_maybe_str(GSettings *gsettings, const gchar *key,
@@ -64,6 +66,22 @@ gtt_gsettings_load()
 		config_shell_stop = get_maybe_str(actions_settings, "stop-command");
 		g_object_unref(actions_settings);
 		actions_settings = NULL;
+	}
+
+	{
+		GSettings *clist_settings = g_settings_get_child(gsettings, "clist");
+		GSList *node, *list = get_array_int(clist_settings, "column-widths");
+		gint i;
+		for (i = 0, node = list; node != NULL; node = node->next, ++i)
+		{
+			const gint num = GPOINTER_TO_INT(node->data);
+			if (-1 < num)
+			{
+				gtt_projects_tree_set_col_width(projects_tree, i, num);
+			}
+		}
+		g_object_unref(clist_settings);
+		clist_settings = NULL;
 	}
 
 	{
@@ -224,6 +242,26 @@ gtt_gsettings_save()
 	}
 
 	{
+		GSettings *clist_settings = g_settings_get_child(gsettings, "clist");
+		gint i, w;
+		GSList *list = NULL;
+		for (i = 0, w = 0; - 1 < w; i++)
+		{
+			w = gtt_projects_tree_get_col_width(projects_tree, i);
+			if (0 > w)
+			{
+				break;
+			}
+			list = g_slist_prepend(list, GINT_TO_POINTER(w));
+		}
+		list = g_slist_reverse(list);
+		set_array_int(clist_settings, "column-widths", list);
+		g_slist_free(list);
+		g_object_unref(clist_settings);
+		clist_settings = NULL;
+	}
+
+	{
 		GSettings *data_settings = g_settings_get_child(gsettings, "data");
 		set_int(data_settings, "save-count", save_count);
 		set_str(data_settings, "url", config_data_url);
@@ -321,6 +359,30 @@ gtt_gsettings_save()
 	}
 }
 
+static GSList *
+get_array_int(GSettings *const gsettings, const gchar *const key)
+{
+	GSList *items = NULL;
+
+	GVariant *container = g_settings_get_value(gsettings, key);
+
+	gsize length;
+	gconstpointer data =
+			g_variant_get_fixed_array(container, &length, sizeof(gint));
+	const gint *ints = data;
+	gsize i = 0;
+	for (; i < length; ++i)
+	{
+		items = g_slist_prepend(items, GINT_TO_POINTER(ints[i]));
+	}
+	items = g_slist_reverse(items);
+
+	g_variant_unref(container);
+	container = NULL;
+
+	return items;
+}
+
 static gchar *
 get_maybe_str(GSettings *const gsettings, const gchar *const key)
 {
@@ -340,6 +402,32 @@ get_maybe_str(GSettings *const gsettings, const gchar *const key)
 	outer = NULL;
 
 	return res;
+}
+
+static void
+set_array_int(GSettings *const gsettings, const gchar *const key, GSList *ints)
+{
+	const guint list_size = g_slist_length(ints);
+	GVariant **data = g_new0(GVariant *, list_size + 1);
+	guint i;
+	for (i = 0; i < list_size; ++i)
+	{
+		data[i] = g_variant_new_int32(GPOINTER_TO_INT(g_slist_nth(ints, i)));
+	}
+	GVariantType *int_type = g_variant_type_new("i");
+	GVariant *val = g_variant_new_array(int_type, data, list_size);
+
+	if (!g_settings_set_value(gsettings, key, val))
+	{
+		g_warning("Failed to set integer array value for key \"%s\"", key);
+	}
+	val = NULL;
+
+	g_variant_type_free(int_type);
+	int_type = NULL;
+
+	g_free(data);
+	data = NULL;
 }
 
 static void

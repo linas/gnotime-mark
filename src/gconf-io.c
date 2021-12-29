@@ -26,8 +26,8 @@
 #include "app.h"
 #include "cur-proj.h"
 #include "gconf-gnomeui.h"
-#include "gconf-io.h"
 #include "gconf-io-p.h"
+#include "gconf-io.h"
 #include "gtt.h"
 #include "menus.h"
 #include "plug-in.h"
@@ -38,14 +38,13 @@
 /* XXX these should not be externs, they should be part of
  * some app-global structure.
  */
-extern int save_count; /* XXX */
-extern char *first_proj_title;   /* command line flag */
-extern time_t last_timer;  /* XXX */
+extern int save_count;         /* XXX */
+extern char *first_proj_title; /* command line flag */
+extern time_t last_timer;      /* XXX */
 extern int cur_proj_id;
 extern int run_timer;
 
 #define GTT_GCONF "/apps/gnotime"
-
 
 /* ======================================================= */
 
@@ -54,21 +53,21 @@ gtt_save_reports_menu (void)
 {
 	int i;
 	char s[120], *p;
-	GnomeUIInfo * reports_menu;
+	GnomeUIInfo *reports_menu;
 	GConfClient *client;
 
-	client = gconf_client_get_default ();
-	reports_menu = gtt_get_reports_menu();
-	
+	client       = gconf_client_get_default ();
+	reports_menu = gtt_get_reports_menu ();
+
 	/* Write out the customer report info */
-	for (i=0; GNOME_APP_UI_ENDOFINFO != reports_menu[i].type; i++)
+	for (i = 0; GNOME_APP_UI_ENDOFINFO != reports_menu[i].type; i++)
 	{
 		GttPlugin *plg = reports_menu[i].user_data;
-		g_snprintf(s, sizeof (s), GTT_GCONF"/Reports/%d/", i);
-		p = s + strlen(s);
+		g_snprintf (s, sizeof (s), GTT_GCONF "/Reports/%d/", i);
+		p = s + strlen (s);
 		strcpy (p, "Name");
 		F_SETSTR (s, plg->name);
-		
+
 		strcpy (p, "Path");
 		F_SETSTR (s, plg->path);
 
@@ -94,18 +93,18 @@ gtt_gconf_save (void)
 	char s[120];
 	int x, y, w, h;
 	const char *xpn;
-	
-	GConfEngine* gengine;
+
+	GConfEngine *gengine;
 	GConfClient *client;
 
 	gengine = gconf_engine_get_default ();
-	client = gconf_client_get_for_engine (gengine);
+	client  = gconf_client_get_for_engine (gengine);
 	SETINT ("/dir_exists", 1);
 
 	/* ------------- */
 	/* save the window location and size */
-	gdk_window_get_origin(app_window->window, &x, &y);
-	gdk_window_get_size(app_window->window, &w, &h);
+	gdk_window_get_origin (app_window->window, &x, &y);
+	gdk_window_get_size (app_window->window, &w, &h);
 	SETINT ("/Geometry/Width", w);
 	SETINT ("/Geometry/Height", h);
 	SETINT ("/Geometry/X", x);
@@ -158,35 +157,50 @@ gtt_gconf_save (void)
 	SETBOOL ("/Toolbar/ShowExit", config_show_tb_exit);
 
 	/* ------------- */
-	if (config_shell_start) {
+	if (config_shell_start)
+	{
 		SETSTR ("/Actions/StartCommand", config_shell_start);
-	} else {
+	}
+	else
+	{
 		UNSET ("/Actions/StartCommand");
 	}
 
-	if (config_shell_stop) {
+	if (config_shell_stop)
+	{
 		SETSTR ("/Actions/StopCommand", config_shell_stop);
-	} else {
+	}
+	else
+	{
 		UNSET ("/Actions/StopCommand");
 	}
 
 	/* ------------- */
 	SETBOOL ("/LogFile/Use", config_logfile_use);
-	if (config_logfile_name) {
+	if (config_logfile_name)
+	{
 		SETSTR ("/LogFile/Filename", config_logfile_name);
-	} else {
+	}
+	else
+	{
 		UNSET ("/LogFile/Filename");
 	}
-		
-	if (config_logfile_start) {
+
+	if (config_logfile_start)
+	{
 		SETSTR ("/LogFile/EntryStart", config_logfile_start);
-	} else {
+	}
+	else
+	{
 		SETSTR ("/LogFile/EntryStart", "");
 	}
-		
-	if (config_logfile_stop) {
+
+	if (config_logfile_stop)
+	{
 		SETSTR ("/LogFile/EntryStop", config_logfile_stop);
-	} else {
+	}
+	else
+	{
 		SETSTR ("/LogFile/EntryStop", "");
 	}
 
@@ -199,11 +213,12 @@ gtt_gconf_save (void)
 	/* ------------- */
 	{
 		long i, w;
-		GSList *list= NULL;
-		for (i=0, w=0; -1< w; i++)
+		GSList *list = NULL;
+		for (i = 0, w = 0; - 1 < w; i++)
 		{
 			w = gtt_projects_tree_get_col_width (projects_tree, i);
-			if (0 > w) break;
+			if (0 > w)
+				break;
 			list = g_slist_prepend (list, (gpointer) w);
 		}
 		list = g_slist_reverse (list);
@@ -213,12 +228,12 @@ gtt_gconf_save (void)
 
 	/* ------------- */
 	/* Use string for time, to avoid integer conversion problems */
-	g_snprintf(s, sizeof (s), "%ld", time(0));
+	g_snprintf (s, sizeof (s), "%ld", time (0));
 	SETSTR ("/Misc/LastTimer", s);
 	SETINT ("/Misc/IdleTimeout", config_idle_timeout);
 	SETINT ("/Misc/NoProjectTimeout", config_no_project_timeout);
 	SETINT ("/Misc/AutosavePeriod", config_autosave_period);
-	SETINT ("/Misc/TimerRunning", timer_is_running());
+	SETINT ("/Misc/TimerRunning", timer_is_running ());
 	SETINT ("/Misc/CurrProject", gtt_project_get_id (cur_proj));
 	SETINT ("/Misc/NumProjects", -1);
 
@@ -238,7 +253,7 @@ gtt_gconf_save (void)
 	 * graphical popup.
 	 */
 	{
-		GError *err_ret= NULL;
+		GError *err_ret = NULL;
 		gconf_client_suggest_sync (client, &err_ret);
 		if (NULL != err_ret)
 		{
@@ -252,10 +267,9 @@ gtt_gconf_save (void)
 gboolean
 gtt_gconf_exists (void)
 {
-	GError *err_ret= NULL;
+	GError *err_ret = NULL;
 	GConfClient *client;
 	GConfValue *gcv;
-
 
 	/* Calling gconf_engine_dir_exists() on a non-existant directory
 	 * completely hoses that directory for future use. Its Badddd.
@@ -267,10 +281,11 @@ gtt_gconf_exists (void)
 	 */
 
 	client = gconf_client_get_default ();
-	gcv = gconf_client_get (client, GTT_GCONF "/dir_exists", &err_ret);
-	if ((NULL == gcv) || (FALSE == GCONF_VALUE_TYPE_VALID(gcv->type)))
+	gcv    = gconf_client_get (client, GTT_GCONF "/dir_exists", &err_ret);
+	if ((NULL == gcv) || (FALSE == GCONF_VALUE_TYPE_VALID (gcv->type)))
 	{
-		if (err_ret) printf ("GTT: Error: gconf_exists XXX err %s\n", err_ret->message);
+		if (err_ret)
+			printf ("GTT: Error: gconf_exists XXX err %s\n", err_ret->message);
 		return FALSE;
 	}
 
@@ -284,40 +299,40 @@ gtt_restore_reports_menu (GnomeApp *app)
 {
 	int i, num;
 	char s[120], *p;
-	GnomeUIInfo * reports_menu;
+	GnomeUIInfo *reports_menu;
 	GConfClient *client;
 
-	client = gconf_client_get_default ();
-	
+	client       = gconf_client_get_default ();
+
 	/* Read in the user-defined report locations */
-	num = GETINT ("/Misc/NumReports", 0);
-	reports_menu =  g_new0 (GnomeUIInfo, num+1);
-	
+	num          = GETINT ("/Misc/NumReports", 0);
+	reports_menu = g_new0 (GnomeUIInfo, num + 1);
+
 	for (i = 0; i < num; i++)
 	{
 		GttPlugin *plg;
-		const char * name, *path, *tip, *url;
+		const char *name, *path, *tip, *url;
 
-		g_snprintf(s, sizeof (s), GTT_GCONF"/Reports/%d/", i);
-		p = s + strlen(s);
-		
+		g_snprintf (s, sizeof (s), GTT_GCONF "/Reports/%d/", i);
+		p = s + strlen (s);
+
 		strcpy (p, "Name");
 		name = F_GETSTR (s, "");
-		
+
 		strcpy (p, "Path");
-		path = F_GETSTR(s, "");
-		
+		path = F_GETSTR (s, "");
+
 		strcpy (p, "Tooltip");
-		tip = F_GETSTR(s, "");
+		tip = F_GETSTR (s, "");
 
 		strcpy (p, "LastSaveURL");
-		url = F_GETSTR(s, "");
+		url           = F_GETSTR (s, "");
 
-		plg = gtt_plugin_new (name, path);
-		plg->tooltip = g_strdup (tip);
+		plg           = gtt_plugin_new (name, path);
+		plg->tooltip  = g_strdup (tip);
 		plg->last_url = g_strdup (url);
 
-		*p = 0;
+		*p            = 0;
 		gtt_restore_gnomeui_from_gconf (client, s, &reports_menu[i]);
 
 		/* fixup */
@@ -338,36 +353,36 @@ gtt_gconf_load (void)
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
-	gconf_client_add_dir (client, GTT_GCONF,
-	                GCONF_CLIENT_PRELOAD_RECURSIVE, NULL);
+	gconf_client_add_dir (client, GTT_GCONF, GCONF_CLIENT_PRELOAD_RECURSIVE,
+												NULL);
 
 	/* If already running, and we are over-loading a new file,
 	 * then save the currently running project, and try to set it
 	 * running again ... */
-	if (gtt_project_get_title(cur_proj) && (!first_proj_title))
+	if (gtt_project_get_title (cur_proj) && (!first_proj_title))
 	{
 		/* We need to strdup because title is freed when
 		 * the project list is destroyed ... */
 		first_proj_title = g_strdup (gtt_project_get_title (cur_proj));
 	}
 
-	_n = config_show_tb_new;
-	_c = config_show_tb_ccp;
-	_j = config_show_tb_journal;
-	_p = config_show_tb_prop;
-	_t = config_show_tb_timer;
-	_o = config_show_tb_pref;
-	_h = config_show_tb_help;
-	_e = config_show_tb_exit;
+	_n                        = config_show_tb_new;
+	_c                        = config_show_tb_ccp;
+	_j                        = config_show_tb_journal;
+	_p                        = config_show_tb_prop;
+	_t                        = config_show_tb_timer;
+	_o                        = config_show_tb_pref;
+	_h                        = config_show_tb_help;
+	_e                        = config_show_tb_exit;
 
 	/* Get last running project */
-	cur_proj_id = GETINT("/Misc/CurrProject", -1);
+	cur_proj_id               = GETINT ("/Misc/CurrProject", -1);
 
-	config_idle_timeout = GETINT ("/Misc/IdleTimeout", 300);
+	config_idle_timeout       = GETINT ("/Misc/IdleTimeout", 300);
 	config_no_project_timeout = GETINT ("/Misc/NoProjectTimeout", 300);
-	config_autosave_period = GETINT ("/Misc/AutosavePeriod", 60);
-	config_daystart_offset = GETINT ("/Misc/DayStartOffset", 0);
-	config_weekstart_offset = GETINT ("/Misc/WeekStartOffset", 0);
+	config_autosave_period    = GETINT ("/Misc/AutosavePeriod", 60);
+	config_daystart_offset    = GETINT ("/Misc/DayStartOffset", 0);
+	config_weekstart_offset   = GETINT ("/Misc/WeekStartOffset", 0);
 
 	/* Reset the main window width and height to the values
 	 * last stored in the config file.  Note that if the user
@@ -378,7 +393,7 @@ gtt_gconf_load (void)
 		int x, y;
 		x = GETINT ("/Geometry/X", 10);
 		y = GETINT ("/Geometry/Y", 10);
-		gtk_widget_set_uposition(GTK_WIDGET(app_window), x, y);
+		gtk_widget_set_uposition (GTK_WIDGET (app_window), x, y);
 	}
 	if (!geom_size_override)
 	{
@@ -386,7 +401,7 @@ gtt_gconf_load (void)
 		w = GETINT ("/Geometry/Width", 442);
 		h = GETINT ("/Geometry/Height", 272);
 
-		gtk_window_set_default_size(GTK_WINDOW(app_window), w, h);
+		gtk_window_set_default_size (GTK_WINDOW (app_window), w, h);
 	}
 
 	{
@@ -396,7 +411,7 @@ gtt_gconf_load (void)
 		notes_area_set_pane_sizes (global_na, vp, hp);
 	}
 
-	config_show_secs            = GETBOOL ("/Display/ShowSecs", FALSE);
+	config_show_secs = GETBOOL ("/Display/ShowSecs", FALSE);
 
 	prefs_set_show_secs ();
 
@@ -414,11 +429,14 @@ gtt_gconf_load (void)
 	config_show_title_current   = GETBOOL ("/Display/ShowTimeCurrent", FALSE);
 	config_show_title_desc      = GETBOOL ("/Display/ShowDesc", TRUE);
 	config_show_title_task      = GETBOOL ("/Display/ShowTask", TRUE);
-	config_show_title_estimated_start = GETBOOL ("/Display/ShowEstimatedStart", FALSE);
-	config_show_title_estimated_end = GETBOOL ("/Display/ShowEstimatedEnd", FALSE);
+	config_show_title_estimated_start
+			= GETBOOL ("/Display/ShowEstimatedStart", FALSE);
+	config_show_title_estimated_end
+			= GETBOOL ("/Display/ShowEstimatedEnd", FALSE);
 	config_show_title_due_date = GETBOOL ("/Display/ShowDueDate", FALSE);
 	config_show_title_sizing   = GETBOOL ("/Display/ShowSizing", FALSE);
-	config_show_title_percent_complete = GETBOOL ("/Display/ShowPercentComplete", FALSE);
+	config_show_title_percent_complete
+			= GETBOOL ("/Display/ShowPercentComplete", FALSE);
 	config_show_title_urgency    = GETBOOL ("/Display/ShowUrgency", TRUE);
 	config_show_title_importance = GETBOOL ("/Display/ShowImportance", TRUE);
 	config_show_title_status     = GETBOOL ("/Display/ShowStatus", FALSE);
@@ -438,75 +456,75 @@ gtt_gconf_load (void)
 	config_show_tb_exit    = GETBOOL ("/Toolbar/ShowExit", TRUE);
 
 	/* ------------ */
-	config_shell_start = GETSTR ("/Actions/StartCommand",
-	      "echo start id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
-	config_shell_stop = GETSTR ("/Actions/StopCommand",
-	      "echo stop id=%D \\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
+	config_shell_start     = GETSTR ("/Actions/StartCommand",
+																	 "echo start id=%D \\\"%t\\\"-\\\"%d\\\" %T  "
+                                       "%H-%M-%S hours=%h min=%m secs=%s");
+	config_shell_stop      = GETSTR ("/Actions/StopCommand",
+																	 "echo stop id=%D \\\"%t\\\"-\\\"%d\\\" %T  "
+                                        "%H-%M-%S hours=%h min=%m secs=%s");
 
 	/* ------------ */
-	config_logfile_use   = GETBOOL ("/LogFile/Use", FALSE);
-	config_logfile_name  = GETSTR ("/LogFile/Filename", NULL);
-	config_logfile_start = GETSTR ("/LogFile/EntryStart", _("project %t started"));
-	config_logfile_stop  = GETSTR ("/LogFile/EntryStop", _("stopped project %t"));
-	config_logfile_min_secs = GETINT ("/LogFile/MinSecs", 3);
+	config_logfile_use     = GETBOOL ("/LogFile/Use", FALSE);
+	config_logfile_name    = GETSTR ("/LogFile/Filename", NULL);
+	config_logfile_start
+			= GETSTR ("/LogFile/EntryStart", _ ("project %t started"));
+	config_logfile_stop
+			= GETSTR ("/LogFile/EntryStop", _ ("stopped project %t"));
+	config_logfile_min_secs    = GETINT ("/LogFile/MinSecs", 3);
 
 	/* ------------ */
-	config_time_format = GETINT("/time_format", 3);
+	config_time_format         = GETINT ("/time_format", 3);
 
-	config_currency_symbol = GETSTR ("/Report/CurrencySymbol","$");
-	config_currency_use_locale = GETBOOL ("/Report/CurrencyUseLocale",TRUE);
+	config_currency_symbol     = GETSTR ("/Report/CurrencySymbol", "$");
+	config_currency_use_locale = GETBOOL ("/Report/CurrencyUseLocale", TRUE);
 	/* ------------ */
-	save_count = GETINT ("/Data/SaveCount", 0);
-	config_data_url = GETSTR ("/Data/URL", XML_DATA_FILENAME);
+	save_count                 = GETINT ("/Data/SaveCount", 0);
+	config_data_url            = GETSTR ("/Data/URL", XML_DATA_FILENAME);
 
 	/* ------------ */
 	{
 		GSList *node, *list = GETINTLIST ("/CList/ColumnWidths");
-		for (i=0,node=list; node != NULL; node=node->next, i++)
+		for (i = 0, node = list; node != NULL; node = node->next, i++)
 		{
-			num = (long)(node->data);
+			num = (long) (node->data);
 			if (-1 < num)
 			{
 				gtt_projects_tree_set_col_width (projects_tree, i, num);
 			}
 		}
 	}
-	
-	/* Read in the user-defined report locations */
-	gtt_restore_reports_menu(GNOME_APP(app_window));
 
-	run_timer = GETINT ("/Misc/TimerRunning", 0);
+	/* Read in the user-defined report locations */
+	gtt_restore_reports_menu (GNOME_APP (app_window));
+
+	run_timer  = GETINT ("/Misc/TimerRunning", 0);
 	/* Use string for time, to avoid unsigned-long problems */
 	last_timer = (time_t) atol (GETSTR ("/Misc/LastTimer", "-1"));
 
 	/* redraw the GUI */
 	if (config_show_statusbar)
 	{
-		gtk_widget_show(status_bar);
+		gtk_widget_show (status_bar);
 	}
 	else
 	{
-		gtk_widget_hide(status_bar);
+		gtk_widget_hide (status_bar);
 	}
 
-	update_status_bar();
-	if ((_n != config_show_tb_new) ||
-	    (_c != config_show_tb_ccp) ||
-	    (_j != config_show_tb_journal) ||
-	    (_p != config_show_tb_prop) ||
-	    (_t != config_show_tb_timer) ||
-	    (_o != config_show_tb_pref) ||
-	    (_h != config_show_tb_help) ||
-	    (_e != config_show_tb_exit))
+	update_status_bar ();
+	if ((_n != config_show_tb_new) || (_c != config_show_tb_ccp)
+			|| (_j != config_show_tb_journal) || (_p != config_show_tb_prop)
+			|| (_t != config_show_tb_timer) || (_o != config_show_tb_pref)
+			|| (_h != config_show_tb_help) || (_e != config_show_tb_exit))
 	{
-		update_toolbar_sections();
+		update_toolbar_sections ();
 	}
 }
 
 gchar *
 gtt_gconf_get_expander (void)
 {
-	GConfClient * client = gconf_client_get_default ();
+	GConfClient *client = gconf_client_get_default ();
 	return GETSTR ("/Display/ExpanderState", NULL);
 }
 

@@ -24,29 +24,27 @@
 
 #include <qof.h>
 
-#include "cur-proj.h"
 #include "active-dialog.h"
-#include "proj.h"
-#include "proj-query.h"
-#include "util.h"
+#include "cur-proj.h"
 #include "dialog.h"
-
+#include "proj-query.h"
+#include "proj.h"
+#include "util.h"
 
 int config_no_project_timeout;
 
 struct GttActiveDialog_s
 {
-	GladeXML    *gtxml;
-	GtkDialog   *dlg;
-	GtkButton   *yes_btn;
-	GtkButton   *no_btn;
-	GtkButton   *help_btn;
-	GtkLabel    *active_label;
-	GtkLabel    *credit_label;
-	GtkOptionMenu  *project_menu;
-	guint        timeout_event_source;
+	GladeXML *gtxml;
+	GtkDialog *dlg;
+	GtkButton *yes_btn;
+	GtkButton *no_btn;
+	GtkButton *help_btn;
+	GtkLabel *active_label;
+	GtkLabel *credit_label;
+	GtkOptionMenu *project_menu;
+	guint timeout_event_source;
 };
-
 
 void show_active_dialog (GttActiveDialog *ad);
 
@@ -74,7 +72,8 @@ schedule_active_timeout (gint timeout, GttActiveDialog *active_dialog)
 		{
 			g_source_remove (active_dialog->timeout_event_source);
 		}
-		active_dialog->timeout_event_source = g_timeout_add_seconds (timeout, active_timeout_func, active_dialog);
+		active_dialog->timeout_event_source
+				= g_timeout_add_seconds (timeout, active_timeout_func, active_dialog);
 	}
 }
 
@@ -83,7 +82,7 @@ schedule_active_timeout (gint timeout, GttActiveDialog *active_dialog)
 static void
 dialog_help (GObject *obj, GttActiveDialog *dlg)
 {
-	gtt_help_popup (GTK_WIDGET(dlg->dlg), "idletimer");
+	gtt_help_popup (GTK_WIDGET (dlg->dlg), "idletimer");
 }
 
 /* =========================================================== */
@@ -91,14 +90,13 @@ dialog_help (GObject *obj, GttActiveDialog *dlg)
 static void
 dialog_close (GObject *obj, GttActiveDialog *dlg)
 {
-	dlg->dlg = NULL;
+	dlg->dlg   = NULL;
 	dlg->gtxml = NULL;
 
 	if (!cur_proj)
 	{
 		schedule_active_timeout (config_no_project_timeout, dlg);
 	}
-
 }
 
 /* =========================================================== */
@@ -106,8 +104,8 @@ dialog_close (GObject *obj, GttActiveDialog *dlg)
 static void
 dialog_kill (GObject *obj, GttActiveDialog *dlg)
 {
-	gtk_widget_destroy (GTK_WIDGET(dlg->dlg));
-	dlg->dlg = NULL;
+	gtk_widget_destroy (GTK_WIDGET (dlg->dlg));
+	dlg->dlg   = NULL;
 	dlg->gtxml = NULL;
 	if (!cur_proj)
 	{
@@ -123,11 +121,11 @@ start_proj (GObject *obj, GttActiveDialog *dlg)
 	GtkMenu *menu;
 	GtkWidget *w;
 	GttProject *prj;
-	
+
 	/* Start the project that the user has selected from the menu */
 	menu = GTK_MENU (gtk_option_menu_get_menu (dlg->project_menu));
-	w = gtk_menu_get_active (menu);
-	prj = g_object_get_data (G_OBJECT (w), "prj");
+	w    = gtk_menu_get_active (menu);
+	prj  = g_object_get_data (G_OBJECT (w), "prj");
 
 	cur_proj_set (prj);
 	dialog_kill (obj, dlg);
@@ -140,37 +138,37 @@ setup_menus (GttActiveDialog *dlg)
 {
 	GtkMenuShell *menushell;
 	GList *prjlist, *node;
-	char * msg;
+	char *msg;
 
-	msg = _("No project timer is currently running in GnoTime.  "
-	        "Do you want to start a project timer running?  "
-	        "If so, you can select a project from the menu below, "
-	        "and click 'Start' to start the project running.  "
-	        "Otherwise, just click 'Cancel' to do nothing.");
+	msg = _ ("No project timer is currently running in GnoTime.  "
+					 "Do you want to start a project timer running?  "
+					 "If so, you can select a project from the menu below, "
+					 "and click 'Start' to start the project running.  "
+					 "Otherwise, just click 'Cancel' to do nothing.");
 
 	gtk_label_set_text (dlg->active_label, msg);
 
-	msg = _("You can credit this project with the time that you worked "
-	        "on it but were away from the keyboard.  Enter a time below, "
-	        "the project will be credited when you click 'Start'");
+	msg = _ ("You can credit this project with the time that you worked "
+					 "on it but were away from the keyboard.  Enter a time below, "
+					 "the project will be credited when you click 'Start'");
 
 	gtk_label_set_text (dlg->credit_label, msg);
 
-	menushell = GTK_MENU_SHELL (gtk_menu_new());
+	menushell = GTK_MENU_SHELL (gtk_menu_new ());
 
 	/* Give user a list only of the unfinished projects,
 	 * so that there isn't too much clutter ... */
-	prjlist = gtt_project_get_unfinished ();
-	for (node = prjlist; node; node=node->next)
+	prjlist   = gtt_project_get_unfinished ();
+	for (node = prjlist; node; node = node->next)
 	{
 		GttProject *prj = node->data;
 		GtkWidget *item;
 		item = gtk_menu_item_new_with_label (gtt_project_get_title (prj));
-		g_object_set_data (G_OBJECT(item), "prj", prj);
+		g_object_set_data (G_OBJECT (item), "prj", prj);
 		gtk_menu_shell_append (menushell, item);
 		gtk_widget_show (item);
 	}
-	gtk_option_menu_set_menu (dlg->project_menu, GTK_WIDGET(menushell));
+	gtk_option_menu_set_menu (dlg->project_menu, GTK_WIDGET (menushell));
 }
 
 /* =========================================================== */
@@ -180,36 +178,35 @@ setup_menus (GttActiveDialog *dlg)
  */
 
 static void
-active_dialog_realize (GttActiveDialog * id)
+active_dialog_realize (GttActiveDialog *id)
 {
 	GtkWidget *w;
 	GladeXML *gtxml;
 
-	gtxml = gtt_glade_xml_new ("glade/active.glade", "Active Dialog");
-	id->gtxml = gtxml;
+	gtxml        = gtt_glade_xml_new ("glade/active.glade", "Active Dialog");
+	id->gtxml    = gtxml;
 
-	id->dlg = GTK_DIALOG (glade_xml_get_widget (gtxml, "Active Dialog"));
+	id->dlg      = GTK_DIALOG (glade_xml_get_widget (gtxml, "Active Dialog"));
 
-	id->yes_btn = GTK_BUTTON(glade_xml_get_widget (gtxml, "yes button"));
-	id->no_btn  = GTK_BUTTON(glade_xml_get_widget (gtxml, "no button"));
-	id->help_btn = GTK_BUTTON(glade_xml_get_widget (gtxml, "helpbutton1"));
+	id->yes_btn  = GTK_BUTTON (glade_xml_get_widget (gtxml, "yes button"));
+	id->no_btn   = GTK_BUTTON (glade_xml_get_widget (gtxml, "no button"));
+	id->help_btn = GTK_BUTTON (glade_xml_get_widget (gtxml, "helpbutton1"));
 	id->active_label = GTK_LABEL (glade_xml_get_widget (gtxml, "active label"));
 	id->credit_label = GTK_LABEL (glade_xml_get_widget (gtxml, "credit label"));
-	w = glade_xml_get_widget (gtxml, "project option menu");
+	w                = glade_xml_get_widget (gtxml, "project option menu");
 	id->project_menu = GTK_OPTION_MENU (w);
 
-	g_signal_connect(G_OBJECT(id->dlg), "destroy",
-	          G_CALLBACK(dialog_close), id);
+	g_signal_connect (G_OBJECT (id->dlg), "destroy", G_CALLBACK (dialog_close),
+										id);
 
-	g_signal_connect(G_OBJECT(id->yes_btn), "clicked",
-	          G_CALLBACK(start_proj), id);
+	g_signal_connect (G_OBJECT (id->yes_btn), "clicked", G_CALLBACK (start_proj),
+										id);
 
-	g_signal_connect(G_OBJECT(id->no_btn), "clicked",
-	          G_CALLBACK(dialog_kill), id);
+	g_signal_connect (G_OBJECT (id->no_btn), "clicked", G_CALLBACK (dialog_kill),
+										id);
 
-	g_signal_connect(G_OBJECT(id->help_btn), "clicked",
-	          G_CALLBACK(dialog_help), id);
-
+	g_signal_connect (G_OBJECT (id->help_btn), "clicked",
+										G_CALLBACK (dialog_help), id);
 }
 
 /* =========================================================== */
@@ -219,7 +216,7 @@ active_dialog_new (void)
 {
 	GttActiveDialog *ad;
 
-	ad = g_new0 (GttActiveDialog, 1);
+	ad        = g_new0 (GttActiveDialog, 1);
 	ad->gtxml = NULL;
 
 	return ad;
@@ -230,17 +227,17 @@ active_dialog_new (void)
 void
 show_active_dialog (GttActiveDialog *ad)
 {
-	g_return_if_fail(ad);
+	g_return_if_fail (ad);
 
-	g_return_if_fail(!cur_proj);
+	g_return_if_fail (!cur_proj);
 
 	/* Due to GtkDialog broken-ness, re-realize the GUI */
 	if (NULL == ad->gtxml)
 	{
 		active_dialog_realize (ad);
 		setup_menus (ad);
-	
-		gtk_widget_show (GTK_WIDGET(ad->dlg));
+
+		gtk_widget_show (GTK_WIDGET (ad->dlg));
 	}
 	else
 	{
@@ -253,9 +250,8 @@ show_active_dialog (GttActiveDialog *ad)
 void
 raise_active_dialog (GttActiveDialog *ad)
 {
-
-	g_return_if_fail(ad);
-	g_return_if_fail(ad->gtxml);
+	g_return_if_fail (ad);
+	g_return_if_fail (ad->gtxml);
 
 	/* The following will raise the window, and put it on the current
 	 * workspace, at least if the metacity WM is used. Haven't tried
@@ -283,4 +279,3 @@ active_dialog_deactivate_timer (GttActiveDialog *active_dialog)
 }
 
 /* =========================== END OF FILE ============================== */
-

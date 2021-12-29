@@ -19,8 +19,8 @@
 #ifndef GTT_GHTML_DEPRECATED_H_
 #define GTT_GHTML_DEPRECATED_H_
 
-#include "proj.h"
 #include "ghtml.h"
+#include "proj.h"
 
 void gtt_ghtml_deprecated_init (GttGhtml *);
 

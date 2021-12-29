@@ -19,8 +19,8 @@
 #ifndef GTT_QUERY_H_
 #define GTT_QUERY_H_
 
-#include <glib.h>
 #include "proj.h"
+#include <glib.h>
 
 /* This file contains routines that return various info about
  * the data in the system.  In some fancier world, these would
@@ -47,7 +47,6 @@ struct GttBucket_s
 	GList *tasks;     /* List of GttTasks in the bucket */
 	GList *intervals; /* List of GttIntervals in the bucket */
 };
-
 
 /* The following routines are needed to implement a
  *    calendar report in GTT.
@@ -81,13 +80,13 @@ struct GttBucket_s
  *    included in the day totals.
  */
 
-GArray * gtt_project_get_daily_buckets (GttProject *proj,
-					      gboolean include_subprojects);
+GArray *gtt_project_get_daily_buckets (GttProject *proj,
+																			 gboolean include_subprojects);
 
-time_t   gtt_project_get_earliest_start (GttProject *proj,
-					      gboolean include_subprojects);
+time_t gtt_project_get_earliest_start (GttProject *proj,
+																			 gboolean include_subprojects);
 
-time_t   gtt_project_get_latest_stop (GttProject *proj,
-					      gboolean include_subprojects);
+time_t gtt_project_get_latest_stop (GttProject *proj,
+																		gboolean include_subprojects);
 
 #endif // GTT_QUERY_H_

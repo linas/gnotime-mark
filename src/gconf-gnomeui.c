@@ -27,7 +27,9 @@
 /* ======================================================= */
 /* Convert gnome enums to strings */
 
-#define CASE(x)  case x: return #x;
+#define CASE(x)                                                               \
+	case x:                                                                     \
+		return #x;
 
 static const char *
 gnome_ui_info_type_to_string (GnomeUIInfoType typ)
@@ -65,7 +67,9 @@ gnome_ui_pixmap_type_to_string (GnomeUIPixmapType typ)
 /* ======================================================= */
 /* Convert strings to gnome enums */
 
-#define MATCH(str,x)  if (0==strcmp (str, #x)) return x;
+#define MATCH(str, x)                                                         \
+	if (0 == strcmp (str, #x))                                                  \
+		return x;
 
 static GnomeUIInfoType
 string_to_gnome_ui_info_type (const char *str)
@@ -85,7 +89,7 @@ string_to_gnome_ui_info_type (const char *str)
 }
 
 static GnomeUIPixmapType
-string_to_gnome_ui_pixmap_type (const char * str)
+string_to_gnome_ui_pixmap_type (const char *str)
 {
 	MATCH (str, GNOME_APP_PIXMAP_NONE);
 	MATCH (str, GNOME_APP_PIXMAP_STOCK);
@@ -98,28 +102,30 @@ string_to_gnome_ui_pixmap_type (const char * str)
 /* Save the contents of a GnomeUIInfo structure with GConf */
 
 void
-gtt_save_gnomeui_to_gconf (GConfClient *client,
-                const char * path, GnomeUIInfo *gui)
+gtt_save_gnomeui_to_gconf (GConfClient *client, const char *path,
+													 GnomeUIInfo *gui)
 {
 	char *savepath, *tokptr;
 
-	if (!client || !gui || !path) return;
+	if (!client || !gui || !path)
+		return;
 
-	if (GNOME_APP_UI_ENDOFINFO == gui->type) return;
+	if (GNOME_APP_UI_ENDOFINFO == gui->type)
+		return;
 
 	/* Reserve a big enough buffer for ourselves */
-	savepath = g_strdup_printf ("%sXXXXXXXXXXXXXXXXXXXX",path);
-	tokptr = savepath + strlen (path);
+	savepath = g_strdup_printf ("%sXXXXXXXXXXXXXXXXXXXX", path);
+	tokptr   = savepath + strlen (path);
 
 	/* Store the info */
 	strcpy (tokptr, "Type");
-	F_SETSTR (savepath, gnome_ui_info_type_to_string(gui->type));
+	F_SETSTR (savepath, gnome_ui_info_type_to_string (gui->type));
 	strcpy (tokptr, "Label");
 	F_SETSTR (savepath, gui->label);
 	strcpy (tokptr, "Hint");
 	F_SETSTR (savepath, gui->hint);
 	strcpy (tokptr, "PixmapType");
-	F_SETSTR (savepath, gnome_ui_pixmap_type_to_string(gui->pixmap_type));
+	F_SETSTR (savepath, gnome_ui_pixmap_type_to_string (gui->pixmap_type));
 	strcpy (tokptr, "PixmapInfo");
 	F_SETSTR (savepath, gui->pixmap_info);
 	strcpy (tokptr, "AcceleratorKey");
@@ -134,26 +140,27 @@ gtt_save_gnomeui_to_gconf (GConfClient *client,
 /* Restore the contents of a GnomeUIInfo structure from GConf */
 
 void
-gtt_restore_gnomeui_from_gconf (GConfClient *client,
-                const char * path, GnomeUIInfo *gui)
+gtt_restore_gnomeui_from_gconf (GConfClient *client, const char *path,
+																GnomeUIInfo *gui)
 {
 	char *savepath, *tokptr;
 
-	if (!client || !gui || !path) return;
+	if (!client || !gui || !path)
+		return;
 
 	/* Reserve a big enough buffer for ourselves */
-	savepath = g_strdup_printf ("%sXXXXXXXXXXXXXXXXXXXX",path);
-	tokptr = savepath + strlen (path);
+	savepath = g_strdup_printf ("%sXXXXXXXXXXXXXXXXXXXX", path);
+	tokptr   = savepath + strlen (path);
 
 	/* Restore the info */
 	strcpy (tokptr, "Type");
-	gui->type = string_to_gnome_ui_info_type(F_GETSTR (savepath, ""));
+	gui->type = string_to_gnome_ui_info_type (F_GETSTR (savepath, ""));
 	strcpy (tokptr, "Label");
 	gui->label = F_GETSTR (savepath, "");
 	strcpy (tokptr, "Hint");
 	gui->hint = F_GETSTR (savepath, "");
 	strcpy (tokptr, "PixmapType");
-	gui->pixmap_type = string_to_gnome_ui_pixmap_type(F_GETSTR (savepath, ""));
+	gui->pixmap_type = string_to_gnome_ui_pixmap_type (F_GETSTR (savepath, ""));
 	strcpy (tokptr, "PixmapInfo");
 	gui->pixmap_info = F_GETSTR (savepath, "");
 	strcpy (tokptr, "AcceleratorKey");

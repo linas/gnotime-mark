@@ -24,16 +24,16 @@
 #include <gnome.h>
 #include <gtkhtml/gtkhtml.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include <sched.h>
 #include <stdio.h>
 #include <string.h>
-#include <sched.h>
 
 #include <qof.h>
 
 #include "app.h"
 #include "dialog.h"
-#include "journal.h"
 #include "ghtml.h"
+#include "journal.h"
 #include "menus.h"
 #include "plug-in.h"
 #include "proj.h"
@@ -41,22 +41,21 @@
 #include "props-task.h"
 #include "util.h"
 
-
 /* This struct is a mish-mash of stuff relating to the
  * HTML display window, and the various actions and etc.
  * that can be taken from it. */
 
 typedef struct wiggy_s
 {
-	GttGhtml  *gh;
-	GtkHTML   *html;
-	GtkHTMLStream  *html_stream;
+	GttGhtml *gh;
+	GtkHTML *html;
+	GtkHTMLStream *html_stream;
 	GtkWidget *top;
-	GttProject  *prj;
-	char        *filepath;  /* file containing report template */
+	GttProject *prj;
+	char *filepath; /* file containing report template */
 
 	/* Interval edit menu widgets */
-	GttInterval * interval;
+	GttInterval *interval;
 	GtkWidget *interval_popup;
 	GtkWidget *interval_paste;
 	GtkWidget *interval_merge_up;
@@ -66,28 +65,27 @@ typedef struct wiggy_s
 	EditIntervalDialog *edit_ivl;
 
 	/* Task edit menu widgets */
-	GttTask     *task;
+	GttTask *task;
 	GtkWidget *task_popup;
 	GtkWidget *task_delete_memo;
 	GtkWidget *task_paste;
 
 	/* Mouse fly-over help */
 	GtkWidget *hover_help_window;
-	GtkLabel  *hover_label;
-	guint      hover_timeout_id;
-	guint      hover_kill_id;
+	GtkLabel *hover_label;
+	guint hover_timeout_id;
+	guint hover_kill_id;
 
-	GnomeVFSHandle   *handle;  /* file handle to save to */
-	GttPlugin   *plg;          /* file path save history */
+	GnomeVFSHandle *handle; /* file handle to save to */
+	GttPlugin *plg;         /* file path save history */
 
 	/* Publish-to-URL dialog */
 	GtkWidget *publish_popup;
-	GtkEntry  *publish_entry;
+	GtkEntry *publish_entry;
 } Wiggy;
 
-static void do_show_report (const char *, GttPlugin *,
-                KvpFrame *, GttProject *, gboolean, GList *);
-
+static void do_show_report (const char *, GttPlugin *, KvpFrame *,
+														GttProject *, gboolean, GList *);
 
 /* ============================================================== */
 /* Routines that take html and mash it into browser. */
@@ -95,7 +93,7 @@ static void do_show_report (const char *, GttPlugin *,
 static void
 wiggy_open (GttGhtml *pl, gpointer ud)
 {
-	Wiggy *wig = (Wiggy *) ud;
+	Wiggy *wig       = (Wiggy *) ud;
 
 	/* open the browser for writing */
 	wig->html_stream = gtk_html_begin (wig->html);
@@ -120,9 +118,9 @@ wiggy_write (GttGhtml *pl, const char *str, size_t len, gpointer ud)
 }
 
 static void
-wiggy_error (GttGhtml *pl, int err, const char * msg, gpointer ud)
+wiggy_error (GttGhtml *pl, int err, const char *msg, gpointer ud)
 {
-	Wiggy *wig = (Wiggy *) ud;
+	Wiggy *wig    = (Wiggy *) ud;
 	GtkHTML *html = wig->html;
 	GtkHTMLStream *stream;
 	char buff[1000], *p;
@@ -133,25 +131,24 @@ wiggy_error (GttGhtml *pl, int err, const char * msg, gpointer ud)
 	{
 		p = buff;
 		p = g_stpcpy (p, "<html><body><h1>");
-		p = g_stpcpy (p, _("Error 404 Not Found"));
+		p = g_stpcpy (p, _ ("Error 404 Not Found"));
 		p = g_stpcpy (p, "</h1>");
-		p += sprintf (p, _("The file %s was not found."),
-		             (msg? (char*) msg : _("(null)")));
+		p += sprintf (p, _ ("The file %s was not found."),
+									(msg ? (char *) msg : _ ("(null)")));
 
 		p = g_stpcpy (p, "</body></html>");
-		gtk_html_write (html, stream, buff, p-buff);
+		gtk_html_write (html, stream, buff, p - buff);
 	}
 	else
 	{
 		p = buff;
 		p = g_stpcpy (p, "<html><body><h1>");
-		p = g_stpcpy (p, _("Unkown Error"));
+		p = g_stpcpy (p, _ ("Unkown Error"));
 		p = g_stpcpy (p, "</h1></body></html>");
-		gtk_html_write (html, stream, buff, p-buff);
+		gtk_html_write (html, stream, buff, p - buff);
 	}
 
 	gtk_html_end (html, stream, GTK_HTML_STREAM_OK);
-
 }
 
 /* ============================================================== */
@@ -160,64 +157,65 @@ wiggy_error (GttGhtml *pl, int err, const char * msg, gpointer ud)
 static void
 file_write_helper (GttGhtml *pl, const char *str, size_t len, gpointer data)
 {
-	Wiggy *wig = (Wiggy *) data;
-	GnomeVFSFileSize buflen = len;
+	Wiggy *wig                     = (Wiggy *) data;
+	GnomeVFSFileSize buflen        = len;
 	GnomeVFSFileSize bytes_written = 0;
-	size_t off = 0;
+	size_t off                     = 0;
 	while (1)
 	{
 		GnomeVFSResult result;
 		result = gnome_vfs_write (wig->handle, &str[off], buflen, &bytes_written);
 		off += bytes_written;
 		buflen -= bytes_written;
-		if (0>= buflen) break;
-		if (GNOME_VFS_OK != result) break;
+		if (0 >= buflen)
+			break;
+		if (GNOME_VFS_OK != result)
+			break;
 	}
 }
 
 /* ============================================================== */
 
 static void
-remember_uri (Wiggy *wig, const char * filename)
+remember_uri (Wiggy *wig, const char *filename)
 {
 	/* Remember history, on a per-report basis */
-	if (wig->plg && ((NULL == wig->plg->last_url) ||
-	                 (0==wig->plg->last_url[0]) ||
-	                 (0==strncmp (wig->plg->last_url, "file:/", 6))))
+	if (wig->plg
+			&& ((NULL == wig->plg->last_url) || (0 == wig->plg->last_url[0])
+					|| (0 == strncmp (wig->plg->last_url, "file:/", 6))))
 	{
-		if (wig->plg->last_url) g_free (wig->plg->last_url);
+		if (wig->plg->last_url)
+			g_free (wig->plg->last_url);
 		wig->plg->last_url = g_strdup_printf ("file:%s", filename);
 	}
 }
 
 static void
-save_to_gnomevfs (Wiggy *wig, const char * filename)
+save_to_gnomevfs (Wiggy *wig, const char *filename)
 {
 	/* Try to open the file for writing */
-	GnomeVFSResult    result;
-	result = gnome_vfs_create (&wig->handle, filename,
-	                     GNOME_VFS_OPEN_WRITE, FALSE, 0644);
+	GnomeVFSResult result;
+	result = gnome_vfs_create (&wig->handle, filename, GNOME_VFS_OPEN_WRITE,
+														 FALSE, 0644);
 
 	if (GNOME_VFS_OK != result)
 	{
 		GtkWidget *mb;
-		mb = gtk_message_dialog_new (GTK_WINDOW(wig->top),
-		               GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-		               GTK_MESSAGE_ERROR,
-		               GTK_BUTTONS_CLOSE,
-		               _("Unable to open the file %s\n%s"),
-		               filename,
-		               gnome_vfs_result_to_string (result));
-		g_signal_connect (G_OBJECT(mb), "response",
-		               G_CALLBACK (gtk_widget_destroy), mb);
+		mb = gtk_message_dialog_new (
+				GTK_WINDOW (wig->top),
+				GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,
+				GTK_BUTTONS_CLOSE, _ ("Unable to open the file %s\n%s"), filename,
+				gnome_vfs_result_to_string (result));
+		g_signal_connect (G_OBJECT (mb), "response",
+											G_CALLBACK (gtk_widget_destroy), mb);
 		gtk_widget_show (mb);
 	}
 	else
 	{
 		/* Cause ghtml to output the html again, but this time
 		 * using raw file-io handlers instead. */
-		gtt_ghtml_set_stream (wig->gh, wig, NULL, file_write_helper,
-			NULL, wiggy_error);
+		gtt_ghtml_set_stream (wig->gh, wig, NULL, file_write_helper, NULL,
+													wiggy_error);
 		gtt_ghtml_show_links (wig->gh, FALSE);
 		gtt_ghtml_display (wig->gh, wig->filepath, wig->prj);
 		gtt_ghtml_show_links (wig->gh, TRUE);
@@ -226,15 +224,14 @@ save_to_gnomevfs (Wiggy *wig, const char * filename)
 		wig->handle = NULL;
 
 		/* Reset the html out handlers back to the browser */
-		gtt_ghtml_set_stream (wig->gh, wig, wiggy_open, wiggy_write,
-		   wiggy_close, wiggy_error);
+		gtt_ghtml_set_stream (wig->gh, wig, wiggy_open, wiggy_write, wiggy_close,
+													wiggy_error);
 	}
 }
 
 static void
-save_to_file (Wiggy *wig, const char * uri)
+save_to_file (Wiggy *wig, const char *uri)
 {
-
 #if BORKEN_STILL_GET_X11_TRAFFIC_WHICH_HOSES_THINGS
 	/* If its an remote system URI, we fork/exec, because
 	 * gnomevfs can take a looooong time to respond ...
@@ -260,7 +257,7 @@ save_to_file (Wiggy *wig, const char * uri)
 		else
 		{
 			/* else we are parent, child will save for us */
-			sched_yield();
+			sched_yield ();
 		}
 	}
 #endif
@@ -272,7 +269,7 @@ save_to_file (Wiggy *wig, const char * uri)
 /* engine callbacks */
 
 static void
-redraw (GttProject * prj, gpointer data)
+redraw (GttProject *prj, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 
@@ -283,7 +280,7 @@ redraw (GttProject * prj, gpointer data)
 /* Global clipboard, allows cut task to be reparented to a different
  * project.  List of cut tasks allows for infinite undo. */
 
-static GList * cutted_task_list = NULL;
+static GList *cutted_task_list = NULL;
 
 /* ============================================================== */
 /* Interval Popup Menu actions */
@@ -291,38 +288,41 @@ static GList * cutted_task_list = NULL;
 void
 edit_interval_close_cb (GtkWidget *edit_ivl, gpointer data)
 {
-	Wiggy *wig = (Wiggy *) data;
+	Wiggy *wig    = (Wiggy *) data;
 	wig->edit_ivl = NULL;
 }
 
-
 static void
-interval_new_clicked_cb (GtkWidget * w, gpointer data)
+interval_new_clicked_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 
-	if (NULL == wig->edit_ivl) wig->edit_ivl = edit_interval_dialog_new();
+	if (NULL == wig->edit_ivl)
+		wig->edit_ivl = edit_interval_dialog_new ();
 
-	edit_interval_set_close_callback (wig->edit_ivl, G_CALLBACK (edit_interval_close_cb), wig);
+	edit_interval_set_close_callback (wig->edit_ivl,
+																		G_CALLBACK (edit_interval_close_cb), wig);
 
-	wig->interval = gtt_interval_new_insert_after(wig->interval);
+	wig->interval = gtt_interval_new_insert_after (wig->interval);
 	edit_interval_set_interval (wig->edit_ivl, wig->interval);
 	edit_interval_dialog_show (wig->edit_ivl);
 }
 
 static void
-interval_edit_clicked_cb(GtkWidget * dw, gpointer data)
+interval_edit_clicked_cb (GtkWidget *dw, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 
-	if (NULL == wig->edit_ivl) wig->edit_ivl = edit_interval_dialog_new();
-	edit_interval_set_close_callback (wig->edit_ivl, G_CALLBACK (edit_interval_close_cb), wig);
+	if (NULL == wig->edit_ivl)
+		wig->edit_ivl = edit_interval_dialog_new ();
+	edit_interval_set_close_callback (wig->edit_ivl,
+																		G_CALLBACK (edit_interval_close_cb), wig);
 	edit_interval_set_interval (wig->edit_ivl, wig->interval);
 	edit_interval_dialog_show (wig->edit_ivl);
 }
 
 static void
-interval_delete_clicked_cb(GtkWidget * w, gpointer data)
+interval_delete_clicked_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 	gtt_interval_destroy (wig->interval);
@@ -330,7 +330,7 @@ interval_delete_clicked_cb(GtkWidget * w, gpointer data)
 }
 
 static void
-interval_merge_up_clicked_cb(GtkWidget * w, gpointer data)
+interval_merge_up_clicked_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 	gtt_interval_merge_up (wig->interval);
@@ -338,7 +338,7 @@ interval_merge_up_clicked_cb(GtkWidget * w, gpointer data)
 }
 
 static void
-interval_merge_down_clicked_cb(GtkWidget * w, gpointer data)
+interval_merge_down_clicked_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 	gtt_interval_merge_down (wig->interval);
@@ -346,48 +346,55 @@ interval_merge_down_clicked_cb(GtkWidget * w, gpointer data)
 }
 
 static void
-interval_move_up_clicked_cb(GtkWidget * w, gpointer data)
+interval_move_up_clicked_cb (GtkWidget *w, gpointer data)
 {
-	Wiggy *wig = (Wiggy *) data;
-	GttTask *tsk = gtt_interval_get_parent (wig->interval);
+	Wiggy *wig      = (Wiggy *) data;
+	GttTask *tsk    = gtt_interval_get_parent (wig->interval);
 	GttProject *prj = gtt_task_get_parent (tsk);
-	GList *tasks = gtt_project_get_tasks (prj);
-	if (!tasks) return;
+	GList *tasks    = gtt_project_get_tasks (prj);
+	if (!tasks)
+		return;
 	GList *this_task = g_list_find (tasks, tsk);
-	if (!this_task) return;
+	if (!this_task)
+		return;
 	GList *prev_task = this_task->prev;
-	if (!prev_task) return;
+	if (!prev_task)
+		return;
 	GttTask *newtask = prev_task->data;
 	gtt_task_append_interval (newtask, wig->interval);
 }
 
 static void
-interval_move_down_clicked_cb(GtkWidget * w, gpointer data)
+interval_move_down_clicked_cb (GtkWidget *w, gpointer data)
 {
-	Wiggy *wig = (Wiggy *) data;
-	GttTask *tsk = gtt_interval_get_parent (wig->interval);
+	Wiggy *wig      = (Wiggy *) data;
+	GttTask *tsk    = gtt_interval_get_parent (wig->interval);
 	GttProject *prj = gtt_task_get_parent (tsk);
-	GList *tasks = gtt_project_get_tasks (prj);
-	if (!tasks) return;
+	GList *tasks    = gtt_project_get_tasks (prj);
+	if (!tasks)
+		return;
 	GList *this_task = g_list_find (tasks, tsk);
-	if (!this_task) return;
+	if (!this_task)
+		return;
 	GList *next_task = this_task->next;
-	if (!next_task) return;
+	if (!next_task)
+		return;
 	GttTask *newtask = next_task->data;
 	gtt_task_add_interval (newtask, wig->interval);
 }
 
 static void
-interval_insert_memo_cb(GtkWidget * w, gpointer data)
+interval_insert_memo_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 	GttTask *newtask;
-	if (!wig->interval) return;
+	if (!wig->interval)
+		return;
 
 	/* Try to get billrates consistent across gap */
 	newtask = gtt_interval_get_parent (wig->interval);
 	newtask = gtt_task_copy (newtask);
-	gtt_task_set_memo (newtask, _("New Diary Entry"));
+	gtt_task_set_memo (newtask, _ ("New Diary Entry"));
 	gtt_task_set_notes (newtask, "");
 
 	gtt_interval_split (wig->interval, newtask);
@@ -395,12 +402,13 @@ interval_insert_memo_cb(GtkWidget * w, gpointer data)
 }
 
 static void
-interval_paste_memo_cb(GtkWidget * w, gpointer data)
+interval_paste_memo_cb (GtkWidget *w, gpointer data)
 {
-	Wiggy *wig = (Wiggy *) data;
+	Wiggy *wig       = (Wiggy *) data;
 	GttTask *newtask = NULL;
 
-	if (!cutted_task_list || !wig->interval) return;
+	if (!cutted_task_list || !wig->interval)
+		return;
 
 	/* Pop one off the stack, if stack has any depth to it */
 	if (NULL == cutted_task_list->next)
@@ -409,10 +417,9 @@ interval_paste_memo_cb(GtkWidget * w, gpointer data)
 	}
 	else
 	{
-		newtask = cutted_task_list->data;
+		newtask                = cutted_task_list->data;
 		cutted_task_list->data = NULL;
-		cutted_task_list =
-		     g_list_delete_link (cutted_task_list, cutted_task_list);
+		cutted_task_list = g_list_delete_link (cutted_task_list, cutted_task_list);
 	}
 
 	gtt_interval_split (wig->interval, newtask);
@@ -421,8 +428,7 @@ interval_paste_memo_cb(GtkWidget * w, gpointer data)
 static void
 interval_popup_cb (Wiggy *wig)
 {
-	gtk_menu_popup(GTK_MENU(wig->interval_popup),
-		NULL, NULL, NULL, wig, 1, 0);
+	gtk_menu_popup (GTK_MENU (wig->interval_popup), NULL, NULL, NULL, wig, 1, 0);
 	if (cutted_task_list)
 	{
 		gtk_widget_set_sensitive (wig->interval_paste, TRUE);
@@ -454,7 +460,7 @@ interval_popup_cb (Wiggy *wig)
 		gtk_widget_set_sensitive (wig->interval_move_down, FALSE);
 	}
 
-	GttTask *tsk = gtt_interval_get_parent(wig->interval);
+	GttTask *tsk = gtt_interval_get_parent (wig->interval);
 	if (gtt_task_is_first_task (tsk))
 	{
 		gtk_widget_set_sensitive (wig->interval_move_up, FALSE);
@@ -469,13 +475,14 @@ interval_popup_cb (Wiggy *wig)
 /* Task Popup Menu Actions */
 
 void
-new_task_ui(GtkWidget *w, gpointer data)
+new_task_ui (GtkWidget *w, gpointer data)
 {
 	GttProject *prj;
 	GttTask *newtask;
 
 	prj = gtt_projects_tree_get_selected_project (projects_tree);
-	if (!prj) return;
+	if (!prj)
+		return;
 
 	newtask = gtt_task_new ();
 	gtt_project_prepend_task (prj, newtask);
@@ -485,97 +492,100 @@ new_task_ui(GtkWidget *w, gpointer data)
 /* ============================================================== */
 
 void
-edit_task_ui(GtkWidget *w, gpointer data)
+edit_task_ui (GtkWidget *w, gpointer data)
 {
 	GttProject *prj;
 	GttTask *task;
 
 	prj = gtt_projects_tree_get_selected_project (projects_tree);
-	if (!prj) return;
+	if (!prj)
+		return;
 
-	task = gtt_project_get_first_task(prj);
+	task = gtt_project_get_first_task (prj);
 	prop_task_dialog_show (task);
 }
 
 /* ============================================================== */
 
 static void
-task_new_task_clicked_cb(GtkWidget * w, gpointer data)
+task_new_task_clicked_cb (GtkWidget *w, gpointer data)
 {
 	GttTask *newtask;
 	Wiggy *wig = (Wiggy *) data;
-	newtask = gtt_task_new_insert (wig->task);
+	newtask    = gtt_task_new_insert (wig->task);
 	prop_task_dialog_show (newtask);
 }
 
 static void
-task_edit_task_clicked_cb(GtkWidget * w, gpointer data)
+task_edit_task_clicked_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 	prop_task_dialog_show (wig->task);
 }
 
 static void
-task_delete_memo_clicked_cb(GtkWidget * w, gpointer data)
+task_delete_memo_clicked_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 
 	/* It is physically impossible to cut just the memo, without
 	 * also cutting the time entries, when its the first one. */
-	if (gtt_task_is_first_task (wig->task)) return;
+	if (gtt_task_is_first_task (wig->task))
+		return;
 
 	gtt_task_merge_up (wig->task);
 
-	GList * ctl = g_list_prepend(cutted_task_list, wig->task);
+	GList *ctl = g_list_prepend (cutted_task_list, wig->task);
 	gtt_task_remove (wig->task);
 	cutted_task_list = ctl;
 }
 
 static void
-task_delete_times_clicked_cb(GtkWidget * w, gpointer data)
+task_delete_times_clicked_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 
-	GList * ctl = g_list_prepend(cutted_task_list, wig->task);
+	GList *ctl = g_list_prepend (cutted_task_list, wig->task);
 	gtt_task_remove (wig->task);
 	cutted_task_list = ctl;
 }
 
 static void
-task_copy_clicked_cb(GtkWidget * w, gpointer data)
+task_copy_clicked_cb (GtkWidget *w, gpointer data)
 {
-	Wiggy *wig = (Wiggy *) data;
+	Wiggy *wig       = (Wiggy *) data;
 
-	GttTask * tsk = gtt_task_copy (wig->task);
-	GList * ctl = g_list_prepend(cutted_task_list, tsk);
+	GttTask *tsk     = gtt_task_copy (wig->task);
+	GList *ctl       = g_list_prepend (cutted_task_list, tsk);
 	cutted_task_list = ctl;
 }
 
 static void
-task_paste_clicked_cb(GtkWidget * w, gpointer data)
+task_paste_clicked_cb (GtkWidget *w, gpointer data)
 {
-	Wiggy *wig = (Wiggy *) data;
+	Wiggy *wig       = (Wiggy *) data;
 	GttTask *newtask = NULL;
 
-	if (!cutted_task_list || !wig->task) return;
+	if (!cutted_task_list || !wig->task)
+		return;
 
 	/* Pop one off the stack, if stack has any depth to it */
-	newtask = cutted_task_list->data;
+	newtask                = cutted_task_list->data;
 	cutted_task_list->data = NULL;
-	cutted_task_list =
-	    g_list_delete_link (cutted_task_list, cutted_task_list);
-	
+	cutted_task_list = g_list_delete_link (cutted_task_list, cutted_task_list);
+
 	gtt_task_insert (wig->task, newtask);
 }
 
 static void
-task_new_interval_cb (GtkWidget * w, gpointer data)
+task_new_interval_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 
-	if (NULL == wig->edit_ivl) wig->edit_ivl = edit_interval_dialog_new();
+	if (NULL == wig->edit_ivl)
+		wig->edit_ivl = edit_interval_dialog_new ();
 
-	wig->interval = gtt_interval_new();
+	wig->interval = gtt_interval_new ();
 	gtt_task_add_interval (wig->task, wig->interval);
 
 	edit_interval_set_interval (wig->edit_ivl, wig->interval);
@@ -585,8 +595,7 @@ task_new_interval_cb (GtkWidget * w, gpointer data)
 static void
 task_popup_cb (Wiggy *wig)
 {
-	gtk_menu_popup(GTK_MENU(wig->task_popup),
-		NULL, NULL, NULL, wig, 1, 0);
+	gtk_menu_popup (GTK_MENU (wig->task_popup), NULL, NULL, NULL, wig, 1, 0);
 	if (gtt_task_is_first_task (wig->task))
 	{
 		gtk_widget_set_sensitive (wig->task_delete_memo, FALSE);
@@ -604,7 +613,6 @@ task_popup_cb (Wiggy *wig)
 	{
 		gtk_widget_set_sensitive (wig->task_paste, FALSE);
 	}
-
 }
 
 /* ============================================================== */
@@ -613,7 +621,7 @@ task_popup_cb (Wiggy *wig)
 static void
 on_print_clicked_cb (GtkWidget *w, gpointer data)
 {
-	GladeXML  *glxml;
+	GladeXML *glxml;
 	glxml = gtt_glade_xml_new ("glade/not-implemented.glade", "Not Implemented");
 }
 #endif
@@ -644,21 +652,20 @@ on_pub_cancel_clicked_cb (GtkWidget *w, gpointer data)
 static void
 on_pub_ok_clicked_cb (GtkWidget *w, gpointer data)
 {
-	Wiggy *wig = data;
-	const char * uri = gtk_entry_get_text (wig->publish_entry);
+	Wiggy *wig      = data;
+	const char *uri = gtk_entry_get_text (wig->publish_entry);
 
 	remember_uri (wig, uri);
 	if (0 == strncmp (uri, "mailto:", 7))
 	{
 		GtkWidget *mb;
-		mb = gtk_message_dialog_new (GTK_WINDOW(wig->publish_popup),
-		               // GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-		               GTK_DIALOG_MODAL,
-		               GTK_MESSAGE_INFO,
-		               GTK_BUTTONS_CLOSE,
-		               _("mailto: URL is not supported at this time"));
-		g_signal_connect (G_OBJECT(mb), "response",
-		               G_CALLBACK (gtk_widget_destroy), mb);
+		mb = gtk_message_dialog_new (
+				GTK_WINDOW (wig->publish_popup),
+				// GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+				GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
+				_ ("mailto: URL is not supported at this time"));
+		g_signal_connect (G_OBJECT (mb), "response",
+											G_CALLBACK (gtk_widget_destroy), mb);
 		gtk_widget_show (mb);
 	}
 	else
@@ -676,27 +683,29 @@ on_save_clicked_cb (GtkWidget *w, gpointer data)
 	GtkWidget *dialog;
 	Wiggy *wig = (Wiggy *) data;
 
-	dialog = gtk_file_chooser_dialog_new(_("Save HTML To File"),
-	                                     GTK_WINDOW(wig->top),
-	                                     GTK_FILE_CHOOSER_ACTION_SAVE,
-	                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-	                                     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-	                                     NULL);
+	dialog     = gtk_file_chooser_dialog_new (
+					_ ("Save HTML To File"), GTK_WINDOW (wig->top),
+					GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 
-	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog),
+																									TRUE);
 
 	/* Manually set a per-report history thingy */
-	if (wig->plg && wig->plg->last_url && (0==strncmp("file:/", wig->plg->last_url, 6)))
+	if (wig->plg && wig->plg->last_url
+			&& (0 == strncmp ("file:/", wig->plg->last_url, 6)))
 	{
-		gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog), wig->plg->last_url);
+		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog),
+																	 wig->plg->last_url);
 	}
-	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-		  char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-		  remember_uri (wig, filename);
-		  save_to_file (wig, filename);
-		  g_free(filename);
+	if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+		remember_uri (wig, filename);
+		save_to_file (wig, filename);
+		g_free (filename);
 	}
-	gtk_widget_destroy(GTK_WIDGET(dialog));
+	gtk_widget_destroy (GTK_WIDGET (dialog));
 }
 
 static void
@@ -704,9 +713,10 @@ on_close_clicked_cb (GtkWidget *w, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 
-	if (NULL == wig->top) return;  /* avoid recursive double-free */
-	GtkWidget *topper = wig->top;   /* avoid recursion */
-	wig->top = NULL;
+	if (NULL == wig->top)
+		return;                     /* avoid recursive double-free */
+	GtkWidget *topper = wig->top; /* avoid recursion */
+	wig->top          = NULL;
 
 	/* Unplug the timout function, so that timer doesn't
 	 * pop after the destroy has happened. */
@@ -727,20 +737,21 @@ on_close_clicked_cb (GtkWidget *w, gpointer data)
 	gtk_widget_destroy (topper);
 
 	/* close the main journal window ... everything */
-	if (wig->prj) gtt_project_remove_notifier (wig->prj, redraw, wig);
+	if (wig->prj)
+		gtt_project_remove_notifier (wig->prj, redraw, wig);
 	edit_interval_dialog_destroy (wig->edit_ivl);
 	wig->prj = NULL;
 
 	gtt_ghtml_destroy (wig->gh);
 	g_free (wig->filepath);
 
-	wig->gh = NULL;
+	wig->gh   = NULL;
 	wig->html = NULL;
 	g_free (wig);
 }
 
 static void
-destroy_cb(GtkObject *ob, gpointer data)
+destroy_cb (GtkObject *ob, gpointer data)
 {
 }
 
@@ -755,9 +766,9 @@ on_refresh_clicked_cb (GtkWidget *w, gpointer data)
 /* html events */
 
 static void
-html_link_clicked_cb(GtkHTML *doc, const gchar * url, gpointer data)
+html_link_clicked_cb (GtkHTML *doc, const gchar *url, gpointer data)
 {
-	Wiggy *wig = (Wiggy *) data;
+	Wiggy *wig    = (Wiggy *) data;
 	gpointer addr = NULL;
 	char *str;
 
@@ -772,26 +783,26 @@ html_link_clicked_cb(GtkHTML *doc, const gchar * url, gpointer data)
 	if (0 == strncmp (url, "gtt:interval", 12))
 	{
 		wig->interval = addr;
-		wig->task = NULL;
-		if (addr) interval_popup_cb (wig);
+		wig->task     = NULL;
+		if (addr)
+			interval_popup_cb (wig);
 	}
-	else
-	if (0 == strncmp (url, "gtt:task", 8))
+	else if (0 == strncmp (url, "gtt:task", 8))
 	{
-		wig->task = addr;
+		wig->task     = addr;
 		wig->interval = NULL;
-		if (addr) task_popup_cb (wig);
+		if (addr)
+			task_popup_cb (wig);
 	}
-	else
-	if (0 == strncmp (url, "gtt:proj", 8))
+	else if (0 == strncmp (url, "gtt:proj", 8))
 	{
 		GttProject *prj = addr;
-		char * path;
+		char *path;
 
-		wig->task = NULL;
+		wig->task     = NULL;
 		wig->interval = NULL;
 
-		path = gtt_ghtml_resolve_path (JOURNAL_REPORT, wig->filepath);
+		path          = gtt_ghtml_resolve_path (JOURNAL_REPORT, wig->filepath);
 		do_show_report (path, NULL, NULL, prj, FALSE, NULL);
 	}
 	else
@@ -805,22 +816,24 @@ html_link_clicked_cb(GtkHTML *doc, const gchar * url, gpointer data)
 /* ============================================================== */
 
 static void
-html_url_requested_cb(GtkHTML *doc, const gchar * url,
-                      GtkHTMLStream *handle, gpointer data)
+html_url_requested_cb (GtkHTML *doc, const gchar *url, GtkHTMLStream *handle,
+											 gpointer data)
 {
-	Wiggy *wig = data;
-	const char * path = gtt_ghtml_resolve_path (url, wig->filepath);
-	if (!path) return;
+	Wiggy *wig       = data;
+	const char *path = gtt_ghtml_resolve_path (url, wig->filepath);
+	if (!path)
+		return;
 
-	GnomeVFSResult    result;
-	GnomeVFSHandle   *vfs;
+	GnomeVFSResult result;
+	GnomeVFSHandle *vfs;
 	result = gnome_vfs_open (&vfs, path, GNOME_VFS_OPEN_READ);
 
-	if (GNOME_VFS_OK != result) return;
+	if (GNOME_VFS_OK != result)
+		return;
 
 #define BSZ 16000
 	char buff[BSZ];
-	GnomeVFSFileSize  bytes_read;
+	GnomeVFSFileSize bytes_read;
 	result = gnome_vfs_read (vfs, buff, BSZ, &bytes_read);
 	while (GNOME_VFS_OK == result)
 	{
@@ -843,11 +856,11 @@ html_url_requested_cb(GtkHTML *doc, const gchar * url,
 static char *
 get_hover_msg (const gchar *url)
 {
-	char * str;
+	char *str;
 	gpointer addr = NULL;
 
 	/* h4x0r al3rt bare-naked pointer parsing! */
-	str = strstr (url, "0x");
+	str           = strstr (url, "0x");
 	if (str)
 	{
 		addr = (gpointer) strtoul (str, NULL, 16);
@@ -862,31 +875,32 @@ get_hover_msg (const gchar *url)
 	 */
 	if (addr && (0 == strncmp ("gtt:task:", url, 9)))
 	{
-		GttTask *task = addr;
-		const char * memo = gtt_task_get_memo(task);
-		const char * notes = gtt_task_get_notes(task);
-		char * msg = g_strdup_printf ("<b><big>%s</big></b>\n%s\n", memo, notes);
+		GttTask *task     = addr;
+		const char *memo  = gtt_task_get_memo (task);
+		const char *notes = gtt_task_get_notes (task);
+		char *msg = g_strdup_printf ("<b><big>%s</big></b>\n%s\n", memo, notes);
 		return msg;
 	}
 
 	if (0 == strncmp (url, "gtt:proj:", 9))
 	{
-		GttProject *prj = addr;
-		const char * title = gtt_project_get_title (prj);
-		const char * desc = gtt_project_get_desc (prj);
-		const char * notes = gtt_project_get_notes (prj);
-		char * msg = g_strdup_printf ("<b><big>%s</big></b>\n"
-		                              "<b>%s</b>\n"
-		                              "%s", title, desc, notes);
+		GttProject *prj   = addr;
+		const char *title = gtt_project_get_title (prj);
+		const char *desc  = gtt_project_get_desc (prj);
+		const char *notes = gtt_project_get_notes (prj);
+		char *msg         = g_strdup_printf ("<b><big>%s</big></b>\n"
+                                                 "<b>%s</b>\n"
+                                                 "%s",
+																				 title, desc, notes);
 		return msg;
 	}
 
-	char * msg = _("Left-click to bring up menu");
+	char *msg = _ ("Left-click to bring up menu");
 	return g_strdup (msg);
 }
 
 static gint
-hover_kill_func(gpointer data)
+hover_kill_func (gpointer data)
 {
 	Wiggy *wig = data;
 
@@ -895,17 +909,17 @@ hover_kill_func(gpointer data)
 }
 
 static gint
-hover_timer_func(gpointer data)
+hover_timer_func (gpointer data)
 {
 	Wiggy *wig = data;
 
-	gint px=0, py=0, rx=0, ry=0;
+	gint px = 0, py = 0, rx = 0, ry = 0;
 	gtk_widget_get_pointer (wig->hover_help_window, &px, &py);
-	gtk_window_get_position (GTK_WINDOW(wig->hover_help_window), &rx, &ry);
+	gtk_window_get_position (GTK_WINDOW (wig->hover_help_window), &rx, &ry);
 	rx += px;
 	ry += py;
 	rx += 25; /* move it out from under the cursor shape */
-	gtk_window_move (GTK_WINDOW(wig->hover_help_window), rx, ry);
+	gtk_window_move (GTK_WINDOW (wig->hover_help_window), rx, ry);
 	gtk_widget_show (wig->hover_help_window);
 
 	/* 8000 milisecs = 8 secs */
@@ -922,7 +936,7 @@ hover_timer_func(gpointer data)
  * otherwise it will leave garbage on the screen.
  */
 static gboolean
-hover_loose_focus(GtkWidget *w, GdkEventFocus *ev, gpointer data)
+hover_loose_focus (GtkWidget *w, GdkEventFocus *ev, gpointer data)
 {
 	Wiggy *wig = data;
 
@@ -936,56 +950,57 @@ hover_loose_focus(GtkWidget *w, GdkEventFocus *ev, gpointer data)
 }
 
 static void
-html_on_url_cb(GtkHTML *doc, const gchar * url, gpointer data)
+html_on_url_cb (GtkHTML *doc, const gchar *url, gpointer data)
 {
 	Wiggy *wig = data;
-	if (NULL == wig->top) return;
+	if (NULL == wig->top)
+		return;
 
 	/* Create and initialize the hover-help window */
 	if (!wig->hover_help_window)
 	{
-		wig->hover_help_window = gtk_window_new(GTK_WINDOW_POPUP);
-		GtkWindow *wino = GTK_WINDOW (wig->hover_help_window);
+		wig->hover_help_window = gtk_window_new (GTK_WINDOW_POPUP);
+		GtkWindow *wino        = GTK_WINDOW (wig->hover_help_window);
 		gtk_window_set_decorated (wino, FALSE);
 		gtk_window_set_destroy_with_parent (wino, TRUE);
-		gtk_window_set_transient_for (wino, GTK_WINDOW(wig->top));
+		gtk_window_set_transient_for (wino, GTK_WINDOW (wig->top));
 		// gtk_window_set_type_hint (wino, GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
-		gtk_window_set_resizable (wino, FALSE);  /* FALSE to enable auto-resize */
+		gtk_window_set_resizable (wino, FALSE); /* FALSE to enable auto-resize */
 
 		/* There must be a better way to draw a line around the box ?? */
 		GtkWidget *frame = gtk_frame_new (NULL);
-		gtk_container_add(GTK_CONTAINER(wino), frame);
-		gtk_container_set_resize_mode (GTK_CONTAINER(frame), GTK_RESIZE_PARENT);
+		gtk_container_add (GTK_CONTAINER (wino), frame);
+		gtk_container_set_resize_mode (GTK_CONTAINER (frame), GTK_RESIZE_PARENT);
 		gtk_widget_show (frame);
 
 		/* There must be a better way to pad the text all around ?? */
 		GtkWidget *align = gtk_alignment_new (0.5, 0.5, 1.0, 1.0);
 		// gtk_alignment_set_padding (GTK_ALIGNMENT(align), 6, 6, 6, 6);
-		gtk_container_add(GTK_CONTAINER(frame), align);
-		gtk_container_set_resize_mode (GTK_CONTAINER(align), GTK_RESIZE_PARENT);
+		gtk_container_add (GTK_CONTAINER (frame), align);
+		gtk_container_set_resize_mode (GTK_CONTAINER (align), GTK_RESIZE_PARENT);
 		gtk_widget_show (align);
 
 		GtkWidget *label = gtk_label_new ("xxx");
 		wig->hover_label = GTK_LABEL (label);
-		gtk_container_add(GTK_CONTAINER(align), label);
+		gtk_container_add (GTK_CONTAINER (align), label);
 		gtk_widget_show (label);
 
 		/* So that we can loose focus later */
-		gtk_window_set_focus (GTK_WINDOW(wig->top), GTK_WIDGET(wig->html));
+		gtk_window_set_focus (GTK_WINDOW (wig->top), GTK_WIDGET (wig->html));
 
 		/* Set up in initial default, so later move works. */
-		int px=0, py=0, rx=0, ry=0;
-		gtk_widget_get_pointer (GTK_WIDGET(wig->top), &px, &py);
-		gtk_window_get_position (GTK_WINDOW(wig->top), &rx, &ry);
-		gtk_window_move (wino, rx+px, ry+py);
+		int px = 0, py = 0, rx = 0, ry = 0;
+		gtk_widget_get_pointer (GTK_WIDGET (wig->top), &px, &py);
+		gtk_window_get_position (GTK_WINDOW (wig->top), &rx, &ry);
+		gtk_window_move (wino, rx + px, ry + py);
 	}
 
 	if (url)
 	{
-		char * msg = get_hover_msg (url);
+		char *msg = get_hover_msg (url);
 		gtk_label_set_markup (wig->hover_label, msg);
-		gtk_container_resize_children (GTK_CONTAINER(wig->hover_help_window));
-		gtk_container_check_resize (GTK_CONTAINER(wig->hover_help_window));
+		gtk_container_resize_children (GTK_CONTAINER (wig->hover_help_window));
+		gtk_container_check_resize (GTK_CONTAINER (wig->hover_help_window));
 		g_free (msg);
 	}
 
@@ -1026,7 +1041,8 @@ perform_form_query (KvpFrame *kvpf)
 {
 	GList *results, *n;
 
-	if (!kvpf) return NULL;
+	if (!kvpf)
+		return NULL;
 
 	/* Allow the user to enable form debugging by adding the following html:
 	 * <input type="hidden" name="debug" value="1">
@@ -1037,20 +1053,25 @@ perform_form_query (KvpFrame *kvpf)
 		printf ("Debug: HTML Form Input=%s\n", kvp_frame_to_string (kvpf));
 	}
 
-	QofSqlQuery *q = qof_sql_query_new();
+	QofSqlQuery *q = qof_sql_query_new ();
 
-	if (!book) book = qof_book_new();
+	if (!book)
+		book = qof_book_new ();
 	qof_sql_query_set_book (q, book);
 	qof_sql_query_set_kvp (q, kvpf);
 
 	char *query_string = kvp_frame_get_string (kvpf, "query");
-	if (!query_string) return NULL;
-	if (0 == query_string[0]) return NULL;
+	if (!query_string)
+		return NULL;
+	if (0 == query_string[0])
+		return NULL;
 
 	if (user_debug)
 	{
-		printf ("earliest-end-date = %s\n", kvp_frame_get_string (kvpf, "earliest-end-date"));
-		printf ("latest-start-date = %s\n", kvp_frame_get_string (kvpf, "latest-start-date"));
+		printf ("earliest-end-date = %s\n",
+						kvp_frame_get_string (kvpf, "earliest-end-date"));
+		printf ("latest-start-date = %s\n",
+						kvp_frame_get_string (kvpf, "latest-start-date"));
 		printf ("Debug: Will run the query %s\n", query_string);
 	}
 
@@ -1063,10 +1084,10 @@ perform_form_query (KvpFrame *kvpf)
 	{
 		printf ("Debug: Query returned the following matching projects:\n");
 		/* Print out the results */
-		for (n=results; n; n=n->next)
+		for (n = results; n; n = n->next)
 		{
 			GttProject *prj = n->data;
-			printf ("\t%s\n", gtt_project_get_title(prj));
+			printf ("\t%s\n", gtt_project_get_title (prj));
 		}
 	}
 
@@ -1074,11 +1095,8 @@ perform_form_query (KvpFrame *kvpf)
 }
 
 static void
-submit_clicked_cb(GtkHTML * doc,
-                  const gchar * method,
-                  const gchar * url,
-                  const gchar * encoding,
-                  gpointer data)
+submit_clicked_cb (GtkHTML *doc, const gchar *method, const gchar *url,
+									 const gchar *encoding, gpointer data)
 {
 	Wiggy *wig = (Wiggy *) data;
 	const char *path;
@@ -1086,17 +1104,19 @@ submit_clicked_cb(GtkHTML * doc,
 	KvpValue *val;
 	GList *qresults;
 
-	if (!wig->prj) wig->prj = gtt_projects_tree_get_selected_project (projects_tree);
+	if (!wig->prj)
+		wig->prj = gtt_projects_tree_get_selected_project (projects_tree);
 
 	kvpf = kvp_frame_new ();
 	kvp_frame_add_url_encoding (kvpf, encoding);
 
 	/* If there is a report specified, use that, else use
 	 * the report specified in the form "action" */
-	val = kvp_frame_get_slot (kvpf, "report-path");
+	val  = kvp_frame_get_slot (kvpf, "report-path");
 	path = kvp_value_get_string (val);
-	if (!path) path = url;
-	path = gtt_ghtml_resolve_path (path, wig->filepath);
+	if (!path)
+		path = url;
+	path     = gtt_ghtml_resolve_path (path, wig->filepath);
 
 	/* Build an ad-hoc query */
 	qresults = perform_form_query (kvpf);
@@ -1119,75 +1139,75 @@ submit_clicked_cb(GtkHTML * doc,
 /* ============================================================== */
 
 static void
-do_show_report (const char * report, GttPlugin *plg,
-                KvpFrame *kvpf, GttProject *prj,
-                gboolean did_query, GList *prjlist)
+do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
+								GttProject *prj, gboolean did_query, GList *prjlist)
 {
 	GtkWidget *jnl_top, *jnl_viewport;
-	GladeXML  *glxml;
+	GladeXML *glxml;
 	Wiggy *wig;
 
-	glxml = gtt_glade_xml_new ("glade/journal.glade", "Journal Window");
+	glxml         = gtt_glade_xml_new ("glade/journal.glade", "Journal Window");
 
-	jnl_top = glade_xml_get_widget (glxml, "Journal Window");
-	jnl_viewport = glade_xml_get_widget (glxml, "Journal ScrollWin");
+	jnl_top       = glade_xml_get_widget (glxml, "Journal Window");
+	jnl_viewport  = glade_xml_get_widget (glxml, "Journal ScrollWin");
 
-	wig = g_new0 (Wiggy, 1);
+	wig           = g_new0 (Wiggy, 1);
 	wig->edit_ivl = NULL;
 
-	wig->top = jnl_top;
-	wig->plg = plg;
+	wig->top      = jnl_top;
+	wig->plg      = plg;
 
-	if (plg) gtk_window_set_title (GTK_WINDOW(jnl_top), plg->name);
+	if (plg)
+		gtk_window_set_title (GTK_WINDOW (jnl_top), plg->name);
 
 	/* Create browser, plug it into the viewport */
-	wig->html = GTK_HTML(gtk_html_new());
+	wig->html = GTK_HTML (gtk_html_new ());
 	gtk_html_set_editable (wig->html, FALSE);
-	gtk_container_add(GTK_CONTAINER(jnl_viewport), GTK_WIDGET(wig->html));
+	gtk_container_add (GTK_CONTAINER (jnl_viewport), GTK_WIDGET (wig->html));
 
-	wig->gh = gtt_ghtml_new();
-	gtt_ghtml_set_stream (wig->gh, wig, wiggy_open, wiggy_write,
-		wiggy_close, wiggy_error);
+	wig->gh = gtt_ghtml_new ();
+	gtt_ghtml_set_stream (wig->gh, wig, wiggy_open, wiggy_write, wiggy_close,
+												wiggy_error);
 
 	/* ---------------------------------------------------- */
 	/* Signals for the browser, and the Journal window */
 
 	glade_xml_signal_connect_data (glxml, "on_close_clicked",
-	        GTK_SIGNAL_FUNC (on_close_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (on_close_clicked_cb), wig);
 
 	glade_xml_signal_connect_data (glxml, "on_save_clicked",
-	        GTK_SIGNAL_FUNC (on_save_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (on_save_clicked_cb), wig);
 
 #if LATER
 	glade_xml_signal_connect_data (glxml, "on_print_clicked",
-	        GTK_SIGNAL_FUNC (on_print_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (on_print_clicked_cb), wig);
 #endif
 
 	glade_xml_signal_connect_data (glxml, "on_publish_clicked",
-	        GTK_SIGNAL_FUNC (on_publish_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (on_publish_clicked_cb), wig);
 
 	glade_xml_signal_connect_data (glxml, "on_refresh_clicked",
-	        GTK_SIGNAL_FUNC (on_refresh_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (on_refresh_clicked_cb), wig);
 
-	g_signal_connect (G_OBJECT(wig->top), "destroy",
-			G_CALLBACK (destroy_cb), wig);
+	g_signal_connect (G_OBJECT (wig->top), "destroy", G_CALLBACK (destroy_cb),
+										wig);
 
-	g_signal_connect (G_OBJECT(wig->html), "link_clicked",
-			G_CALLBACK (html_link_clicked_cb), wig);
+	g_signal_connect (G_OBJECT (wig->html), "link_clicked",
+										G_CALLBACK (html_link_clicked_cb), wig);
 
-	g_signal_connect (G_OBJECT(wig->html), "submit",
-			G_CALLBACK (submit_clicked_cb), wig);
+	g_signal_connect (G_OBJECT (wig->html), "submit",
+										G_CALLBACK (submit_clicked_cb), wig);
 
-	g_signal_connect (G_OBJECT(wig->html), "url_requested",
-			G_CALLBACK (html_url_requested_cb), wig);
+	g_signal_connect (G_OBJECT (wig->html), "url_requested",
+										G_CALLBACK (html_url_requested_cb), wig);
 
-	g_signal_connect(G_OBJECT(wig->html), "on_url",
-		G_CALLBACK(html_on_url_cb), wig);
+	g_signal_connect (G_OBJECT (wig->html), "on_url",
+										G_CALLBACK (html_on_url_cb), wig);
 
-	g_signal_connect(G_OBJECT(wig->html), "focus_out_event",
-		G_CALLBACK(hover_loose_focus), wig);
+	g_signal_connect (G_OBJECT (wig->html), "focus_out_event",
+										G_CALLBACK (hover_loose_focus), wig);
 
-	gtk_widget_show (GTK_WIDGET(wig->html));
+	gtk_widget_show (GTK_WIDGET (wig->html));
 	gtk_widget_show (jnl_top);
 
 	/* ---------------------------------------------------- */
@@ -1195,107 +1215,123 @@ do_show_report (const char * report, GttPlugin *plg,
 
 	glxml = gtt_glade_xml_new ("glade/journal.glade", "Publish Dialog");
 	wig->publish_popup = glade_xml_get_widget (glxml, "Publish Dialog");
-	wig->publish_entry = GTK_ENTRY(glade_xml_get_widget (glxml, "url entry"));
+	wig->publish_entry = GTK_ENTRY (glade_xml_get_widget (glxml, "url entry"));
 
 	glade_xml_signal_connect_data (glxml, "on_pub_help_clicked",
-	        GTK_SIGNAL_FUNC (gtt_help_popup), NULL);
+																 GTK_SIGNAL_FUNC (gtt_help_popup), NULL);
 
 	glade_xml_signal_connect_data (glxml, "on_pub_cancel_clicked",
-	        GTK_SIGNAL_FUNC (on_pub_cancel_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (on_pub_cancel_clicked_cb),
+																 wig);
 
 	glade_xml_signal_connect_data (glxml, "on_pub_ok_clicked",
-	        GTK_SIGNAL_FUNC (on_pub_ok_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (on_pub_ok_clicked_cb), wig);
 
 	/* ---------------------------------------------------- */
 	/* This is the popup menu that says 'edit/delete/merge' */
 	/* for intervals */
 
 	glxml = gtt_glade_xml_new ("glade/interval_popup.glade", "Interval Popup");
-	wig->interval_popup = glade_xml_get_widget (glxml, "Interval Popup");
-	wig->interval_paste = glade_xml_get_widget (glxml, "paste_memo");
-	wig->interval_merge_up = glade_xml_get_widget (glxml, "merge_up");
+	wig->interval_popup      = glade_xml_get_widget (glxml, "Interval Popup");
+	wig->interval_paste      = glade_xml_get_widget (glxml, "paste_memo");
+	wig->interval_merge_up   = glade_xml_get_widget (glxml, "merge_up");
 	wig->interval_merge_down = glade_xml_get_widget (glxml, "merge_down");
-	wig->interval_move_up = glade_xml_get_widget (glxml, "move_up");
-	wig->interval_move_down = glade_xml_get_widget (glxml, "move_down");
-	wig->interval=NULL;
+	wig->interval_move_up    = glade_xml_get_widget (glxml, "move_up");
+	wig->interval_move_down  = glade_xml_get_widget (glxml, "move_down");
+	wig->interval            = NULL;
 
 	glade_xml_signal_connect_data (glxml, "on_new_interval_activate",
-	        GTK_SIGNAL_FUNC (interval_new_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (interval_new_clicked_cb),
+																 wig);
 
 	glade_xml_signal_connect_data (glxml, "on_edit_activate",
-	        GTK_SIGNAL_FUNC (interval_edit_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (interval_edit_clicked_cb),
+																 wig);
 
 	glade_xml_signal_connect_data (glxml, "on_delete_activate",
-	        GTK_SIGNAL_FUNC (interval_delete_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (interval_delete_clicked_cb),
+																 wig);
 
-	glade_xml_signal_connect_data (glxml, "on_merge_up_activate",
-	        GTK_SIGNAL_FUNC (interval_merge_up_clicked_cb), wig);
+	glade_xml_signal_connect_data (
+			glxml, "on_merge_up_activate",
+			GTK_SIGNAL_FUNC (interval_merge_up_clicked_cb), wig);
 
-	glade_xml_signal_connect_data (glxml, "on_merge_down_activate",
-	        GTK_SIGNAL_FUNC (interval_merge_down_clicked_cb), wig);
+	glade_xml_signal_connect_data (
+			glxml, "on_merge_down_activate",
+			GTK_SIGNAL_FUNC (interval_merge_down_clicked_cb), wig);
 
 	glade_xml_signal_connect_data (glxml, "on_move_up_activate",
-	        GTK_SIGNAL_FUNC (interval_move_up_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (interval_move_up_clicked_cb),
+																 wig);
 
-	glade_xml_signal_connect_data (glxml, "on_move_down_activate",
-	        GTK_SIGNAL_FUNC (interval_move_down_clicked_cb), wig);
+	glade_xml_signal_connect_data (
+			glxml, "on_move_down_activate",
+			GTK_SIGNAL_FUNC (interval_move_down_clicked_cb), wig);
 
 	glade_xml_signal_connect_data (glxml, "on_insert_memo_activate",
-	        GTK_SIGNAL_FUNC (interval_insert_memo_cb), wig);
+																 GTK_SIGNAL_FUNC (interval_insert_memo_cb),
+																 wig);
 
 	glade_xml_signal_connect_data (glxml, "on_paste_memo_activate",
-	        GTK_SIGNAL_FUNC (interval_paste_memo_cb), wig);
+																 GTK_SIGNAL_FUNC (interval_paste_memo_cb),
+																 wig);
 
 	/* ---------------------------------------------------- */
 	/* This is the popup menu that says 'edit/delete/merge' */
 	/* for tasks */
 
-	glxml = gtt_glade_xml_new ("glade/task_popup.glade", "Task Popup");
+	glxml           = gtt_glade_xml_new ("glade/task_popup.glade", "Task Popup");
 	wig->task_popup = glade_xml_get_widget (glxml, "Task Popup");
 	wig->task_delete_memo = glade_xml_get_widget (glxml, "delete_memo");
-	wig->task_paste = glade_xml_get_widget (glxml, "paste");
-	wig->task=NULL;
+	wig->task_paste       = glade_xml_get_widget (glxml, "paste");
+	wig->task             = NULL;
 
 	glade_xml_signal_connect_data (glxml, "on_new_task_activate",
-	        GTK_SIGNAL_FUNC (task_new_task_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (task_new_task_clicked_cb),
+																 wig);
 
 	glade_xml_signal_connect_data (glxml, "on_edit_task_activate",
-	        GTK_SIGNAL_FUNC (task_edit_task_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (task_edit_task_clicked_cb),
+																 wig);
 
 	glade_xml_signal_connect_data (glxml, "on_delete_memo_activate",
-	        GTK_SIGNAL_FUNC (task_delete_memo_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (task_delete_memo_clicked_cb),
+																 wig);
 
-	glade_xml_signal_connect_data (glxml, "on_delete_times_activate",
-	        GTK_SIGNAL_FUNC (task_delete_times_clicked_cb), wig);
+	glade_xml_signal_connect_data (
+			glxml, "on_delete_times_activate",
+			GTK_SIGNAL_FUNC (task_delete_times_clicked_cb), wig);
 
 	glade_xml_signal_connect_data (glxml, "on_copy_activate",
-	        GTK_SIGNAL_FUNC (task_copy_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (task_copy_clicked_cb), wig);
 
 	glade_xml_signal_connect_data (glxml, "on_paste_activate",
-	        GTK_SIGNAL_FUNC (task_paste_clicked_cb), wig);
+																 GTK_SIGNAL_FUNC (task_paste_clicked_cb), wig);
 
 	glade_xml_signal_connect_data (glxml, "on_new_interval_activate",
-	        GTK_SIGNAL_FUNC (task_new_interval_cb), wig);
+																 GTK_SIGNAL_FUNC (task_new_interval_cb), wig);
 
 	/* ---------------------------------------------------- */
 	wig->hover_help_window = NULL;
-	wig->hover_timeout_id = 0;
+	wig->hover_timeout_id  = 0;
 
 	/* ---------------------------------------------------- */
 	/* Finally ... display the actual journal */
 
-	wig->prj = prj;
-	wig->filepath = g_strdup (report);
+	wig->prj               = prj;
+	wig->filepath          = g_strdup (report);
 	if (kvpf)
 	{
-		if (wig->gh->kvp) kvp_frame_delete (wig->gh->kvp);
+		if (wig->gh->kvp)
+			kvp_frame_delete (wig->gh->kvp);
 		wig->gh->kvp = kvpf;
 	}
-	wig->gh->did_query = did_query;
+	wig->gh->did_query    = did_query;
 	wig->gh->query_result = prjlist;
 
 	/* XXX should add notifiers for prjlist too ?? Yes we should */
-	if (prj) gtt_project_add_notifier (prj, redraw, wig);
+	if (prj)
+		gtt_project_add_notifier (prj, redraw, wig);
 	gtt_ghtml_display (wig->gh, report, prj);
 
 	/* Can only set editable *after* there's content in the window */
@@ -1310,25 +1346,27 @@ gtt_ghtml_resolve_path (const char *path_frag, const char *reference_path)
 	const GList *list;
 	char buff[PATH_MAX], *path;
 
-	if (!path_frag) return NULL;
+	if (!path_frag)
+		return NULL;
 
 	/* First, look for path_frag in the reference path. */
 	if (reference_path)
 	{
-		char * p;
+		char *p;
 		strncpy (buff, reference_path, PATH_MAX);
 		p = strrchr (buff, '/');
 		if (p)
 		{
 			p++;
-			strncpy (p, path_frag, PATH_MAX-(p-buff));
-			if (g_file_test ((buff), G_FILE_TEST_EXISTS)) return g_strdup (buff);
+			strncpy (p, path_frag, PATH_MAX - (p - buff));
+			if (g_file_test ((buff), G_FILE_TEST_EXISTS))
+				return g_strdup (buff);
 		}
 	}
 
 	/* Next, check each language that the user is willing to look at. */
 	list = gnome_i18n_get_language_list ("LC_MESSAGES");
-	for ( ; list; list=list->next)
+	for (; list; list = list->next)
 	{
 		const char *lang = list->data;
 
@@ -1336,20 +1374,23 @@ gtt_ghtml_resolve_path (const char *path_frag, const char *reference_path)
 		/* Look in the local build dir first (for testing) */
 
 		snprintf (buff, PATH_MAX, "ghtml/%s/%s", lang, path_frag);
-		path = gnome_program_locate_file (NULL, GNOME_FILE_DOMAIN_DATADIR,
-						  buff, TRUE, NULL);
-		if (path) return path;
+		path = gnome_program_locate_file (NULL, GNOME_FILE_DOMAIN_DATADIR, buff,
+																			TRUE, NULL);
+		if (path)
+			return path;
 
 		snprintf (buff, PATH_MAX, "gnotime/ghtml/%s/%s", lang, path_frag);
-		path = gnome_program_locate_file (NULL, GNOME_FILE_DOMAIN_DATADIR,
-						  buff, TRUE, NULL);
-		if (path) return path;
+		path = gnome_program_locate_file (NULL, GNOME_FILE_DOMAIN_DATADIR, buff,
+																			TRUE, NULL);
+		if (path)
+			return path;
 
 		/* Backwards compat, check the gtt dir, not just the gnotime dir */
 		snprintf (buff, PATH_MAX, "gtt/ghtml/%s/%s", lang, path_frag);
-		path = gnome_program_locate_file (NULL, GNOME_FILE_DOMAIN_DATADIR,
-						  buff, TRUE, NULL);
-		if (path) return path;
+		path = gnome_program_locate_file (NULL, GNOME_FILE_DOMAIN_DATADIR, buff,
+																			TRUE, NULL);
+		if (path)
+			return path;
 
 		/* some users compile with path settings that gnome
 		 * cannot find.  In that case we have to supply a full
@@ -1358,12 +1399,12 @@ gtt_ghtml_resolve_path (const char *path_frag, const char *reference_path)
 		 *
 		 * -warlord 2001-11-29
 		 */
- 		snprintf (buff, PATH_MAX, GTTDATADIR "/ghtml/%s/%s", lang, path_frag);
-		if (g_file_test ((buff), G_FILE_TEST_EXISTS)) return g_strdup (buff);
+		snprintf (buff, PATH_MAX, GTTDATADIR "/ghtml/%s/%s", lang, path_frag);
+		if (g_file_test ((buff), G_FILE_TEST_EXISTS))
+			return g_strdup (buff);
 	}
-	return g_strdup(path_frag);
+	return g_strdup (path_frag);
 }
-
 
 /* XXX The show_report routine should probably be using data pulled from
  * GConf, in the same way that the user-defined items are obtained.
@@ -1375,21 +1416,21 @@ show_report (GtkWidget *w, gpointer data)
 {
 	char *report_file = data;
 	GttProject *prj;
-	char * path;
+	char *path;
 
-	prj = gtt_projects_tree_get_selected_project (projects_tree);
+	prj  = gtt_projects_tree_get_selected_project (projects_tree);
 
 	path = gtt_ghtml_resolve_path (report_file, NULL);
 	do_show_report (path, NULL, NULL, prj, FALSE, NULL);
 }
 
 void
-invoke_report(GtkWidget *widget, gpointer data)
+invoke_report (GtkWidget *widget, gpointer data)
 {
 	GttProject *prj;
 	GttPlugin *plg = data;
 
-	prj = gtt_projects_tree_get_selected_project (projects_tree);
+	prj            = gtt_projects_tree_get_selected_project (projects_tree);
 
 	/* Do not gnome-filepath this, this is for user-defined reports */
 	do_show_report (plg->path, plg, NULL, prj, FALSE, NULL);

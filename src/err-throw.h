@@ -19,7 +19,8 @@
 #ifndef GTT_ERR_THROW_H_
 #define GTT_ERR_THROW_H_
 
-typedef enum {
+typedef enum
+{
 	GTT_NO_ERR = 0,
 	GTT_CANT_OPEN_FILE,
 	GTT_CANT_WRITE_FILE,
@@ -29,7 +30,6 @@ typedef enum {
 	GTT_UNKNOWN_VALUE,
 	GTT_CANT_WRITE_CONFIG
 } GttErrCode;
-
 
 /*
  * These two routines can be used to implement a poor-man's
@@ -47,14 +47,12 @@ GttErrCode gtt_err_get_code (void);
 
 void gtt_err_set_code (GttErrCode);
 
-
 /* The gtt_err_to_string() routine returns a handy-dandy human-readable
  *    error message, suitable for framing.  Be sure to free the returned
  *    string using g_free when done.
  */
 
-char * gtt_err_to_string (GttErrCode code, const char * filename);
-
+char *gtt_err_to_string (GttErrCode code, const char *filename);
 
 /* =========================== END OF FILE ======================== */
 

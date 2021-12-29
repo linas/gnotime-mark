@@ -3,13 +3,14 @@
  * it allows playing with the API.  It shows how to use the GnomeVFS API
  * in a client such as GnoTime.
  *
- * This is not a part of the standard GnoTime distribution, its just for hacking around.
+ * This is not a part of the standard GnoTime distribution, its just for
+ * hacking around.
  */
 /* ------------------------------------------------------------------ */
-#include <sys/types.h>
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include <sys/types.h>
 
 /* See http://developer.gnome.org/doc/API/2.0/gnome-vfs-2.0/
  * for a good set of API documentation for GnomeVFS clients.
@@ -21,13 +22,13 @@
  */
 
 void
-gtt_save_buffer (const gchar *uri, const char * buf)
+gtt_save_buffer (const gchar *uri, const char *buf)
 {
-	GnomeVFSHandle   *handle;
-	GnomeVFSResult    result;
+	GnomeVFSHandle *handle;
+	GnomeVFSResult result;
 
 	GnomeVFSURI *parsed_uri;
-	parsed_uri = gnome_vfs_uri_new (uri);
+	parsed_uri      = gnome_vfs_uri_new (uri);
 
 	gboolean exists = gnome_vfs_uri_exists (parsed_uri);
 	if (exists)
@@ -36,33 +37,32 @@ gtt_save_buffer (const gchar *uri, const char * buf)
 	}
 
 	// result = gnome_vfs_open (&handle, uri, GNOME_VFS_OPEN_WRITE);
-	result = gnome_vfs_create (&handle, uri, GNOME_VFS_OPEN_WRITE,
-	                 FALSE, 0644);
+	result = gnome_vfs_create (&handle, uri, GNOME_VFS_OPEN_WRITE, FALSE, 0644);
 
 	if (GNOME_VFS_OK != result)
 	{
-		const gchar * errmsg = gnome_vfs_result_to_string (result);
-printf ("duuude pen error=%s\n", errmsg);
+		const gchar *errmsg = gnome_vfs_result_to_string (result);
+		printf ("duuude pen error=%s\n", errmsg);
 		return;
 	}
 
-	GnomeVFSFileSize buflen = strlen (buf);
+	GnomeVFSFileSize buflen        = strlen (buf);
 	GnomeVFSFileSize bytes_written = 0;
-	size_t off = 0;
+	size_t off                     = 0;
 	while (GNOME_VFS_OK == result)
 	{
-		result = gnome_vfs_write (handle, &buf[off],
-		                         buflen, &bytes_written);
+		result = gnome_vfs_write (handle, &buf[off], buflen, &bytes_written);
 		off += bytes_written;
 		buflen -= bytes_written;
 
 		printf ("duude wrote %lld bytes left=%d\n", bytes_written, buflen);
-		if (0>= buflen) break;
+		if (0 >= buflen)
+			break;
 	}
 	if (GNOME_VFS_OK != result)
 	{
-		const gchar * errmsg = gnome_vfs_result_to_string (result);
-printf ("duuude write error=%s\n", errmsg);
+		const gchar *errmsg = gnome_vfs_result_to_string (result);
+		printf ("duuude write error=%s\n", errmsg);
 		return;
 	}
 	gnome_vfs_close (handle);
@@ -73,18 +73,17 @@ printf ("duuude write error=%s\n", errmsg);
 void
 load_gorp (const gchar *uri)
 {
-	GnomeVFSHandle   *handle;
-	GnomeVFSResult    result;
-	gchar             buffer[BUF_SIZE];
-	GnomeVFSFileSize  bytes_read;  /* actually a long long */
+	GnomeVFSHandle *handle;
+	GnomeVFSResult result;
+	gchar buffer[BUF_SIZE];
+	GnomeVFSFileSize bytes_read; /* actually a long long */
 
 	result = gnome_vfs_open (&handle, uri, GNOME_VFS_OPEN_READ);
 
-printf ("duude attempt to read %s\n", uri);
+	printf ("duude attempt to read %s\n", uri);
 	while (GNOME_VFS_OK == result)
 	{
-		result = gnome_vfs_read (handle, buffer,
-		                         BUF_SIZE, &bytes_read);
+		result = gnome_vfs_read (handle, buffer, BUF_SIZE, &bytes_read);
 
 		printf ("duude got %lld %s\n", bytes_read, buffer);
 	}
@@ -94,21 +93,21 @@ printf ("duude attempt to read %s\n", uri);
 int
 main (int argc, char **argv)
 {
-	if (argc < 2) {
-	         g_print ("Run with %s <uri>\n", argv[0]);
-	          exit (1);
+	if (argc < 2)
+	{
+		g_print ("Run with %s <uri>\n", argv[0]);
+		exit (1);
 	}
 
-	 gnome_vfs_init ();
+	gnome_vfs_init ();
 
-	 // load_gorp (argv[1]);
-	 char *msg="qewrtyuiop duuuude";
-	 gtt_save_buffer (argv[1], msg);
+	// load_gorp (argv[1]);
+	char *msg = "qewrtyuiop duuuude";
+	gtt_save_buffer (argv[1], msg);
 
-	  return 0;
+	return 0;
 }
 /* ------------------------------------------------------------------ */
-
 
 /*
  To compile the example:

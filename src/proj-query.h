@@ -19,8 +19,8 @@
 #ifndef GTT_PROJ_QUERY_H_
 #define GTT_PROJ_QUERY_H_
 
-#include <glib.h>
 #include "proj.h"
+#include <glib.h>
 
 /* This file contains routines that return various info about
  * the data in the system.  In some fancier world, these would
@@ -32,13 +32,12 @@
  * future.)
  */
 
-
 /* The gtt_project_get_unfinished() routine returns a list
  *    of projects that are not marked as 'completed' or
  *    'cancelled'.  The returned list is a flat list, not
  *    a heirarchical list.
  */
 
-GList * gtt_project_get_unfinished (void);
+GList *gtt_project_get_unfinished (void);
 
 #endif // GTT_PROJ_QUERY_H_

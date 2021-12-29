@@ -21,8 +21,8 @@
 #include <glib.h>
 
 #include "cur-proj.h"
-#include "proj.h"
 #include "proj-query.h"
+#include "proj.h"
 
 /* =========================================================== */
 

@@ -1,60 +1,91 @@
-/*   Implement a catch-throw-like error mechanism for gtt
- *   Copyright (C) 2001 Linas Vepstas
+/* Implement a catch-throw-like error mechanism for gtt
  *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
+ * Copyright (C) 2001 Linas Vepstas
+ * Copyright (C) 2021      Markus Prasser
  *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, write to the Free Software
- *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-#include "config.h"
-
-#include <glib.h>
-#include <gnome.h> /* needed only to define the _() macro */
 
 #include "err-throw.h"
 
+#include <glib/gi18n.h>
+
 static GttErrCode err = GTT_NO_ERR;
 
-void
-gtt_err_set_code (GttErrCode code)
-{
-	/* clear the error if requested. */
-	if (GTT_NO_ERR == code)
-	{
-		err = GTT_NO_ERR;
-		return;
-	}
-
-	/* if the error code is already set, don't over-write it */
-	if (GTT_NO_ERR != err)
-		return;
-
-	/* Otherwise set it. */
-	err = code;
-}
-
+/**
+ * @brief Retrieve the most recently set error code
+ * @return The most recently set error code
+ */
 GttErrCode
 gtt_err_get_code (void)
 {
 	return err;
 }
 
-/* ================================================================ */
-
-char *
-gtt_err_to_string (GttErrCode code, const char *filename)
+/**
+ * @brief Set an error code
+ *
+ * In conjunction with gtt_err_get_code this can be used to implement a
+ * poor-man's try-catch block as follows:
+ *
+ *     gtt_err_set_code (GTT_NO_ERR);  // Start of try block
+ *     {
+ *       // Do stuff ...
+ *     }
+ *     switch (gtt_err_get_code()) { // Catch block
+ *       case GTT_NO ERR: break;
+ *       case GTT_BOGUS_ERROR:
+ *       {
+ *         // Try to recover...
+ *       }
+ *     }
+ *
+ * @param[in] code
+ */
+void
+gtt_err_set_code (const GttErrCode code)
 {
-	char *ret = NULL;
+	// Clear the error if requested
+	if (GTT_NO_ERR == code)
+	{
+		err = GTT_NO_ERR;
+		return;
+	}
+
+	// If an error code is set already, don't over-write it
+	if (GTT_NO_ERR != err)
+	{
+		return;
+	}
+
+	// Otherwise set the new error code
+	err = code;
+}
+
+/**
+ * @brief Retrieve a human-readable message for a specific error
+ * @param[in] code The error code for which a human-readable representation
+ * shall be created
+ * @param[in] filename The name or path of a file related to the error
+ * @return A newly allocated string with the error message
+ */
+gchar *
+gtt_err_to_string (const GttErrCode code, const char *const filename)
+{
+	gchar *ret = NULL;
+
 	switch (code)
 	{
 	case GTT_NO_ERR:
@@ -94,7 +125,6 @@ gtt_err_to_string (GttErrCode code, const char *filename)
 													 filename);
 		break;
 	}
+
 	return ret;
 }
-
-/* =========================== END OF FILE ======================== */

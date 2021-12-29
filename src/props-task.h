@@ -17,8 +17,8 @@
  */
 
 
-#ifndef __PROPS_TASK_H__
-#define __PROPS_TASK_H__
+#ifndef GTT_PROPS_TASK_H_
+#define GTT_PROPS_TASK_H_
 
 #include "proj.h"
 
@@ -32,4 +32,4 @@ void prop_task_dialog_show(GttTask *task);
 void gtt_diary_timer_callback (gpointer);
 
 
-#endif /* __PROPS_TASK_H__ */
+#endif // GTT_PROPS_TASK_H_

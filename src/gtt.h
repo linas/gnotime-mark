@@ -16,8 +16,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __GTT_H__
-#define __GTT_H__
+#ifndef GTT_GTT_H_
+#define GTT_GTT_H_
 
 
 #include <gnome.h>
@@ -60,4 +60,4 @@ void unlock_gtt(void);
 const char *gtt_gettext(const char *s);
 
 
-#endif /* __GTT_H__ */
+#endif // GTT_GTT_H_

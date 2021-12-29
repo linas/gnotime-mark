@@ -16,6 +16,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef GTT_ERR_THROW_H_
+#define GTT_ERR_THROW_H_
 
 typedef enum {
 	GTT_NO_ERR = 0,
@@ -55,3 +57,5 @@ char * gtt_err_to_string (GttErrCode code, const char * filename);
 
 
 /* =========================== END OF FILE ======================== */
+
+#endif // GTT_ERR_THROW_H_

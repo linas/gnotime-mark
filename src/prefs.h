@@ -17,8 +17,8 @@
  */
 
 
-#ifndef __GLOBAL_PREFS_H__
-#define __GLOBAL_PREFS_H__
+#ifndef GTT_PREFS_H_
+#define GTT_PREFS_H_
 
 
 extern int config_show_secs;
@@ -85,4 +85,4 @@ void prefs_update_projects_view_columns (void);
 void prefs_update_projects_view (void);
 void prefs_set_show_secs (void);
 
-#endif /* __GLOBAL_PREFS_H__ */
+#endif // GTT_PREFS_H_

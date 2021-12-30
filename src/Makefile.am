@@ -54,6 +54,7 @@ noinst_HEADERS =      \
 	cur-proj.h         \
 	dialog.h           \
 	err-throw.h        \
+	err.h              \
 	export.h           \
 	file-io.h          \
 	gconf-gnomeui.h    \

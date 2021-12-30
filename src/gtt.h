@@ -27,10 +27,6 @@
 
 #define XML_DATA_FILENAME "gnotime.d/gnotime-data.xml"
 
-/* err.c */
-
-void err_init (void);
-
 /* main.c */
 
 /* The save_all() routine will write out all state to files.

@@ -26,6 +26,7 @@
 #include "export.h"
 #include "ghtml.h"
 #include "proj.h"
+#include "projects-tree.h"
 
 /* Project data export */
 

@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
+#include "proj.h"
 #include "projects-tree.h"
 #include "timer.h"
 

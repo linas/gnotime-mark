@@ -19,7 +19,7 @@
 #ifndef GTT_PROPS_PROJ_H_
 #define GTT_PROPS_PROJ_H_
 
-#include "proj.h"
+typedef struct gtt_project_s GttProject;
 
 /* pop up a dialog box for editing a project */
 /* currently, this uses the same dailog over & over, we should probably

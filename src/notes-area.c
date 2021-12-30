@@ -25,6 +25,7 @@
 #include "menus.h"
 #include "notes-area.h"
 #include "proj.h"
+#include "projects-tree.h"
 #include "props-task.h"
 #include "util.h"
 

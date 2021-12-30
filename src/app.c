@@ -41,6 +41,7 @@
 #include "proj.h"
 #include "projects-tree.h"
 #include "props-proj.h"
+#include "status-icon.h"
 #include "timer.h"
 #include "toolbar.h"
 #include "util.h"

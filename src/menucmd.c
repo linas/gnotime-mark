@@ -31,6 +31,7 @@
 #include "menus.h"
 #include "prefs.h"
 #include "proj.h"
+#include "projects-tree.h"
 #include "props-proj.h"
 #include "timer.h"
 #include "toolbar.h"

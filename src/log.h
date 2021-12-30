@@ -19,7 +19,7 @@
 #ifndef GTT_LOG_H_
 #define GTT_LOG_H_
 
-#include "proj.h"
+typedef struct gtt_project_s GttProject;
 
 void log_proj (GttProject *proj);
 void log_start (void);

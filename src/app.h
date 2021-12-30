@@ -20,10 +20,11 @@
 #ifndef GTT_APP_H_
 #define GTT_APP_H_
 
-#include "notes-area.h"
-#include "proj.h"
-#include "status-icon.h"
-#include <gnome.h>
+#include <gtk/gtk.h>
+
+typedef struct NotesArea_s NotesArea;
+typedef struct gtt_project_s GttProject;
+typedef struct _GttProjectsTree GttProjectsTree;
 
 extern NotesArea *global_na; /* global ptr to notes GUI area */
 extern GttProjectsTree *projects_tree;

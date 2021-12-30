@@ -29,8 +29,7 @@
 #ifndef GTT_STATUS_ICON_H_
 #define GTT_STATUS_ICON_H_
 
-#include "proj.h"
-#include <glib.h>
+typedef struct gtt_project_s GttProject;
 
 void gtt_status_icon_create ();
 void gtt_status_icon_destroy ();

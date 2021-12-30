@@ -37,6 +37,7 @@
 #include "menus.h"
 #include "plug-in.h"
 #include "proj.h"
+#include "projects-tree.h"
 #include "props-invl.h"
 #include "props-task.h"
 #include "util.h"

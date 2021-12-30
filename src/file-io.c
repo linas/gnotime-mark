@@ -33,10 +33,12 @@
 #include "gconf-io.h"
 #include "gtt.h"
 #include "menus.h"
+#include "notes-area.h"
 #include "plug-in.h"
 #include "prefs.h"
 #include "proj.h"
 #include "proj_p.h"
+#include "projects-tree.h"
 #include "timer.h"
 #include "toolbar.h"
 

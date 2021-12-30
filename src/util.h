@@ -20,7 +20,8 @@
 #define GTT_UTIL_H_
 
 #include <glade/glade.h>
-#include <gtk/gtktext.h>
+
+#include <gtk/gtk.h>
 
 /* ------------------------------------------------------------------ */
 /* some gtk-like utilities */

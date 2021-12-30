@@ -19,7 +19,9 @@
 #ifndef GTT_PROPS_TASK_H_
 #define GTT_PROPS_TASK_H_
 
-#include "proj.h"
+#include <glib.h>
+
+typedef struct gtt_task_s GttTask;
 
 /* pop up a dialog box for editing a task */
 /* currently, this uses the same dailog over & over, we should probably

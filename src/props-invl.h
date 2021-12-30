@@ -19,7 +19,9 @@
 #ifndef GTT_PROPS_INVL_H_
 #define GTT_PROPS_INVL_H_
 
-#include "proj.h"
+#include <glib-object.h>
+
+typedef struct gtt_interval_s GttInterval;
 
 typedef struct EditIntervalDialog_s EditIntervalDialog;
 

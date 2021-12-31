@@ -16,7 +16,22 @@
  */
 
 #include "interval.h"
+#include "proj.h"
 #include "proj_p.h"
+
+static void gtt_interval_remove_from_parent_task (GttInterval *ivl);
+
+static void
+gtt_interval_remove_from_parent_task (GttInterval *ivl)
+{
+	if (NULL == ivl->parent)
+	{
+		return;
+	}
+
+	gtt_task_remove_interval (ivl->parent, ivl);
+	ivl->parent = NULL;
+}
 
 GttInterval *
 gtt_interval_new (void)

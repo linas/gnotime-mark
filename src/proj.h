@@ -151,6 +151,8 @@ const char *gtt_project_get_desc (GttProject *);
 const char *gtt_project_get_notes (GttProject *);
 const char *gtt_project_get_custid (GttProject *);
 
+void gtt_project_modified (GttProject *prj);
+
 /* The gtt_project_compat_set_secs() routine provides a
  *    backwards-compatible routine for setting the total amount of
  *    time spent on a project.  It does this by creating a new task,
@@ -308,6 +310,7 @@ int gtt_project_foreach_subproject_interval (GttProject *, GttIntervalCB,
 void gtt_project_timer_start (GttProject *);
 void gtt_project_timer_update (GttProject *);
 void gtt_project_timer_stop (GttProject *);
+void gtt_project_refresh_time (GttProject *prj);
 
 /* The gtt_project_get_secs_day() routine returns the
  *    number of seconds spent on this project today,
@@ -549,6 +552,8 @@ GttProject *gtt_task_get_parent (GttTask *);
 GList *gtt_task_get_intervals (GttTask *);
 void gtt_task_add_interval (GttTask *, GttInterval *);
 void gtt_task_append_interval (GttTask *, GttInterval *);
+void gtt_task_remove_interval (GttTask *tsk, const GttInterval *ivl);
+GttInterval *gtt_task_scrub_intervals (GttTask *tsk, GttInterval *handle);
 
 /* gtt_task_get_secs_ever() adds up and returns the total number of
  * seconds in the intervals in this task. */

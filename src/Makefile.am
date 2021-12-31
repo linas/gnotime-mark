@@ -22,6 +22,7 @@ gnotime_SOURCES =     \
 	ghtml.c            \
 	ghtml-deprecated.c \
 	idle-dialog.c      \
+	interval.c         \
 	journal.c          \
 	log.c              \
 	main.c             \
@@ -64,6 +65,7 @@ noinst_HEADERS =      \
 	ghtml-deprecated.h \
 	gtt.h              \
 	idle-dialog.h      \
+	interval.h         \
 	journal.h          \
 	log.h              \
 	menucmd.h          \

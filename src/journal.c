@@ -32,6 +32,7 @@
 #include "app.h"
 #include "dialog.h"
 #include "ghtml.h"
+#include "interval.h"
 #include "journal.h"
 #include "menus.h"
 #include "plug-in.h"

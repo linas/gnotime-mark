@@ -28,6 +28,7 @@
 #include <qof.h>
 
 #include "err-throw.h"
+#include "interval.h"
 #include "log.h"
 #include "prefs.h" /* XXX tmp hack for config_* */
 #include "proj.h"
@@ -2631,19 +2632,6 @@ gtt_task_get_secs_latest (GttTask *tsk)
 }
 
 /* =========================================================== */
-
-GttInterval *
-gtt_interval_new (void)
-{
-	GttInterval *ivl;
-	ivl          = g_new0 (GttInterval, 1);
-	ivl->parent  = NULL;
-	ivl->start   = 0;
-	ivl->stop    = 0;
-	ivl->running = FALSE;
-	ivl->fuzz    = 0;
-	return ivl;
-}
 
 void
 gtt_interval_destroy (GttInterval *ivl)

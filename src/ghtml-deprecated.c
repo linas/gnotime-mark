@@ -30,6 +30,7 @@
 #include "ghtml-deprecated.h"
 #include "ghtml.h"
 #include "gtt.h"
+#include "interval.h"
 #include "proj.h"
 #include "util.h"
 

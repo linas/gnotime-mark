@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "interval.h"
 #include "proj.h"
 #include "props-invl.h"
 #include "util.h"

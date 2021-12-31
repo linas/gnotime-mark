@@ -21,6 +21,7 @@
 #include <glib.h>
 #include <limits.h>
 
+#include "interval.h"
 #include "prefs.h" /* XXX tmp hack for global config_daystart */
 #include "proj.h"
 #include "proj_p.h"

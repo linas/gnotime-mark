@@ -18,8 +18,36 @@
 #ifndef GTT_INTERVAL_H_
 #define GTT_INTERVAL_H_
 
+#include <glib.h>
+
+#include <time.h>
+
 typedef struct gtt_interval_s GttInterval;
+typedef struct gtt_task_s GttTask;
 
 GttInterval *gtt_interval_new (void);
+void gtt_interval_destroy (GttInterval *ivl);
+
+void gtt_interval_freeze (GttInterval *ivl);
+GttInterval *gtt_interval_thaw (GttInterval *ivl);
+
+GttTask *gtt_interval_get_parent (const GttInterval *ivl);
+
+int gtt_interval_get_fuzz (const GttInterval *ivl);
+void gtt_interval_set_fuzz (GttInterval *ivl, int fuzz);
+gboolean gtt_interval_is_running (const GttInterval *ivl);
+void gtt_interval_set_running (GttInterval *ivl, gboolean running);
+time_t gtt_interval_get_start (const GttInterval *ivl);
+void gtt_interval_set_start (GttInterval *ivl, time_t start);
+time_t gtt_interval_get_stop (const GttInterval *ivl);
+void gtt_interval_set_stop (GttInterval *ivl, time_t stop);
+
+gboolean gtt_interval_is_first_interval (const GttInterval *ivl);
+gboolean gtt_interval_is_last_interval (const GttInterval *ivl);
+
+GttInterval *gtt_interval_merge_down (GttInterval *ivl);
+GttInterval *gtt_interval_merge_up (GttInterval *ivl);
+GttInterval *gtt_interval_new_insert_after (GttInterval *where);
+void gtt_interval_split (GttInterval *ivl, GttTask *newtask);
 
 #endif // GTT_INTERVAL_H_

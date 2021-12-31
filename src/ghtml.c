@@ -37,6 +37,7 @@
 #include "ghtml-deprecated.h"
 #include "ghtml.h"
 #include "gtt.h"
+#include "interval.h"
 #include "prefs.h"
 #include "proj.h"
 #include "projects-tree.h"

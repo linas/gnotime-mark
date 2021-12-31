@@ -34,6 +34,7 @@
 #include "cur-proj.h"
 #include "dialog.h"
 #include "idle-dialog.h"
+#include "interval.h"
 #include "proj.h"
 #include "util.h"
 

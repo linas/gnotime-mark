@@ -84,6 +84,49 @@ gtt_glade_xml_new (const char *filename, const char *widget)
 	return xml;
 }
 
+GtkBuilder *
+gtt_gtk_builder_new (const gchar *const filename)
+{
+	g_return_val_if_fail (NULL != filename, NULL);
+
+	GtkBuilder *bldr = NULL;
+
+	if (g_file_test (filename, G_FILE_TEST_EXISTS))
+	{
+		GError *error = NULL;
+		if (0 == gtk_builder_add_from_file (bldr, filename, &error))
+		{
+			g_warning (
+					"Failed to load GtkBuilder UI definition from file \"%s\": %s",
+					filename, error->message);
+			g_error_free (error);
+			error = NULL;
+			g_clear_object (&bldr);
+		}
+	}
+
+	if (NULL == bldr)
+	{
+		gchar *file   = g_build_filename (GTTGLADEDIR, filename, NULL);
+
+		GError *error = NULL;
+		if (0 == gtk_builder_add_from_file (bldr, filename, &error))
+		{
+			g_warning (
+					"Failed to load GtkBuilder UI definition from file \"%s\": %s", file,
+					error->message);
+			g_error_free (error);
+			error = NULL;
+			g_clear_object (&bldr);
+		}
+
+		g_free (file);
+		file = NULL;
+	}
+
+	return bldr;
+}
+
 /* ============================================================== */
 /* Used to be in qof, but is now deprecated there. */
 

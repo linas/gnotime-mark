@@ -73,14 +73,55 @@ class ApplicationWindow(Gtk.ApplicationWindow):
 
         self.set_default_size(485, 272)
 
+        widget = Toolbar()
+        widget.show()
+
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox.show()
+
+        vbox.pack_start(widget, True, False, 0)
+
+        self.add(vbox)
+
+class Toolbar(Gtk.Toolbar):
+    """Toolbar of the main application window
+
+    """
+    def __init__(self):
+        super().__init__()
+
+        position = 0
+
+        if config_show_toolbar:
+            if config_show_tb_new:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        "document-new", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", new_project)
+                btn.set_property("tooltip-text", "Create a New Project...")
+                btn.show()
+                self.insert(btn, position)
+                position += 1
+                separator = Gtk.SeparatorToolItem()
+                separator.show()
+                self.insert(separator, position)
+                position += 1
+
 def create_app_window(caller):
     """Create the application window upon application activation
 
     """
-    win = Gtk.ApplicationWindow()
+    win = ApplicationWindow()
     win.connect("destroy", Gtk.main_quit)
     win.show_all()
     caller.add_window(win)
+
+def new_project(_caller):
+    """Callback to create the new project dialog
+
+    """
 
 def main():
     """Script entry point of GnoTime

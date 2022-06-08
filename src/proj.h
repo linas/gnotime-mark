@@ -39,53 +39,6 @@
 #include <time.h>
 #endif /* TIME_WITH_SYS_TIME */
 
-
-/* hack alert -- these are hard-coded enums; they should
- * probably be replaced by a system of user-defined
- * enumerated values, especially for GttProjectStatus
- */
-
-
-typedef enum
-{
-	GTT_BILLABLE = 1,   /* billable time */
-	GTT_NOT_BILLABLE,   /* not billable to customer, internal only */
-	GTT_NO_CHARGE       /* shows on invoice as 'no charge/free' */
-} GttBillable;
-
-typedef enum
-{
-	GTT_REGULAR = 0,
-	GTT_OVERTIME,
-	GTT_OVEROVER,
-	GTT_FLAT_FEE
-} GttBillRate;
-
-typedef enum
-{
-	GTT_HOLD = 0,	 /* needs review, will not appear on invoice */
-	GTT_BILL = 1,    /* print this on invoice, its done, ready */
-	GTT_PAID         /* its been paid; do not print on invoice any more */
-} GttBillStatus;
-
-typedef enum
-{
-	GTT_UNDEFINED = 0,
-	GTT_LOW = 1,
-	GTT_MEDIUM,
-	GTT_HIGH
-} GttRank;
-
-typedef enum
-{
-	GTT_NO_STATUS = 0,
-	GTT_NOT_STARTED = 1,  /* hack alert-- we should allow */
-	GTT_IN_PROGRESS,      /* user-defined status states */
-	GTT_ON_HOLD,          /* wating for something */
-	GTT_CANCELLED,
-	GTT_COMPLETED
-} GttProjectStatus;
-
 /* -------------------------------------------------------- */
 /* Query related things -- under construction */
 

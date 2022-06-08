@@ -32,7 +32,58 @@
 import gi
 gi.require_version("Gtk", "3.0")
 
-from gi.repository import Gtk
+from enum import Enum, unique # pylint: disable=wrong-import-order, wrong-import-position
+from gi.repository import Gtk # pylint: disable=wrong-import-position
+
+@unique
+class BillRate(Enum):
+    """Enumeration of different types of bill rates
+
+    """
+    REGULAR = 0
+    OVERTIME = 1
+    OVEROVER = 2
+    FLAT_FEE = 3
+
+@unique
+class BillStatus(Enum):
+    """Enumeration reflecting the billing status of an entity
+
+    """
+    HOLD = 0 # Needs review, will not appear in invoice
+    BILL = 1 # Print on invoice
+    PAID = 2 # Paid already, don't print on invoice anymore
+
+@unique
+class Billable(Enum):
+    """Enumeration allowing to reflect if something is billable
+
+    """
+    BILLABLE = 1 # Billable time
+    NOT_BILLABLE = 2 # Not billable to customer, internal only
+    NO_CHARGE = 3 # Shows on invoice as "no charge/free"
+
+@unique
+class ProjectStatus(Enum):
+    """Enumeration allowing to describe the project status
+
+    """
+    NO_STATUS = 0
+    NOT_STARTED = 1
+    IN_PROGRESS = 2
+    ON_HOLD = 3
+    CANCELLED = 4
+    COMPLETED = 5
+
+@unique
+class Rank(Enum):
+    """Enumeration allowing to define importances and urgencies
+
+    """
+    UNDEFINED = 0
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
 
 # Global constants
 GTT_APP_NAME = "gnotime"

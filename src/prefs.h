@@ -43,17 +43,6 @@ extern int config_show_title_percent_complete;
 extern int config_show_title_urgency;
 extern int config_show_title_importance;
 extern int config_show_title_status;
-extern int config_show_toolbar;
-extern int config_show_tb_tips;
-extern int config_show_tb_new;
-extern int config_show_tb_ccp;
-extern int config_show_tb_journal;
-extern int config_show_tb_calendar;
-extern int config_show_tb_prop;
-extern int config_show_tb_timer;
-extern int config_show_tb_pref;
-extern int config_show_tb_help;
-extern int config_show_tb_exit;
 
 extern char *config_shell_start;
 extern char *config_shell_stop;

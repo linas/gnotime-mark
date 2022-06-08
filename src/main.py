@@ -40,6 +40,19 @@ GTT_APP_PROPER_NAME = "GnoTime"
 GTT_APP_TITLE = "Gnome Time Tracker"
 VERSION = "2.99.0"
 
+# Global variables
+config_show_tb_calendar = False
+config_show_tb_ccp = False
+config_show_tb_exit = True
+config_show_tb_help = True
+config_show_tb_journal = True
+config_show_tb_new = True
+config_show_tb_pref = False
+config_show_tb_prop = True
+config_show_tb_timer = True
+config_show_tb_tips = True
+config_show_toolbar = True
+
 class Application(Gtk.Application):
     """The GnoTime application class
 

@@ -118,10 +118,73 @@ def create_app_window(caller):
     win.show_all()
     caller.add_window(win)
 
+def grab_focus_cb(caller, wdgt):
+    """Callback which makes given widget grab focus
+
+    """
+    wdgt.grab_focus()
+
 def new_project(_caller):
     """Callback to create the new project dialog
 
     """
+    title = Gtk.Entry() # TODO: Add mechanism for history
+    desc = Gtk.Entry() # TODO: Add mechanism for history
+
+    diag = Gtk.Dialog(title="New Project...")
+    diag.add_button("OK", Gtk.ResponseType.OK)
+    diag.add_button("Cancel", Gtk.ResponseType.CANCEL)
+    diag.connect("response", project_name_desc)
+
+    vbox = diag.get_content_area()
+
+    title_label = Gtk.Label(label="Project Title")
+    desc_label = Gtk.Label(label="Description")
+
+    table = Gtk.Table(n_rows=2, n_columns=2, homogeneous=False)
+    table.attach(
+        title_label, 0, 1, 0, 1,
+        Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+        Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+        2, 1
+    )
+    table.attach(
+        title, 1, 2, 0, 1,
+        Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+        Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+        2, 1
+    )
+    table.attach(
+        desc_label, 0, 1, 1, 2,
+        Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+        Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+        2, 1
+    )
+    table.attach(
+        desc, 1, 2, 1, 2,
+        Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+        Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+        2, 1
+    )
+    vbox.pack_start(table, False, False, 2)
+    title_label.show()
+    title.show()
+    desc_label.show()
+    desc.show()
+    table.show()
+
+    title.grab_focus()
+
+    # Enter in the first entry forwards focus to the next one
+    title.connect("activate", grab_focus_cb, desc)
+
+    diag.run()
+
+def project_name_desc(_caller, response):
+    """Project creation callback
+
+    """
+    print("response: " + str(response))
 
 def main():
     """Script entry point of GnoTime

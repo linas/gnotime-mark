@@ -424,14 +424,6 @@ app_new(int argc, char *argv[], const char *geometry_string)
 	GtkVBox *status_vbox;
 	GtkStatusbar *grip;
 
-	app_window = gnome_app_new(GTT_APP_NAME, GTT_APP_TITLE " " VERSION);
-	gtk_window_set_wmclass(GTK_WINDOW(app_window),
-	                         GTT_APP_NAME, GTT_APP_PROPER_NAME);
-
-	/* 485 x 272 seems to be a good size to default to */
-	gtk_window_set_default_size(GTK_WINDOW(app_window), 485, 272);
-	gtk_window_set_resizable (GTK_WINDOW(app_window), TRUE);
-
 	/* build menus */
 	menus_create(GNOME_APP(app_window));
 

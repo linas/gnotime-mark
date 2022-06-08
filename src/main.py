@@ -34,6 +34,12 @@ gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gtk
 
+# Global constants
+GTT_APP_NAME = "gnotime"
+GTT_APP_PROPER_NAME = "GnoTime"
+GTT_APP_TITLE = "Gnome Time Tracker"
+VERSION = "2.99.0"
+
 class Application(Gtk.Application):
     """The GnoTime application class
 
@@ -45,6 +51,14 @@ class ApplicationWindow(Gtk.ApplicationWindow):
     """The main window of the Gtk application
 
     """
+    def __init__(self):
+        super().__init__()
+
+        self.set_title(GTT_APP_TITLE + " " + VERSION)
+
+        self.set_wmclass(GTT_APP_NAME, GTT_APP_PROPER_NAME)
+
+        self.set_default_size(485, 272)
 
 def create_app_window(caller):
     """Create the application window upon application activation

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""Rudimentary, temporay Python3 port of GnoTime
+
+"""
+
 ################################################################################
 #
 # GnoTime - a to-do list organizer, diary and billing system
@@ -25,8 +29,39 @@
 #
 ################################################################################
 
+import gi
+gi.require_version("Gtk", "3.0")
+
+from gi.repository import Gtk
+
+class Application(Gtk.Application):
+    """The GnoTime application class
+
+    """
+    def __init__(self):
+        super().__init__(application_id="com.github.goedson.gnotime")
+
+class ApplicationWindow(Gtk.ApplicationWindow):
+    """The main window of the Gtk application
+
+    """
+
+def create_app_window(caller):
+    """Create the application window upon application activation
+
+    """
+    win = Gtk.ApplicationWindow()
+    win.connect("destroy", Gtk.main_quit)
+    win.show_all()
+    caller.add_window(win)
+
 def main():
-    print("GnoTime")
+    """Script entry point of GnoTime
+
+    """
+    app = Application()
+    app.connect("activate", create_app_window)
+    app.run()
 
 if __name__ == "__main__":
     main()

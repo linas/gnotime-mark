@@ -117,12 +117,13 @@ class ApplicationWindow(Gtk.ApplicationWindow):
     """
     def __init__(self):
         super().__init__()
-
         self.set_title(GTT_APP_TITLE + " " + VERSION)
 
         self.set_wmclass(GTT_APP_NAME, GTT_APP_PROPER_NAME)
 
         self.set_default_size(485, 272)
+
+        # TODO: menus_create(GNOME_APP(app_window));
 
         widget = Toolbar()
         widget.show()
@@ -132,6 +133,60 @@ class ApplicationWindow(Gtk.ApplicationWindow):
 
         vbox.pack_start(widget, True, False, 0)
 
+        status_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        status_vbox.show()
+
+        labels = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        labels.show()
+
+        status_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        status_bar.show()
+        separator = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+        separator.show()
+        status_vbox.pack_start(separator, False, False, 0)
+        status_vbox.pack_start(labels, True, True, 0)
+        status_bar.pack_start(status_vbox, True, True, 0)
+
+        grip = Gtk.Statusbar()
+        # TODO: grip.set_has_resize_grip(True)
+        grip.show()
+        status_bar.pack_start(grip, False, False, 0)
+
+        status_day_time = Gtk.Label(label="00:00")
+        status_day_time.show()
+        labels.pack_start(status_day_time, False, True, 0)
+
+        status_project = Gtk.Label(label="Timer is not running")
+        status_project.show()
+        labels.pack_start(status_project, False, True, 10)
+
+        filler = Gtk.Label()
+        filler.show()
+        labels.pack_start(filler, True, True, 1)
+
+        # TODO: Check this and all other STOCK_MEDIA
+        status_timer = Gtk.Image.new_from_stock(
+            stock_id=Gtk.STOCK_MEDIA_RECORD, size=Gtk.IconSize.MENU
+        )
+        status_timer.show()
+        status_bar.pack_end(status_timer, False, False, 1)
+
+        # TODO: projects_tree = gtt_projects_tree_new();
+        # g_signal_connect(projects_tree, "columns-setup-done",
+        #     G_CALLBACK(projects_tree_columns_setup_done), NULL);
+        # gtk_tree_view_set_reorderable(GTK_TREE_VIEW (projects_tree), TRUE);
+        # g_signal_connect(projects_tree, "row-activated",
+        #     G_CALLBACK(projects_tree_row_activated), NULL);
+
+        # global_na = NotesArea()
+        # vpane = global_na.get_widget()
+        # vbox.pack_start(vpane, True, True, 0)
+
+        vbox.pack_end(status_bar, False, False, 2)
+
+        # TODO: global_na.add_projects_tree(projects_tree)
+
+        vbox.show()
         self.add(vbox)
 
 class Project: # pylint: disable=too-many-instance-attributes

@@ -134,6 +134,73 @@ class ApplicationWindow(Gtk.ApplicationWindow):
 
         self.add(vbox)
 
+class Project: # pylint: disable=too-many-instance-attributes
+    """Class representing a project
+
+    """
+    next_free_id = 1
+
+    def __init__(self):
+        self.title = ""
+        self.desc = ""
+        self.notes = ""
+        self.cust_id = None
+
+        self.min_interval = 3
+        self.auto_merge_interval = 60
+        self.auto_merge_gap = 60
+
+        self.billrate = 10.0
+        self.overtime_rate = 15.0
+        self.overover_rate = 20.0
+        self.flat_fee = 1000.0
+
+        self.estimated_start = -1
+        self.estimated_end = -1
+        self.due_date = -1
+        self.sizing = 0
+        self.percent_complete = 0
+        self.urgency = Rank.UNDEFINED
+        self.importance = Rank.UNDEFINED
+        self.status = ProjectStatus.NOT_STARTED
+
+        self.task_list = None
+        self.sub_projects = None
+        self.parent = None
+        self.listeners = None
+        self.private_data = None
+
+        self.being_destroyed = False
+        self.frozen = False
+        self.dirty_time = False
+
+        self.secs_ever = 0
+        self.secs_day = 0
+        self.secs_yesterday = 0
+        self.secs_week = 0
+        self.secs_lastweek = 0
+        self.secs_month = 0
+        self.secs_year = 0
+
+        self.proj_id = Project.next_free_id
+        Project.next_free_id += 1
+
+        # TODO: qof_instance_init (&self.inst, GTT_PROJECT_ID, global_book);
+
+    @staticmethod
+    def new_title_desc(title=None, description=None):
+        """Create a new Project instance with given name and description
+
+        """
+        proj = Project()
+
+        if title:
+            proj.title = title
+        if description:
+            proj.desc = description
+
+        return proj
+
 class Toolbar(Gtk.Toolbar):
     """Toolbar of the main application window
 

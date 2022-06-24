@@ -93,6 +93,7 @@ GTT_APP_TITLE = "Gnome Time Tracker"
 VERSION = "2.99.0"
 
 # Global variables
+app = None
 config_show_tb_calendar = False
 config_show_tb_ccp = False
 config_show_tb_exit = True
@@ -546,9 +547,12 @@ class Toolbar(Gtk.Toolbar):
                 position += 1
 
 def app_quit(_caller):
-    """TODO
+    """Save the configuration and projects and quit the application
 
     """
+    save_properties()
+    save_projects()
+    app.quit()
 
 def create_app_window(caller):
     """Create the application window upon application activation
@@ -667,6 +671,16 @@ def project_name_desc(_caller, response):
     """
     print("response: " + str(response))
 
+def save_properties():
+    """Save the application's configuration
+
+    """
+
+def save_projects():
+    """Save the project data
+
+    """
+
 def show_report(_caller, _report_file_name):
     """TODO
 
@@ -676,9 +690,10 @@ def main():
     """Script entry point of GnoTime
 
     """
+    global app # pylint: disable=global-statement
     app = Application()
     app.connect("activate", create_app_window)
-    app.run()
+    return app.run()
 
 if __name__ == "__main__":
     main()

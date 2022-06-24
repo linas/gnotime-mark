@@ -165,8 +165,8 @@ class ApplicationWindow(Gtk.ApplicationWindow):
         labels.pack_start(filler, True, True, 1)
 
         # TODO: Check this and all other STOCK_MEDIA
-        status_timer = Gtk.Image.new_from_stock(
-            stock_id=Gtk.STOCK_MEDIA_RECORD, size=Gtk.IconSize.MENU
+        status_timer = Gtk.Image.new_from_icon_name(
+            icon_name="media-record", size=Gtk.IconSize.MENU
         )
         status_timer.show()
         status_bar.pack_end(status_timer, False, False, 1)
@@ -178,9 +178,9 @@ class ApplicationWindow(Gtk.ApplicationWindow):
         # g_signal_connect(projects_tree, "row-activated",
         #     G_CALLBACK(projects_tree_row_activated), NULL);
 
-        # global_na = NotesArea()
-        # vpane = global_na.get_widget()
-        # vbox.pack_start(vpane, True, True, 0)
+        global_na = NotesArea()
+        global_na.show()
+        vbox.pack_start(global_na, True, True, 0)
 
         vbox.pack_end(status_bar, False, False, 2)
 
@@ -189,7 +189,141 @@ class ApplicationWindow(Gtk.ApplicationWindow):
         vbox.show()
         self.add(vbox)
 
-class Project: # pylint: disable=too-many-instance-attributes
+class NotesArea(Gtk.VPaned):
+    """Class for displaying a bunch of widget related to project notes
+
+    """
+    def __init__(self): # pylint: disable=too-many-locals,too-many-statements
+        super().__init__()
+
+        ctree_holder = Gtk.ScrolledWindow()
+        ctree_holder.show()
+        self.add1(ctree_holder)
+
+        leftright_pane = Gtk.HPaned()
+        leftright_pane.show()
+
+        vbox1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox1.show()
+
+        hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox1.show()
+
+        label1 = Gtk.Label(label="Project Title:")
+        label1.show()
+        hbox1.pack_start(label1, False, False, 0)
+
+        close_proj_button = Gtk.Button.new_from_icon_name(
+            "window-close", Gtk.IconSize.MENU
+        )
+        close_proj_button.set_property(
+            "tooltip-text", "Close the project subwindow"
+        )
+        close_proj_button.set_receives_default(True)
+        close_proj_button.set_relief(Gtk.ReliefStyle.NONE)
+        close_proj_button.show()
+        hbox1.pack_start(close_proj_button, False, False, 0)
+
+        proj_title_entry = Gtk.Entry()
+        proj_title_entry.set_property(
+            "tooltip-text", "Edit the project title in this box"
+        )
+        proj_title_entry.show()
+        hbox1.pack_end(proj_title_entry, True, True, 4)
+
+        vbox1.pack_start(hbox1, False, False, 0)
+
+        hbox3 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox3.show()
+
+        label3 = Gtk.Label(label="Desc:")
+        label3.show()
+        hbox3.pack_start(label3, False, False, 0)
+
+        proj_desc_entry = Gtk.Entry()
+        proj_desc_entry.set_property(
+            "tooltip-text", "Edit the project description"
+        )
+        proj_desc_entry.show()
+        hbox3.pack_start(proj_desc_entry, True, True, 4)
+
+        vbox1.pack_start(hbox3, False, False, 2)
+
+        scrolledwindow1 = Gtk.ScrolledWindow()
+        scrolledwindow1.set_shadow_type(Gtk.ShadowType.IN)
+        scrolledwindow1.show()
+
+        proj_notes_textview = Gtk.TextView()
+        proj_notes_textview.show()
+        scrolledwindow1.add(proj_notes_textview)
+
+        vbox1.pack_start(scrolledwindow1, True, True, 2)
+
+        leftright_pane.add1(vbox1)
+
+        vbox2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox2.show()
+
+        hbox2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox2.show()
+
+        label2 = Gtk.Label(label="Diary Entry:")
+        label2.show()
+        hbox2.pack_start(label2, False, False, 0)
+
+        diary_entry_combo = Gtk.ComboBox()
+        diary_entry_combo.show()
+        hbox2.pack_start(diary_entry_combo, True, True, 0)
+
+        edit_diary_entry_button = Gtk.Button.new_from_stock(
+            stock_id="gtk-edit"
+        )
+        # edit_diary_entry_button.set_property(
+        #     "events",
+            # GDK_POINTER_MOTION_MASK
+            # | GDK_POINTER_MOTION_HINT_MASK
+            # | GDK_BUTTON_PRESS_MASK
+            # | GDK_BUTTON_RELEASE_MASK
+        # )
+        edit_diary_entry_button.set_receives_default(True)
+        edit_diary_entry_button.show()
+        hbox2.pack_start(edit_diary_entry_button, False, False, 0)
+
+        new_diary_entry_button = Gtk.Button.new_from_icon_name(
+            icon_name="document-new", size=Gtk.IconSize.BUTTON
+        )
+        new_diary_entry_button.set_property(
+            "tooltip-text", "Create a new diary entry"
+        )
+        new_diary_entry_button.set_property(
+            "use-underline", True
+        )
+        hbox2.pack_start(new_diary_entry_button, False, False, 0)
+
+        close_diary_button = Gtk.Button.new_from_icon_name(
+            icon_name="window-close", size=Gtk.IconSize.BUTTON
+        )
+        close_diary_button.set_relief(Gtk.ReliefStyle.NONE)
+        close_diary_button.show()
+        hbox2.pack_start(close_diary_button, False, False, 0)
+
+        vbox2.pack_start(hbox2, False, True, 0)
+
+        scrolledwindow2 = Gtk.ScrolledWindow()
+        scrolledwindow2.set_shadow_type(Gtk.ShadowType.IN)
+        scrolledwindow2.show()
+
+        diary_notes_textview = Gtk.TextView()
+        diary_notes_textview.show()
+        scrolledwindow2.add(diary_notes_textview)
+
+        vbox2.pack_start(scrolledwindow2, True, True, 0)
+
+        leftright_pane.add2(vbox2)
+
+        self.add2(leftright_pane)
+
+class Project: # pylint: disable=too-few-public-methods,too-many-instance-attributes
     """Class representing a project
 
     """

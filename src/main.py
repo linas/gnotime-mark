@@ -86,6 +86,7 @@ class Rank(Enum):
     HIGH = 3
 
 # Global constants
+ACTIVITY_REPORT = "activity.ghtml"
 GTT_APP_NAME = "gnotime"
 GTT_APP_PROPER_NAME = "GnoTime"
 GTT_APP_TITLE = "Gnome Time Tracker"
@@ -394,8 +395,12 @@ class Toolbar(Gtk.Toolbar):
     """Toolbar of the main application window
 
     """
-    def __init__(self):
+    def __init__(self): # pylint: disable=too-many-branches,too-many-statements
         super().__init__()
+
+        self.spa = 0
+        self.spb = 0
+        self.spc = 0
 
         position = 0
 
@@ -414,7 +419,136 @@ class Toolbar(Gtk.Toolbar):
                 separator = Gtk.SeparatorToolItem()
                 separator.show()
                 self.insert(separator, position)
+                self.spa = position
                 position += 1
+            if config_show_tb_ccp:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        "edit-cut", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", cut_project)
+                btn.set_property("tooltip-text", "Cut Selected Project")
+                self.insert(btn, position)
+                position += 1
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        "edit-copy", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", copy_project)
+                btn.set_property("tooltip-text", "Copy Selected Project")
+                self.insert(btn, position)
+                position += 1
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        "edit-paste", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", paste_project)
+                btn.set_property("tooltip-text", "Paste Project")
+                self.insert(btn, position)
+                position += 1
+                separator = Gtk.SeparatorToolItem()
+                separator.show()
+                self.insert(separator, position)
+                self.spb = position
+                if self.spa:
+                    self.spb -= 1
+                position += 1
+            if config_show_tb_journal:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        # TODO: Proper icon "Activity Journal"
+                        "media-optical", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", show_report, ACTIVITY_REPORT)
+                btn.set_property("tooltip-text", "View and Edit Timestamp Logs")
+                self.insert(btn, position)
+                position += 1
+            if config_show_tb_prop:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        "document-properties", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", menu_properties)
+                btn.set_property("tooltip-text", "Edit Project Properties...")
+                self.insert(btn, position)
+                position += 1
+            if config_show_tb_timer:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        # TODO; Proper icon "Timer"
+                        "media-record", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", menu_toggle_timer)
+                btn.set_property("tooltip-text", "Start/Stop Timer")
+                self.insert(btn, position)
+                position += 1
+            if config_show_tb_calendar:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        # TODO; Proper icon "Calendar"
+                        "document-print", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", edit_calendar)
+                btn.set_property("tooltip-text", "View Calendar")
+                self.insert(btn, position)
+                position += 1
+            if (config_show_tb_timer # pylint: disable=too-many-boolean-expressions
+                    or config_show_tb_journal
+                    or config_show_tb_calendar
+                    or config_show_tb_prop) \
+                    and (config_show_tb_pref
+                         or config_show_tb_help
+                         or config_show_tb_exit):
+                separator = Gtk.SeparatorToolItem()
+                separator.show()
+                self.insert(separator, position)
+                self.spc = position
+                if self.spa:
+                    self.spc -= 1
+                if self.spb:
+                    self.spc -= 1
+                position += 1
+            if config_show_tb_pref:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        "preferences-system", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", menu_options)
+                btn.set_property("tooltip-text", "Edit Preferences...")
+                self.insert(btn, position)
+                position += 1
+            if config_show_tb_help:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        "help-browser", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", help_popup)
+                btn.set_property("tooltip-text", "User's Guide and Manual")
+                self.insert(btn, position)
+                position += 1
+            if config_show_tb_exit:
+                btn = Gtk.ToolButton(
+                    icon_widget=Gtk.Image.new_from_icon_name(
+                        "application-exit", Gtk.IconSize.LARGE_TOOLBAR
+                    )
+                )
+                btn.connect("clicked", app_quit)
+                self.insert(btn, position)
+                position += 1
+
+def app_quit(_caller):
+    """TODO
+
+    """
 
 def create_app_window(caller):
     """Create the application window upon application activation
@@ -425,11 +559,46 @@ def create_app_window(caller):
     win.show_all()
     caller.add_window(win)
 
+def copy_project(_caller):
+    """TODO
+
+    """
+
+def cut_project(_caller):
+    """TODO
+
+    """
+
+def edit_calendar(_caller):
+    """TODO
+
+    """
+
 def grab_focus_cb(caller, wdgt):
     """Callback which makes given widget grab focus
 
     """
     wdgt.grab_focus()
+
+def help_popup(_caller):
+    """TODO
+
+    """
+
+def menu_options(_caller):
+    """TODO
+
+    """
+
+def menu_properties(_caller):
+    """TODO
+
+    """
+
+def menu_toggle_timer(_caller):
+    """TODO
+
+    """
 
 def new_project(_caller):
     """Callback to create the new project dialog
@@ -487,11 +656,21 @@ def new_project(_caller):
 
     diag.run()
 
+def paste_project(_caller):
+    """TODO
+
+    """
+
 def project_name_desc(_caller, response):
     """Project creation callback
 
     """
     print("response: " + str(response))
+
+def show_report(_caller, _report_file_name):
+    """TODO
+
+    """
 
 def main():
     """Script entry point of GnoTime

@@ -1,5 +1,6 @@
 /*   Generate gtt-parsed html output for GnoTime - a time tracker
  *   Copyright (C) 2001,2002,2003,2004 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,7 +21,6 @@
 
 #define _GNU_SOURCE
 #include <glib.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include <libguile.h>
 #include <libguile/backtrace.h>
 #include <limits.h>
@@ -42,6 +42,8 @@
 #include "proj.h"
 #include "query.h"
 #include "util.h"
+
+#include <gio/gio.h>
 
 /* Design problems:
  * The way this is currently defined, there is no type safety, and
@@ -1614,33 +1616,66 @@ gtt_ghtml_display (GttGhtml *ghtml, const char *filepath, GttProject *prj)
     }
 
   /* Try to get the ghtml file ... */
-  GnomeVFSResult result;
-  GnomeVFSHandle *handle;
-  result = gnome_vfs_open (&handle, filepath, GNOME_VFS_OPEN_READ);
-  if ((GNOME_VFS_OK != result) && (0 == ghtml->open_count))
+  GFile *ifile = g_file_new_for_path (filepath);
+
+  GError *error = NULL;
+  GFileInputStream *istream = g_file_read (ifile, NULL, &error);
+  if (((NULL == istream) || (NULL != error)) && (0 == ghtml->open_count))
     {
       if (ghtml->error)
         {
           (ghtml->error) (ghtml, 404, filepath, ghtml->user_data);
         }
+
+      g_error_free (error);
+      error = NULL;
+
+      g_object_unref (ifile);
+      ifile = NULL;
+
       return;
     }
   ghtml->ref_path = filepath;
 
   /* Read in the whole file.  Hopefully its not huge */
   template = g_string_new (NULL);
-  while (GNOME_VFS_OK == result)
+  while (TRUE)
     {
 #define BUFF_SIZE 4000
       char buff[BUFF_SIZE + 1];
-      GnomeVFSFileSize bytes_read;
-      result = gnome_vfs_read (handle, buff, BUFF_SIZE, &bytes_read);
-      if (0 >= bytes_read)
-        break; /* EOF I presume */
+      const gssize bytes_read = g_input_stream_read (
+          G_INPUT_STREAM (istream), buff, BUFF_SIZE, NULL, &error);
+      if ((0 > bytes_read) || (NULL != error))
+        {
+          g_warning (_ ("Failed to read HTML input file \"%s\": %s"), filepath,
+                     error->message);
+
+          g_error_free (error);
+          error = NULL;
+
+          break;
+        }
+      if (0 == bytes_read)
+        {
+          break; // EOF
+        }
+
       buff[bytes_read] = 0x0;
       g_string_append (template, buff);
     }
-  gnome_vfs_close (handle);
+
+  if (FALSE == g_input_stream_close (G_INPUT_STREAM (istream), NULL, &error))
+    {
+      g_warning (_ ("Failed to close HTML input file \"%s\": %s"), filepath,
+                 error->message);
+
+      g_error_free (error);
+      error = NULL;
+    }
+  g_object_unref (istream);
+  istream = NULL;
+  g_object_unref (ifile);
+  ifile = NULL;
 
   /* ugh. gag. choke. puke. */
   ghtml_guile_global_hack = ghtml;

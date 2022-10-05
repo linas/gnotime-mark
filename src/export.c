@@ -1,6 +1,7 @@
 /*   ASCII/tab/delim/etc. data export for GnoTime
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2002 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,13 +20,14 @@
 
 #include <config.h>
 #include <gnome.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include <string.h>
 
 #include "app.h"
 #include "export.h"
 #include "ghtml.h"
 #include "proj.h"
+
+#include <gio/gio.h>
 
 /* Project data export */
 
@@ -37,11 +39,12 @@ typedef struct export_format_s export_format_t;
 
 struct export_format_s
 {
-  GtkFileChooser *picker; /* URI picker (file selection) */
-  const char *uri;        /* aka filename */
-  GnomeVFSHandle *handle; /* file handle */
-  GttGhtml *ghtml;        /* output device */
-  const char *template;   /* output template */
+  GtkFileChooser *picker;           /* URI picker (file selection) */
+  const char *uri;                  /* aka filename */
+  GFile *export_file;               // File to export the data to
+  GFileOutputStream *export_stream; // Output stream for the export file
+  GttGhtml *ghtml;                  /* output device */
+  const char *template;             /* output template */
 };
 
 static export_format_t *
@@ -81,14 +84,26 @@ export_show_error_message (GtkWindow *parent, char *msg)
 static void
 export_write (GttGhtml *gxp, const char *str, size_t len, export_format_t *xp)
 {
-  GnomeVFSFileSize buflen = len;
-  GnomeVFSFileSize bytes_written = 0;
-  GnomeVFSResult result = GNOME_VFS_OK;
-  size_t off = 0;
+  gsize buflen = len;
+  gsize off = 0;
 
-  while ((buflen > 0) && (result == GNOME_VFS_OK))
+  while (buflen > 0)
     {
-      result = gnome_vfs_write (xp->handle, &str[off], buflen, &bytes_written);
+      GError *error = NULL;
+      const gssize bytes_written
+          = g_output_stream_write (G_OUTPUT_STREAM (xp->export_stream),
+                                   &str[off], buflen, NULL, &error);
+      if (0 > bytes_written)
+        {
+          g_warning (_ ("Failed to write to export file \"%s\": %s"), xp->uri,
+                     error->message);
+
+          g_error_free (error);
+          error = NULL;
+
+          break;
+        }
+
       off += bytes_written;
       buflen -= bytes_written;
     }
@@ -136,14 +151,25 @@ export_really (GtkWidget *widget, export_format_t *xp)
 
   xp->uri = gtk_file_chooser_get_filename (xp->picker);
 
-  GnomeVFSResult result;
-  result = gnome_vfs_create (&xp->handle, xp->uri, GNOME_VFS_OPEN_WRITE, FALSE,
-                             0644);
-  if (GNOME_VFS_OK != result)
+  xp->export_file = g_file_new_for_path (xp->uri);
+
+  GError *error = NULL;
+  xp->export_stream = g_file_replace (xp->export_file, NULL, FALSE,
+                                      G_FILE_CREATE_NONE, NULL, &error);
+  if ((NULL == xp->export_stream) || (NULL != error))
     {
-      char *msg = g_strdup_printf (_ ("File %s could not be opened"), xp->uri);
+      char *msg = g_strdup_printf (
+          _ ("File \"%s\" could not be opened for export: %s"), xp->uri,
+          error->message);
       export_show_error_message (GTK_WINDOW (xp->picker), msg);
       g_free (msg);
+
+      g_error_free (error);
+      error = NULL;
+
+      g_object_unref (xp->export_file);
+      xp->export_file = NULL;
+
       return;
     }
 
@@ -154,7 +180,21 @@ export_really (GtkWidget *widget, export_format_t *xp)
                                  _ ("Error occured during export"));
       return;
     }
-  gnome_vfs_close (xp->handle);
+
+  if (FALSE
+      == g_output_stream_close (G_OUTPUT_STREAM (xp->export_stream), NULL,
+                                &error))
+    {
+      g_warning (_ ("Failed to close export file \"%s\": %s"), xp->uri,
+                 error->message);
+
+      g_error_free (error);
+      error = NULL;
+    }
+  g_object_unref (xp->export_stream);
+  xp->export_stream = NULL;
+  g_object_unref (xp->export_file);
+  xp->export_file = NULL;
 }
 
 /* ======================================================= */

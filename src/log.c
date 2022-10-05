@@ -1,5 +1,6 @@
 /*   Logfile output for GTimeTracker - a time tracker
  *   Copyright (C) 1997,98 Eckehard Berns
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,7 +20,6 @@
 #include <config.h>
 #include <glib.h>
 #include <gnome.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,6 +28,8 @@
 #include "prefs.h"
 #include "proj.h"
 
+#include <gio/gio.h>
+
 #define CAN_LOG ((config_logfile_name != NULL) && (config_logfile_use))
 
 static gboolean
@@ -35,33 +37,41 @@ log_write (time_t t, const char *logstr)
 {
   char date[256];
   char *filename;
-  GnomeVFSHandle *handle;
-  GnomeVFSResult result;
 
   g_return_val_if_fail (logstr != NULL, FALSE);
 
   if (!CAN_LOG)
     return TRUE;
 
+  GFile *log_file = NULL;
   if ((config_logfile_name[0] == '~') && (config_logfile_name[1] == '/')
       && (config_logfile_name[2] != 0))
     {
       filename = gnome_util_prepend_user_home (&config_logfile_name[2]);
 
-      result = gnome_vfs_create (&handle, filename, GNOME_VFS_OPEN_WRITE,
-                                 FALSE, 0644);
+      log_file = g_file_new_for_path (filename);
+
       g_free (filename);
     }
   else
     {
-      result = gnome_vfs_create (&handle, config_logfile_name,
-                                 GNOME_VFS_OPEN_WRITE, FALSE, 0644);
+      log_file = g_file_new_for_path (config_logfile_name);
     }
 
-  if (GNOME_VFS_OK != result)
+  GError *error = NULL;
+  GFileOutputStream *log_ostream
+      = g_file_append_to (log_file, G_FILE_CREATE_NONE, NULL, &error);
+  if ((NULL == log_ostream) || (NULL != error))
     {
       g_warning (_ ("Cannot open logfile %s for append: %s"),
-                 config_logfile_name, gnome_vfs_result_to_string (result));
+                 config_logfile_name, error->message);
+
+      g_error_free (error);
+      error = NULL;
+
+      g_object_unref (log_file);
+      log_file = NULL;
+
       return FALSE;
     }
 
@@ -75,13 +85,47 @@ log_write (time_t t, const char *logstr)
     strcpy (date, "???");
 
   /* Append to end of file */
-  gnome_vfs_seek (handle, GNOME_VFS_SEEK_END, 0);
-  GnomeVFSFileSize bytes_written;
-  gnome_vfs_write (handle, date, strlen (date), &bytes_written);
-  gnome_vfs_write (handle, logstr, strlen (logstr), &bytes_written);
-  gnome_vfs_write (handle, "\n", 1, &bytes_written);
+  typedef struct gtt_log_data_s
+  {
+    const char *data;
+    gsize len;
+  } GttLogData;
+  GttLogData log_data[] = { { date, strlen (date) },
+                            { logstr, strlen (logstr) },
+                            { "\n", 1 },
+                            { NULL, 0 } };
+  GttLogData *log_data_ptr = &log_data[0];
+  while (NULL != log_data_ptr->data)
+    {
+      gsize bytes_written;
+      if (FALSE
+          == g_output_stream_write_all (G_OUTPUT_STREAM (log_ostream),
+                                        log_data_ptr->data, log_data_ptr->len,
+                                        &bytes_written, NULL, &error))
+        {
+          g_warning (_ ("Failed to write to log file \"%s\": %s"),
+                     config_logfile_name, error->message);
 
-  gnome_vfs_close (handle);
+          g_error_free (error);
+          error = NULL;
+        }
+      ++log_data_ptr;
+    }
+
+  if (FALSE
+      == g_output_stream_close (G_OUTPUT_STREAM (log_ostream), NULL, &error))
+    {
+      g_warning (_ ("Failed to close log file \"%s\": %s"),
+                 config_logfile_name, error->message);
+
+      g_error_free (error);
+      error = NULL;
+    }
+  g_object_unref (log_ostream);
+  log_ostream = NULL;
+  g_object_unref (log_file);
+  log_file = NULL;
+
   return TRUE;
 }
 

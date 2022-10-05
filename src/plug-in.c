@@ -1,5 +1,6 @@
 /*   Report Plugins for GTimeTracker - a time tracker
  *   Copyright (C) 2001 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,7 +21,6 @@
 #include <glade/glade.h>
 #include <glib.h>
 #include <gnome.h>
-#include <libgnomevfs/gnome-vfs.h>
 
 #include "app.h"
 #include "gconf-io.h"
@@ -28,6 +28,8 @@
 #include "menus.h"
 #include "plug-in.h"
 #include "util.h"
+
+#include <gio/gio.h>
 
 struct NewPluginDialog_s
 {
@@ -114,10 +116,10 @@ new_plugin_create_cb (GtkWidget *w, gpointer data)
   tip = gtk_entry_get_text (dlg->plugin_tooltip);
 
   /* Do a basic sanity check */
-  GnomeVFSURI *parsed_uri;
-  parsed_uri = gnome_vfs_uri_new (path);
-  gboolean exists = gnome_vfs_uri_exists (parsed_uri);
-  gnome_vfs_uri_unref (parsed_uri);
+  GFile *plugin_file = g_file_new_for_path (path);
+  const gboolean exists = g_file_query_exists (plugin_file, NULL);
+  g_object_unref (plugin_file);
+  plugin_file = NULL;
   if (!exists)
     {
       gchar *msg;

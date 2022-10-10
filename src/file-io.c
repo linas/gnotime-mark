@@ -371,33 +371,6 @@ gtt_load_gnome_config (const char *prefix)
   config_idle_timeout = GET_INT ("/Misc/IdleTimeout=300");
   config_autosave_period = GET_INT ("/Misc/AutosavePeriod=60");
 
-  /* Reset the main window width and height to the values
-   * last stored in the config file.  Note that if the user
-   * specified command-line flags, then the command line
-   * over-rides the config file. */
-  if (!geom_place_override)
-    {
-      int x, y;
-      x = GET_INT ("/Geometry/X=10");
-      y = GET_INT ("/Geometry/Y=10");
-      gtk_widget_set_uposition (GTK_WIDGET (app_window), x, y);
-    }
-  if (!geom_size_override)
-    {
-      int w, h;
-      w = GET_INT ("/Geometry/Width=442");
-      h = GET_INT ("/Geometry/Height=272");
-
-      gtk_window_set_default_size (GTK_WINDOW (app_window), w, h);
-    }
-
-  {
-    int vp, hp;
-    vp = GET_INT ("/Geometry/VPaned=250");
-    hp = GET_INT ("/Geometry/HPaned=220");
-    notes_area_set_pane_sizes (global_na, vp, hp);
-  }
-
   config_show_secs = GET_BOOL ("/Display/ShowSecs=false");
   config_show_clist_titles = GET_BOOL ("/Display/ShowTableHeader=false");
   config_show_subprojects = GET_BOOL ("/Display/ShowSubProjects=true");

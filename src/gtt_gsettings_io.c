@@ -49,11 +49,12 @@ static void set_str (GSettings *setts, const gchar *key, const gchar *value);
 /* XXX these should not be externs, they should be part of
  * some app-global structure.
  */
-extern int save_count;         /* XXX */
 extern char *first_proj_title; /* command line flag */
 extern time_t last_timer;      /* XXX */
 extern int cur_proj_id;
 extern int run_timer;
+
+int save_count = 0;
 
 static GSettings *settings = NULL;
 

@@ -40,9 +40,11 @@
 
 #include <gio/gio.h>
 
+static void get_str (GSettings *setts, const gchar *key, gchar **value);
 static void init_gsettings (void);
 static void set_bool (GSettings *setts, const gchar *key, gboolean value);
 static void set_int (GSettings *setts, const gchar *key, gint value);
+static void set_str (GSettings *setts, const gchar *key, const gchar *value);
 
 /* XXX these should not be externs, they should be part of
  * some app-global structure.
@@ -235,9 +237,16 @@ gtt_gsettings_save (void)
 
   SETINT ("/LogFile/MinSecs", config_logfile_min_secs);
 
-  /* ------------- */
-  SETSTR ("/Data/URL", config_data_url);
-  SETINT ("/Data/SaveCount", save_count);
+  // Data ---------------------------------------------------------------------
+  {
+    GSettings *data = g_settings_get_child (settings, "data");
+
+    set_str (data, "url", config_data_url);
+    set_int (data, "save-count", save_count);
+
+    g_object_unref (data);
+    data = NULL;
+  }
 
   /* ------------- */
   {
@@ -527,9 +536,17 @@ gtt_gsettings_load (void)
 
   config_currency_symbol = GETSTR ("/Report/CurrencySymbol", "$");
   config_currency_use_locale = GETBOOL ("/Report/CurrencyUseLocale", TRUE);
-  /* ------------ */
-  save_count = GETINT ("/Data/SaveCount", 0);
-  config_data_url = GETSTR ("/Data/URL", XML_DATA_FILENAME);
+
+  // Data ---------------------------------------------------------------------
+  {
+    GSettings *data = g_settings_get_child (settings, "data");
+
+    save_count = g_settings_get_int (data, "save-count");
+    get_str (data, "url", &config_data_url);
+
+    g_object_unref (data);
+    data = NULL;
+  }
 
   /* ------------ */
   {
@@ -581,6 +598,18 @@ gtt_gsettings_get_expander (void)
 }
 
 static void
+get_str (GSettings *const setts, const gchar *const key, gchar **const value)
+{
+  if (NULL != *value)
+    {
+      g_free (*value);
+      *value = NULL;
+    }
+
+  *value = g_settings_get_string (setts, key);
+}
+
+static void
 init_gsettings (void)
 {
   if (G_LIKELY (NULL != settings))
@@ -609,6 +638,17 @@ set_int (GSettings *const setts, const gchar *const key, const gint value)
     {
       g_warning (
           _ ("Failed to set integer GSettings option \"%s\" to value: %d"),
+          key, value);
+    }
+}
+
+static void
+set_str (GSettings *setts, const gchar *key, const gchar *const value)
+{
+  if (FALSE == g_settings_set_string (setts, key, value))
+    {
+      g_warning (
+          _ ("Failed to set string GSettings option \"%s\" to value: \"%s\""),
           key, value);
     }
 }

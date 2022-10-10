@@ -579,7 +579,7 @@ gtt_load_config (void)
   /* Check for gconf2, and use that if it exists */
   if (gtt_gconf_exists ())
     {
-      gtt_gconf_load ();
+      gtt_gsettings_load ();
       gtt_config_filepath = NULL;
       return;
     }
@@ -685,7 +685,7 @@ gtt_post_ctree_config (void)
   /* Restore the expander state */
   if (gtt_gconf_exists ())
     {
-      xpn = gtt_gconf_get_expander ();
+      xpn = gtt_gsettings_get_expander ();
     }
   else
     {
@@ -703,7 +703,7 @@ gtt_post_ctree_config (void)
 void
 gtt_save_config (void)
 {
-  gtt_gconf_save ();
+  gtt_gsettings_save ();
 }
 
 /* ======================================================= */

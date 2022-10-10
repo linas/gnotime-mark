@@ -103,8 +103,8 @@ string_to_gnome_ui_pixmap_type (const char *str)
 /* Save the contents of a GnomeUIInfo structure with GConf */
 
 void
-gtt_save_gnomeui_to_gconf (GConfClient *client, const char *path,
-                           GnomeUIInfo *gui)
+gtt_save_gnomeui_to_gsettings (GConfClient *client, const char *path,
+                               GnomeUIInfo *gui)
 {
   char *savepath, *tokptr;
 
@@ -141,8 +141,8 @@ gtt_save_gnomeui_to_gconf (GConfClient *client, const char *path,
 /* Restore the contents of a GnomeUIInfo structure from GConf */
 
 void
-gtt_restore_gnomeui_from_gconf (GConfClient *client, const char *path,
-                                GnomeUIInfo *gui)
+gtt_restore_gnomeui_from_gsettings (GConfClient *client, const char *path,
+                                    GnomeUIInfo *gui)
 {
   char *savepath, *tokptr;
 

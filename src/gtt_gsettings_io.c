@@ -80,7 +80,7 @@ gtt_save_reports_menu (void)
       F_SETSTR (s, plg->last_url);
 
       *p = 0;
-      gtt_save_gnomeui_to_gconf (client, s, &reports_menu[i]);
+      gtt_save_gnomeui_to_gsettings (client, s, &reports_menu[i]);
     }
   SETINT ("/Misc/NumReports", i);
 }
@@ -90,7 +90,7 @@ gtt_save_reports_menu (void)
 /* XXX fixme -- this should really use GConfChangeSet */
 
 void
-gtt_gconf_save (void)
+gtt_gsettings_save (void)
 {
   char s[120];
   int x, y, w, h;
@@ -335,7 +335,7 @@ gtt_restore_reports_menu (GnomeApp *app)
       plg->last_url = g_strdup (url);
 
       *p = 0;
-      gtt_restore_gnomeui_from_gconf (client, s, &reports_menu[i]);
+      gtt_restore_gnomeui_from_gsettings (client, s, &reports_menu[i]);
 
       /* fixup */
       reports_menu[i].user_data = plg;
@@ -348,7 +348,7 @@ gtt_restore_reports_menu (GnomeApp *app)
 /* ======================================================= */
 
 void
-gtt_gconf_load (void)
+gtt_gsettings_load (void)
 {
   int i, num;
   int _n, _c, _j, _p, _t, _o, _h, _e;
@@ -524,7 +524,7 @@ gtt_gconf_load (void)
 }
 
 gchar *
-gtt_gconf_get_expander (void)
+gtt_gsettings_get_expander (void)
 {
   GConfClient *client = gconf_client_get_default ();
   return GETSTR ("/Display/ExpanderState", NULL);

@@ -1,5 +1,6 @@
 /*   GConf2 input/output handling for GTimeTracker - a time tracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -37,6 +38,10 @@
 #include "timer.h"
 #include "toolbar.h"
 
+#include <gio/gio.h>
+
+static void init_gsettings (void);
+
 /* XXX these should not be externs, they should be part of
  * some app-global structure.
  */
@@ -46,6 +51,8 @@ extern time_t last_timer;      /* XXX */
 extern int cur_proj_id;
 extern int run_timer;
 
+static GSettings *settings = NULL;
+
 #define GTT_GCONF "/apps/gnotime"
 
 /* ======================================================= */
@@ -53,6 +60,8 @@ extern int run_timer;
 void
 gtt_save_reports_menu (void)
 {
+  init_gsettings ();
+
   int i;
   char s[120], *p;
   GnomeUIInfo *reports_menu;
@@ -98,6 +107,8 @@ gtt_gsettings_save (void)
 
   GConfEngine *gengine;
   GConfClient *client;
+
+  init_gsettings ();
 
   gengine = gconf_engine_get_default ();
   client = gconf_client_get_for_engine (gengine);
@@ -273,6 +284,8 @@ gtt_gconf_exists (void)
   GConfClient *client;
   GConfValue *gcv;
 
+  init_gsettings ();
+
   /* Calling gconf_engine_dir_exists() on a non-existant directory
    * completely hoses that directory for future use. Its Badddd.
    * rc = gconf_engine_dir_exists (gengine, GTT_GCONF, &err_ret);
@@ -303,6 +316,8 @@ gtt_restore_reports_menu (GnomeApp *app)
   char s[120], *p;
   GnomeUIInfo *reports_menu;
   GConfClient *client;
+
+  init_gsettings ();
 
   client = gconf_client_get_default ();
 
@@ -353,6 +368,8 @@ gtt_gsettings_load (void)
   int i, num;
   int _n, _c, _j, _p, _t, _o, _h, _e;
   GConfClient *client;
+
+  init_gsettings ();
 
   client = gconf_client_get_default ();
   gconf_client_add_dir (client, GTT_GCONF, GCONF_CLIENT_PRELOAD_RECURSIVE,
@@ -526,8 +543,21 @@ gtt_gsettings_load (void)
 gchar *
 gtt_gsettings_get_expander (void)
 {
+  init_gsettings ();
+
   GConfClient *client = gconf_client_get_default ();
   return GETSTR ("/Display/ExpanderState", NULL);
+}
+
+static void
+init_gsettings (void)
+{
+  if (G_LIKELY (NULL != settings))
+    {
+      return; // Initialized already, nothing to do
+    }
+
+  settings = g_settings_new ("com.github.goedson.gnotime");
 }
 
 /* =========================== END OF FILE ========================= */

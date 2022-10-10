@@ -41,6 +41,7 @@
 #include <gio/gio.h>
 
 static void init_gsettings (void);
+static void set_bool (GSettings *setts, const gchar *key, gboolean value);
 static void set_int (GSettings *setts, const gchar *key, gint value);
 
 /* XXX these should not be externs, they should be part of
@@ -165,17 +166,24 @@ gtt_gsettings_save (void)
   xpn = gtt_projects_tree_get_expander_state (projects_tree);
   SETSTR ("/Display/ExpanderState", xpn);
 
-  /* ------------- */
-  SETBOOL ("/Toolbar/ShowToolbar", config_show_toolbar);
-  SETBOOL ("/Toolbar/ShowTips", config_show_tb_tips);
-  SETBOOL ("/Toolbar/ShowNew", config_show_tb_new);
-  SETBOOL ("/Toolbar/ShowCCP", config_show_tb_ccp);
-  SETBOOL ("/Toolbar/ShowJournal", config_show_tb_journal);
-  SETBOOL ("/Toolbar/ShowProp", config_show_tb_prop);
-  SETBOOL ("/Toolbar/ShowTimer", config_show_tb_timer);
-  SETBOOL ("/Toolbar/ShowPref", config_show_tb_pref);
-  SETBOOL ("/Toolbar/ShowHelp", config_show_tb_help);
-  SETBOOL ("/Toolbar/ShowExit", config_show_tb_exit);
+  // Toolbar ------------------------------------------------------------------
+  {
+    GSettings *toolbar = g_settings_get_child (settings, "toolbar");
+
+    set_bool (toolbar, "show-toolbar", config_show_toolbar);
+    set_bool (toolbar, "show-tips", config_show_tb_tips);
+    set_bool (toolbar, "show-new", config_show_tb_new);
+    set_bool (toolbar, "show-ccp", config_show_tb_ccp);
+    set_bool (toolbar, "show-journal", config_show_tb_journal);
+    set_bool (toolbar, "show-prop", config_show_tb_prop);
+    set_bool (toolbar, "show-timer", config_show_tb_timer);
+    set_bool (toolbar, "show-pref", config_show_tb_pref);
+    set_bool (toolbar, "show-help", config_show_tb_help);
+    set_bool (toolbar, "show-exit", config_show_tb_exit);
+
+    g_object_unref (toolbar);
+    toolbar = NULL;
+  }
 
   /* ------------- */
   if (config_shell_start)
@@ -478,17 +486,24 @@ gtt_gsettings_load (void)
 
   prefs_update_projects_view ();
 
-  /* ------------ */
-  config_show_toolbar = GETBOOL ("/Toolbar/ShowToolbar", TRUE);
-  config_show_tb_tips = GETBOOL ("/Toolbar/ShowTips", TRUE);
-  config_show_tb_new = GETBOOL ("/Toolbar/ShowNew", TRUE);
-  config_show_tb_ccp = GETBOOL ("/Toolbar/ShowCCP", FALSE);
-  config_show_tb_journal = GETBOOL ("/Toolbar/ShowJournal", TRUE);
-  config_show_tb_prop = GETBOOL ("/Toolbar/ShowProp", TRUE);
-  config_show_tb_timer = GETBOOL ("/Toolbar/ShowTimer", TRUE);
-  config_show_tb_pref = GETBOOL ("/Toolbar/ShowPref", FALSE);
-  config_show_tb_help = GETBOOL ("/Toolbar/ShowHelp", TRUE);
-  config_show_tb_exit = GETBOOL ("/Toolbar/ShowExit", TRUE);
+  // Toolbar ------------------------------------------------------------------
+  {
+    GSettings *toolbar = g_settings_get_child (settings, "toolbar");
+
+    config_show_toolbar = g_settings_get_boolean (toolbar, "show-toolbar");
+    config_show_tb_tips = g_settings_get_boolean (toolbar, "show-tips");
+    config_show_tb_new = g_settings_get_boolean (toolbar, "show-new");
+    config_show_tb_ccp = g_settings_get_boolean (toolbar, "show-ccp");
+    config_show_tb_journal = g_settings_get_boolean (toolbar, "show-journal");
+    config_show_tb_prop = g_settings_get_boolean (toolbar, "show-prop");
+    config_show_tb_timer = g_settings_get_boolean (toolbar, "show-timer");
+    config_show_tb_pref = g_settings_get_boolean (toolbar, "show-pref");
+    config_show_tb_help = g_settings_get_boolean (toolbar, "show-help");
+    config_show_tb_exit = g_settings_get_boolean (toolbar, "show-exit");
+
+    g_object_unref (toolbar);
+    toolbar = NULL;
+  }
 
   /* ------------ */
   config_shell_start = GETSTR ("/Actions/StartCommand",
@@ -574,6 +589,17 @@ init_gsettings (void)
     }
 
   settings = g_settings_new ("com.github.goedson.gnotime");
+}
+
+static void
+set_bool (GSettings *const setts, const gchar *const key, const gboolean value)
+{
+  if (FALSE == g_settings_set_boolean (setts, key, value))
+    {
+      g_warning (
+          _ ("Failed to set boolean GSettings option \"%s\" to value: %s"),
+          key, (FALSE == value) ? "false" : "true");
+    }
 }
 
 static void

@@ -258,12 +258,6 @@ gtt_load_gnome_config (const char *prefix)
       first_proj_title = g_strdup (gtt_project_get_title (cur_proj));
     }
 
-  /* get last running project */
-  cur_proj_id = GET_INT ("/Misc/CurrProject=-1");
-
-  config_idle_timeout = GET_INT ("/Misc/IdleTimeout=300");
-  config_autosave_period = GET_INT ("/Misc/AutosavePeriod=60");
-
   config_show_secs = GET_BOOL ("/Display/ShowSecs=false");
   config_show_clist_titles = GET_BOOL ("/Display/ShowTableHeader=false");
   config_show_subprojects = GET_BOOL ("/Display/ShowSubProjects=true");
@@ -302,76 +296,6 @@ gtt_load_gnome_config (const char *prefix)
         {
           //			ctree_set_col_width (global_ptw, i, num);
         }
-    }
-
-  /* Read in the user-defined report locations */
-  num = GET_INT ("/Misc/NumReports=0");
-  if (0 < num)
-    {
-      GnomeUIInfo *reports_menu;
-      reports_menu = g_new0 (GnomeUIInfo, num + 1);
-      for (i = num - 1; i >= 0; i--)
-        {
-          GttPlugin *plg;
-          char *name, *path, *tip;
-          g_snprintf (p, TOKLEN, "/Report%d/Name", i);
-          name = gnome_config_get_string (s);
-          g_snprintf (p, TOKLEN, "/Report%d/Path", i);
-          path = gnome_config_get_string (s);
-          g_snprintf (p, TOKLEN, "/Report%d/Tooltip", i);
-          tip = gnome_config_get_string (s);
-          plg = gtt_plugin_new (name, path);
-          plg->tooltip = g_strdup (tip);
-
-          /* fixup */
-          reports_menu[i].type = GNOME_APP_UI_ITEM;
-          reports_menu[i].user_data = plg;
-          reports_menu[i].label = name;
-          reports_menu[i].hint = tip;
-          reports_menu[i].unused_data = NULL;
-          reports_menu[i].pixmap_type = GNOME_APP_PIXMAP_STOCK;
-          reports_menu[i].pixmap_info = GNOME_STOCK_BLANK;
-          reports_menu[i].accelerator_key = 0;
-          reports_menu[i].ac_mods = (GdkModifierType)0;
-        }
-      reports_menu[num].type = GNOME_APP_UI_ENDOFINFO;
-      gtt_set_reports_menu (GNOME_APP (app_window), reports_menu);
-    }
-
-  /* The old-style config file also contained project data
-   * in it. Read this data, if present.  The new config file
-   * format has num-projects set to -1.
-   */
-  run_timer = GET_INT ("/Misc/TimerRunning=0");
-  last_timer = atol (GET_STR ("/Misc/LastTimer=-1"));
-  num = GET_INT ("/Misc/NumProjects=0");
-  if (0 < num)
-    {
-      for (i = 0; i < num; i++)
-        {
-          GttProject *proj;
-          time_t ever_secs, day_secs;
-
-          proj = gtt_project_new ();
-          gtt_project_list_append (master_list, proj);
-          g_snprintf (p, TOKLEN, "/Project%d/Title", i);
-          gtt_project_set_title (proj, gnome_config_get_string (s));
-
-          /* Match the last running project */
-          if (i == cur_proj_id)
-            {
-              cur_proj_set (proj);
-            }
-
-          g_snprintf (p, TOKLEN, "/Project%d/Desc", i);
-          gtt_project_set_desc (proj, gnome_config_get_string (s));
-          g_snprintf (p, TOKLEN, "/Project%d/SecsEver=0", i);
-          ever_secs = gnome_config_get_int (s);
-          g_snprintf (p, TOKLEN, "/Project%d/SecsDay=0", i);
-          day_secs = gnome_config_get_int (s);
-          gtt_project_compat_set_secs (proj, ever_secs, day_secs, last_timer);
-        }
-      gtt_project_list_compute_secs ();
     }
 
   /* redraw the GUI */

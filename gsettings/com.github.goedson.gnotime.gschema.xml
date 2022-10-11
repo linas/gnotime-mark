@@ -5,6 +5,7 @@
     <child name="data" schema="com.github.goedson.gnotime.data"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
     <child name="logfile" schema="com.github.goedson.gnotime.logfile"/>
+    <child name="report" schema="com.github.goedson.gnotime.report"/>
     <child name="toolbar" schema="com.github.goedson.gnotime.toolbar"/>
   </schema>
 
@@ -90,6 +91,19 @@
     </key>
     <key name="use" type="b">
       <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.report" path="/org/github/goedson/gnotime/report/">
+    <key name="currency-symbol" type="s">
+      <default>'$'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="currency-use-locale" type="b">
+      <default>true</default>
       <description></description>
       <summary></summary>
     </key>

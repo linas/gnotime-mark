@@ -149,33 +149,43 @@ gtt_gsettings_save (void)
     g_object_unref (geometry);
     geometry = NULL;
   }
-  /* ------------- */
-  /* save the configure dialog values */
-  SETBOOL ("/Display/ShowSecs", config_show_secs);
-  SETBOOL ("/Display/ShowStatusbar", config_show_statusbar);
-  SETBOOL ("/Display/ShowSubProjects", config_show_subprojects);
-  SETBOOL ("/Display/ShowTableHeader", config_show_clist_titles);
-  SETBOOL ("/Display/ShowTimeCurrent", config_show_title_current);
-  SETBOOL ("/Display/ShowTimeDay", config_show_title_day);
-  SETBOOL ("/Display/ShowTimeYesterday", config_show_title_yesterday);
-  SETBOOL ("/Display/ShowTimeWeek", config_show_title_week);
-  SETBOOL ("/Display/ShowTimeLastWeek", config_show_title_lastweek);
-  SETBOOL ("/Display/ShowTimeMonth", config_show_title_month);
-  SETBOOL ("/Display/ShowTimeYear", config_show_title_year);
-  SETBOOL ("/Display/ShowTimeEver", config_show_title_ever);
-  SETBOOL ("/Display/ShowDesc", config_show_title_desc);
-  SETBOOL ("/Display/ShowTask", config_show_title_task);
-  SETBOOL ("/Display/ShowEstimatedStart", config_show_title_estimated_start);
-  SETBOOL ("/Display/ShowEstimatedEnd", config_show_title_estimated_end);
-  SETBOOL ("/Display/ShowDueDate", config_show_title_due_date);
-  SETBOOL ("/Display/ShowSizing", config_show_title_sizing);
-  SETBOOL ("/Display/ShowPercentComplete", config_show_title_percent_complete);
-  SETBOOL ("/Display/ShowUrgency", config_show_title_urgency);
-  SETBOOL ("/Display/ShowImportance", config_show_title_importance);
-  SETBOOL ("/Display/ShowStatus", config_show_title_status);
 
-  xpn = gtt_projects_tree_get_expander_state (projects_tree);
-  SETSTR ("/Display/ExpanderState", xpn);
+  // Display ------------------------------------------------------------------
+  {
+    GSettings *display = g_settings_get_child (settings, "display");
+
+    /* save the configure dialog values */
+    set_bool (display, "show-secs", config_show_secs);
+    set_bool (display, "show-statusbar", config_show_statusbar);
+    set_bool (display, "show-sub-projects", config_show_subprojects);
+    set_bool (display, "show-table-header", config_show_clist_titles);
+    set_bool (display, "show-time-current", config_show_title_current);
+    set_bool (display, "show-time-day", config_show_title_day);
+    set_bool (display, "show-time-yesterday", config_show_title_yesterday);
+    set_bool (display, "show-time-week", config_show_title_week);
+    set_bool (display, "show-time-last-week", config_show_title_lastweek);
+    set_bool (display, "show-time-month", config_show_title_month);
+    set_bool (display, "show-time-year", config_show_title_year);
+    set_bool (display, "show-time-ever", config_show_title_ever);
+    set_bool (display, "show-desc", config_show_title_desc);
+    set_bool (display, "show-task", config_show_title_task);
+    set_bool (display, "show-estimated-start",
+              config_show_title_estimated_start);
+    set_bool (display, "show-estimated-end", config_show_title_estimated_end);
+    set_bool (display, "show-due-date", config_show_title_due_date);
+    set_bool (display, "show-sizing", config_show_title_sizing);
+    set_bool (display, "show-percent-complete",
+              config_show_title_percent_complete);
+    set_bool (display, "show-urgency", config_show_title_urgency);
+    set_bool (display, "show-importance", config_show_title_importance);
+    set_bool (display, "show-status", config_show_title_status);
+
+    xpn = gtt_projects_tree_get_expander_state (projects_tree);
+    set_maybe_str (display, "expander-state", xpn);
+
+    g_object_unref (display);
+    display = NULL;
+  }
 
   // Toolbar ------------------------------------------------------------------
   {
@@ -476,37 +486,57 @@ gtt_gsettings_load (void)
     geometry = NULL;
   }
 
-  config_show_secs = GETBOOL ("/Display/ShowSecs", FALSE);
+  // Display ------------------------------------------------------------------
+  {
+    GSettings *display = g_settings_get_child (settings, "display");
 
-  prefs_set_show_secs ();
+    config_show_secs = g_settings_get_boolean (display, "show-secs");
 
-  config_show_clist_titles = GETBOOL ("/Display/ShowTableHeader", FALSE);
-  config_show_subprojects = GETBOOL ("/Display/ShowSubProjects", TRUE);
-  config_show_statusbar = GETBOOL ("/Display/ShowStatusbar", TRUE);
+    prefs_set_show_secs ();
 
-  config_show_title_ever = GETBOOL ("/Display/ShowTimeEver", TRUE);
-  config_show_title_day = GETBOOL ("/Display/ShowTimeDay", TRUE);
-  config_show_title_yesterday = GETBOOL ("/Display/ShowTimeYesterday", FALSE);
-  config_show_title_week = GETBOOL ("/Display/ShowTimeWeek", FALSE);
-  config_show_title_lastweek = GETBOOL ("/Display/ShowTimeLastWeek", FALSE);
-  config_show_title_month = GETBOOL ("/Display/ShowTimeMonth", FALSE);
-  config_show_title_year = GETBOOL ("/Display/ShowTimeYear", FALSE);
-  config_show_title_current = GETBOOL ("/Display/ShowTimeCurrent", FALSE);
-  config_show_title_desc = GETBOOL ("/Display/ShowDesc", TRUE);
-  config_show_title_task = GETBOOL ("/Display/ShowTask", TRUE);
-  config_show_title_estimated_start
-      = GETBOOL ("/Display/ShowEstimatedStart", FALSE);
-  config_show_title_estimated_end
-      = GETBOOL ("/Display/ShowEstimatedEnd", FALSE);
-  config_show_title_due_date = GETBOOL ("/Display/ShowDueDate", FALSE);
-  config_show_title_sizing = GETBOOL ("/Display/ShowSizing", FALSE);
-  config_show_title_percent_complete
-      = GETBOOL ("/Display/ShowPercentComplete", FALSE);
-  config_show_title_urgency = GETBOOL ("/Display/ShowUrgency", TRUE);
-  config_show_title_importance = GETBOOL ("/Display/ShowImportance", TRUE);
-  config_show_title_status = GETBOOL ("/Display/ShowStatus", FALSE);
+    config_show_clist_titles
+        = g_settings_get_boolean (display, "show-table-header");
+    config_show_subprojects
+        = g_settings_get_boolean (display, "show-sub-projects");
+    config_show_statusbar = g_settings_get_boolean (display, "show-statusbar");
 
-  prefs_update_projects_view ();
+    config_show_title_ever
+        = g_settings_get_boolean (display, "show-time-ever");
+    config_show_title_day = g_settings_get_boolean (display, "show-time-day");
+    config_show_title_yesterday
+        = g_settings_get_boolean (display, "show-time-yesterday");
+    config_show_title_week
+        = g_settings_get_boolean (display, "show-time-week");
+    config_show_title_lastweek
+        = g_settings_get_boolean (display, "show-time-last-week");
+    config_show_title_month
+        = g_settings_get_boolean (display, "show-time-month");
+    config_show_title_year
+        = g_settings_get_boolean (display, "show-time-year");
+    config_show_title_current
+        = g_settings_get_boolean (display, "show-time-current");
+    config_show_title_desc = g_settings_get_boolean (display, "show-desc");
+    config_show_title_task = g_settings_get_boolean (display, "show-task");
+    config_show_title_estimated_start
+        = g_settings_get_boolean (display, "show-estimated-start");
+    config_show_title_estimated_end
+        = g_settings_get_boolean (display, "show-estimated-end");
+    config_show_title_due_date
+        = g_settings_get_boolean (display, "show-due-date");
+    config_show_title_sizing = g_settings_get_boolean (display, "show-sizing");
+    config_show_title_percent_complete
+        = g_settings_get_boolean (display, "show-percent-complete");
+    config_show_title_urgency
+        = g_settings_get_boolean (display, "show-urgency");
+    config_show_title_importance
+        = g_settings_get_boolean (display, "show-importance");
+    config_show_title_status = g_settings_get_boolean (display, "show-status");
+
+    prefs_update_projects_view ();
+
+    g_object_unref (display);
+    display = NULL;
+  }
 
   // Toolbar ------------------------------------------------------------------
   {
@@ -634,8 +664,15 @@ gtt_gsettings_get_expander (void)
 {
   init_gsettings ();
 
-  GConfClient *client = gconf_client_get_default ();
-  return GETSTR ("/Display/ExpanderState", NULL);
+  GSettings *display = g_settings_get_child (settings, "display");
+
+  gchar *expander_state = NULL;
+  get_maybe_str (display, "expander-state", &expander_state);
+
+  g_object_unref (display);
+  display = NULL;
+
+  return expander_state;
 }
 
 static void

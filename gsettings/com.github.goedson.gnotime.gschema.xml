@@ -3,6 +3,7 @@
   <schema id="com.github.goedson.gnotime" path="/org/github/goedson/gnotime/">
     <child name="actions" schema="com.github.goedson.gnotime.actions"/>
     <child name="data" schema="com.github.goedson.gnotime.data"/>
+    <child name="display" schema="com.github.goedson.gnotime.display"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
     <child name="logfile" schema="com.github.goedson.gnotime.logfile"/>
     <child name="misc" schema="com.github.goedson.gnotime.misc"/>
@@ -31,6 +32,124 @@
     </key>
     <key name="url" type="s">
       <default>'gnotime.d/gnotime-data.xml'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.display" path="/org/github/goedson/gnotime/display/">
+    <key name="expander-state" type="ms">
+      <default>nothing</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-desc" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-due-date" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-estimated-end" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-estimated-start" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-importance" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-percent-complete" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-secs" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-sizing" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-status" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-statusbar" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-sub-projects" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-table-header" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-task" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-current" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-day" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-ever" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-last-week" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-month" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-week" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-year" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-yesterday" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-urgency" type="b">
+      <default>true</default>
       <description></description>
       <summary></summary>
     </key>

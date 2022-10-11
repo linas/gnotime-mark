@@ -163,28 +163,6 @@ project_list_load_old (void)
                 }
             }
         }
-      else if (s[0] == 'l')
-        {
-          if (s[1] == 'u')
-            {
-              /* use logfile? */
-              config_logfile_use = (s[4] == 'n');
-            }
-          else if (s[1] == 'n')
-            {
-              /* logfile name */
-              while (s[strlen (s) - 1] == '\n')
-                s[strlen (s) - 1] = 0;
-              if (config_logfile_name)
-                g_free (config_logfile_name);
-              config_logfile_name = g_strdup (&s[3]);
-            }
-          else if (s[1] == 's')
-            {
-              /* minimum time for a project to get logged */
-              config_logfile_min_secs = atoi (&s[3]);
-            }
-        }
       else if ((s[0] >= '0') && (s[0] <= '9'))
         {
           time_t day_secs, ever_secs;
@@ -313,17 +291,6 @@ gtt_load_gnome_config (const char *prefix)
   config_show_title_importance = GET_BOOL ("/Display/ShowImportance=true");
   config_show_title_status = GET_BOOL ("/Display/ShowStatus=false");
   prefs_update_projects_view ();
-
-  /* ------------ */
-  config_logfile_use = GET_BOOL ("/LogFile/Use=false");
-  config_logfile_name = GET_STR ("/LogFile/Filename");
-  config_logfile_start = GET_STR ("/LogFile/Entry");
-  if (!config_logfile_start)
-    config_logfile_start = g_strdup (_ ("project %t started"));
-  config_logfile_stop = GET_STR ("/LogFile/EntryStop");
-  if (!config_logfile_stop)
-    config_logfile_stop = g_strdup (_ ("stopped project %t"));
-  config_logfile_min_secs = GET_INT ("/LogFile/MinSecs");
 
   /* ------------ */
   num = 0;

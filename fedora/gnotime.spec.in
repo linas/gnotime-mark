@@ -14,7 +14,6 @@ BuildRequires:  gtkhtml3-devel
 BuildRequires:  libgnome-devel >= 0:2.0
 BuildRequires:  libgnomeui-devel >= 0:2.0.3
 BuildRequires:  libglade2-devel >= 0:2.0
-BuildRequires:  GConf2-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  popt
 BuildRequires:  pango-devel
@@ -47,8 +46,6 @@ BuildConflicts: qof-devel
 Conflicts: qof
 Requires(post): scrollkeeper
 Requires(postun): scrollkeeper
-Requires(post): GConf2
-Requires(preun): GConf2
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 
@@ -71,9 +68,7 @@ make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 %makeinstall
-unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
 # Gnotime puts it's locale translations into gnotime-2.0.mo but it's gnome
 # help files into html/gnotime....
@@ -93,16 +88,10 @@ rm -rf $RPM_BUILD_ROOT%{_localstatedir}
 rm -rf $RPM_BUILD_ROOT
 
 %post
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/%{name}.schemas &>/dev/null || :
-unset GCONF_CONFIG_SOURCES
 scrollkeeper-update -q -o %{_datadir}/omf/gnotime || :
 /sbin/ldconfig
 
 %preun
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/%{name}.schemas &>/dev/null || :
-unset GCONF_CONFIG_SOURCE
 
 %postun
 scrollkeeper-update -q || :
@@ -119,7 +108,6 @@ scrollkeeper-update -q || :
 %{_datadir}/omf/*
 %{_datadir}/applications/%{name}.desktop
 %{_mandir}/man[^3]/*
-%{_sysconfdir}/gconf/schemas/*
 %{_includedir}/gnotime
 %{_libdir}/libqof*
 

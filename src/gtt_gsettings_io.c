@@ -313,38 +313,6 @@ gtt_gsettings_save (void)
 
 /* ======================================================= */
 
-gboolean
-gtt_gconf_exists (void)
-{
-  GError *err_ret = NULL;
-  GConfClient *client;
-  GConfValue *gcv;
-
-  init_gsettings ();
-
-  /* Calling gconf_engine_dir_exists() on a non-existant directory
-   * completely hoses that directory for future use. Its Badddd.
-   * rc = gconf_engine_dir_exists (gengine, GTT_GCONF, &err_ret);
-   * gconf_client_dir_exists() is no better.
-   * Actually, the bug is that the dirs are unusable only while
-   * gconf is still running. Upon reboot, its starts working OK.
-   * Hack around it by trying to fetch a key.
-   */
-
-  client = gconf_client_get_default ();
-  gcv = gconf_client_get (client, GTT_GCONF "/dir_exists", &err_ret);
-  if ((NULL == gcv) || (FALSE == GCONF_VALUE_TYPE_VALID (gcv->type)))
-    {
-      if (err_ret)
-        printf ("GTT: Error: gconf_exists XXX err %s\n", err_ret->message);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-/* ======================================================= */
-
 void
 gtt_restore_reports_menu (GnomeApp *app)
 {

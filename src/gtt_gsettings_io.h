@@ -34,14 +34,6 @@ void gtt_gsettings_save (void);
 void gtt_gsettings_load (void);
 
 /**
- * The gtt_gconf_exists() routine returns TRUE if the Gnome2 GConf system
- * is being used.  Typically, this routine will return FALSE only once,
- * the very first time this version of GTT is run.  This gives the code
- * a chance to pull attributes out of the older gnome_config system.
- */
-gboolean gtt_gconf_exists (void);
-
-/**
  * The gtt_save_reports_menu() routine saves only the reports menu
  * attributes to the gconf system.
  */

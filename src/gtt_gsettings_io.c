@@ -38,18 +38,13 @@
 #include "timer.h"
 #include "toolbar.h"
 
-#include <gio/gio.h>
-
 static GSList *get_int_arr (GSettings *setts, const gchar *key);
 static void get_maybe_str (GSettings *setts, const gchar *key, gchar **value);
-static void get_str (GSettings *setts, const gchar *key, gchar **value);
 static void init_gsettings (void);
 static void set_bool (GSettings *setts, const gchar *key, gboolean value);
-static void set_int (GSettings *setts, const gchar *key, gint value);
 static void set_int_arr (GSettings *setts, const gchar *key, GSList *value);
 static void set_maybe_str (GSettings *setts, const gchar *key,
                            const gchar *value);
-static void set_str (GSettings *setts, const gchar *key, const gchar *value);
 
 /* XXX these should not be externs, they should be part of
  * some app-global structure.
@@ -73,33 +68,33 @@ gtt_save_reports_menu (void)
   init_gsettings ();
 
   int i;
-  char s[120], *p;
   GnomeUIInfo *reports_menu;
-  GConfClient *client;
 
-  client = gconf_client_get_default ();
   reports_menu = gtt_get_reports_menu ();
 
   /* Write out the customer report info */
   for (i = 0; GNOME_APP_UI_ENDOFINFO != reports_menu[i].type; i++)
     {
       GttPlugin *plg = reports_menu[i].user_data;
-      g_snprintf (s, sizeof (s), GTT_GCONF "/Reports/%d/", i);
-      p = s + strlen (s);
-      strcpy (p, "Name");
-      F_SETSTR (s, plg->name);
 
-      strcpy (p, "Path");
-      F_SETSTR (s, plg->path);
+      gchar *path = g_strdup_printf (
+          "/com/github/goedson/gnotime/reports/report%d/", i);
 
-      strcpy (p, "Tooltip");
-      F_SETSTR (s, plg->tooltip);
+      GSettings *report = g_settings_new_with_path (
+          "com.github.goedson.gnotime.reports", path);
 
-      strcpy (p, "LastSaveURL");
-      F_SETSTR (s, plg->last_url);
+      set_str (report, "name", plg->name);
+      set_str (report, "path", plg->path);
+      set_str (report, "tooltip", plg->tooltip);
+      set_maybe_str (report, "last-save-url", plg->last_url);
 
-      *p = 0;
-      gtt_save_gnomeui_to_gsettings (client, s, &reports_menu[i]);
+      gtt_save_gnomeui_to_gsettings (report, &reports_menu[i]);
+
+      g_object_unref (report);
+      report = NULL;
+
+      g_free (path);
+      path = NULL;
     }
   {
     GSettings *misc = g_settings_get_child (settings, "misc");
@@ -354,13 +349,9 @@ void
 gtt_restore_reports_menu (GnomeApp *app)
 {
   int i, num;
-  char s[120], *p;
   GnomeUIInfo *reports_menu;
-  GConfClient *client;
 
   init_gsettings ();
-
-  client = gconf_client_get_default ();
 
   /* Read in the user-defined report locations */
   {
@@ -374,32 +365,34 @@ gtt_restore_reports_menu (GnomeApp *app)
   for (i = 0; i < num; i++)
     {
       GttPlugin *plg;
-      const char *name, *path, *tip, *url;
+      const char *name, *path, *tip;
+      gchar *url = NULL;
 
-      g_snprintf (s, sizeof (s), GTT_GCONF "/Reports/%d/", i);
-      p = s + strlen (s);
+      gchar *setts_path = g_strdup_printf (
+          "/com/github/goedson/gnotime/reports/report%d/", i);
 
-      strcpy (p, "Name");
-      name = F_GETSTR (s, "");
+      GSettings *report = g_settings_new_with_path (
+          "com.github.goedson.gnotime.reports", setts_path);
 
-      strcpy (p, "Path");
-      path = F_GETSTR (s, "");
-
-      strcpy (p, "Tooltip");
-      tip = F_GETSTR (s, "");
-
-      strcpy (p, "LastSaveURL");
-      url = F_GETSTR (s, "");
+      name = g_settings_get_string (report, "name");
+      path = g_settings_get_string (report, "path");
+      tip = g_settings_get_string (report, "tooltip");
+      get_maybe_str (report, "last-save-url", &url);
 
       plg = gtt_plugin_new (name, path);
       plg->tooltip = g_strdup (tip);
       plg->last_url = g_strdup (url);
 
-      *p = 0;
-      gtt_restore_gnomeui_from_gsettings (client, s, &reports_menu[i]);
+      gtt_restore_gnomeui_from_gsettings (report, &reports_menu[i]);
 
       /* fixup */
       reports_menu[i].user_data = plg;
+
+      g_object_unref (report);
+      report = NULL;
+
+      g_free (setts_path);
+      setts_path = NULL;
     }
   reports_menu[i].type = GNOME_APP_UI_ENDOFINFO;
 
@@ -741,18 +734,6 @@ get_maybe_str (GSettings *const setts, const gchar *const key,
 }
 
 static void
-get_str (GSettings *const setts, const gchar *const key, gchar **const value)
-{
-  if (NULL != *value)
-    {
-      g_free (*value);
-      *value = NULL;
-    }
-
-  *value = g_settings_get_string (setts, key);
-}
-
-static void
 init_gsettings (void)
 {
   if (G_LIKELY (NULL != settings))
@@ -771,17 +752,6 @@ set_bool (GSettings *const setts, const gchar *const key, const gboolean value)
       g_warning (
           _ ("Failed to set boolean GSettings option \"%s\" to value: %s"),
           key, (FALSE == value) ? "false" : "true");
-    }
-}
-
-static void
-set_int (GSettings *const setts, const gchar *const key, const gint value)
-{
-  if (FALSE == g_settings_set_int (setts, key, value))
-    {
-      g_warning (
-          _ ("Failed to set integer GSettings option \"%s\" to value: %d"),
-          key, value);
     }
 }
 
@@ -826,17 +796,6 @@ set_maybe_str (GSettings *setts, const gchar *key, const gchar *const value)
 
   g_variant_type_free (val_type);
   val_type = NULL;
-}
-
-static void
-set_str (GSettings *setts, const gchar *key, const gchar *const value)
-{
-  if (FALSE == g_settings_set_string (setts, key, value))
-    {
-      g_warning (
-          _ ("Failed to set string GSettings option \"%s\" to value: \"%s\""),
-          key, value);
-    }
 }
 
 /* =========================== END OF FILE ========================= */

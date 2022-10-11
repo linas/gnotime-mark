@@ -9,6 +9,7 @@
     <child name="logfile" schema="com.github.goedson.gnotime.logfile"/>
     <child name="misc" schema="com.github.goedson.gnotime.misc"/>
     <child name="report" schema="com.github.goedson.gnotime.report"/>
+    <child name="reports" schema="com.github.goedson.gnotime.reports"/>
     <child name="toolbar" schema="com.github.goedson.gnotime.toolbar"/>
   </schema>
 
@@ -286,6 +287,64 @@
     </key>
     <key name="currency-use-locale" type="b">
       <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.reports">
+    <key name="ac-mods" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="accelerator-key" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="hint" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="label" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="last-save-url" type="ms">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="name" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="path" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="pixmap-info" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="pixmap-type" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="tooltip" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="type" type="s">
+      <default>''</default>
       <description></description>
       <summary></summary>
     </key>

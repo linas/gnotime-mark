@@ -1,5 +1,6 @@
 /*   GConf2 input/output handling for GTimeTracker - a time tracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,7 +23,12 @@
 #define GTT_GCONF_IO_P_H_
 
 #include <gconf/gconf-client.h>
+#include <gio/gio.h>
 #include <glib.h>
+
+void get_str (GSettings *setts, const gchar *key, gchar **value);
+void set_int (GSettings *setts, const gchar *key, gint value);
+void set_str (GSettings *setts, const gchar *key, const gchar *value);
 
 /* ======================================================= */
 /* XXX Should use GConfChangesets */

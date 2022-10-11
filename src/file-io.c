@@ -163,24 +163,6 @@ project_list_load_old (void)
                 }
             }
         }
-      else if (s[0] == 'c')
-        {
-          /* start project command */
-          while (s[strlen (s) - 1] == '\n')
-            s[strlen (s) - 1] = 0;
-          if (config_shell_start)
-            g_free (config_shell_start);
-          config_shell_start = g_strdup (&s[2]);
-        }
-      else if (s[0] == 'n')
-        {
-          /* stop project command */
-          while (s[strlen (s) - 1] == '\n')
-            s[strlen (s) - 1] = 0;
-          if (config_shell_stop)
-            g_free (config_shell_stop);
-          config_shell_stop = g_strdup (&s[2]);
-        }
       else if (s[0] == 'l')
         {
           if (s[1] == 'u')
@@ -331,14 +313,6 @@ gtt_load_gnome_config (const char *prefix)
   config_show_title_importance = GET_BOOL ("/Display/ShowImportance=true");
   config_show_title_status = GET_BOOL ("/Display/ShowStatus=false");
   prefs_update_projects_view ();
-
-  /* ------------ */
-  config_shell_start
-      = GET_STR ("/Actions/StartCommand=echo start id=%D "
-                 "\\\"%t\\\"-\\\"%d\\\" %T  %H-%M-%S hours=%h min=%m secs=%s");
-  config_shell_stop
-      = GET_STR ("/Actions/StopCommand=echo stop id=%D \\\"%t\\\"-\\\"%d\\\" "
-                 "%T  %H-%M-%S hours=%h min=%m secs=%s");
 
   /* ------------ */
   config_logfile_use = GET_BOOL ("/LogFile/Use=false");

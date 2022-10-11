@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gnotime">
+  <schema id="com.github.goedson.gnotime" path="/org/github/goedson/gnotime/">
+    <child name="actions" schema="com.github.goedson.gnotime.actions"/>
+    <child name="clist" schema="com.github.goedson.gnotime.clist"/>
+    <child name="data" schema="com.github.goedson.gnotime.data"/>
+    <child name="display" schema="com.github.goedson.gnotime.display"/>
+    <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
+    <child name="logfile" schema="com.github.goedson.gnotime.logfile"/>
+    <child name="misc" schema="com.github.goedson.gnotime.misc"/>
+    <child name="report" schema="com.github.goedson.gnotime.report"/>
+    <child name="reports" schema="com.github.goedson.gnotime.reports"/>
+    <child name="toolbar" schema="com.github.goedson.gnotime.toolbar"/>
+
+    <key name="time-format" type="i">
+      <default>3</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.actions" path="/org/github/goedson/gnotime/actions/">
+    <key name="start-command" type="ms">
+      <default>'echo start id=%D \\\&quot;%t\\\&quot;-\\\&quot;%d\\\&quot; %T  %H-%M-%S hours=%h min=%m secs=%s'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="stop-command" type="ms">
+      <default>'echo stop id=%D \\\&quot;%t\\\&quot;-\\\&quot;%d\\\&quot; %T  %H-%M-%S hours=%h min=%m secs=%s'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.clist" path="/org/github/goedson/gnotime/clist/">
+    <key name="column-widths" type="ai">
+      <default>[72, 72, 72, 72, 72, 72, 367]</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.data" path="/org/github/goedson/gnotime/data/">
+    <key name="save-count" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="url" type="s">
+      <default>'gnotime.d/gnotime-data.xml'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.display" path="/org/github/goedson/gnotime/display/">
+    <key name="expander-state" type="ms">
+      <default>nothing</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-desc" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-due-date" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-estimated-end" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-estimated-start" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-importance" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-percent-complete" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-secs" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-sizing" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-status" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-statusbar" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-sub-projects" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-table-header" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-task" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-current" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-day" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-ever" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-last-week" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-month" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-week" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-year" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-time-yesterday" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-urgency" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.geometry" path="/org/github/goedson/gnotime/geometry/">
+    <key name="h-paned" type="i">
+      <default>220</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="height" type="i">
+      <default>272</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="v-paned" type="i">
+      <default>250</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="width" type="i">
+      <default>442</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="x" type="i">
+      <default>10</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="y" type="i">
+      <default>10</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.logfile" path="/org/github/goedson/gnotime/logfile/">
+    <key name="entry-start" type="ms">
+      <default l10n="messages">'project %t started'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="entry-stop" type="ms">
+      <default l10n="messages">'stopped project %t'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="filename" type="ms">
+      <default>nothing</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="min-secs" type="i">
+      <default>3</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="use" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.misc" path="/org/github/goedson/gnotime/misc/">
+    <key name="autosave-period" type="i">
+      <default>60</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="current-project" type="i">
+      <default>-1</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="day-start-offset" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="idle-timeout" type="i">
+      <default>300</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="last-timer" type="s">
+      <default>'-1'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="no-project-timeout" type="i">
+      <default>300</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="num-projects" type="i">
+      <default>-1</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="num-reports" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="timer-running" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="week-start-offset" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.report" path="/org/github/goedson/gnotime/report/">
+    <key name="currency-symbol" type="s">
+      <default>'$'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="currency-use-locale" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.reports">
+    <key name="ac-mods" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="accelerator-key" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="hint" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="label" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="last-save-url" type="ms">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="name" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="path" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="pixmap-info" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="pixmap-type" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="tooltip" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="type" type="s">
+      <default>''</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.toolbar" path="/org/github/goedson/gnotime/toolbar/">
+    <key name="show-ccp" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-exit" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-help" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-journal" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-new" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-pref" type="b">
+      <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-prop" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-timer" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-tips" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="show-toolbar" type="b">
+      <default>true</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+</schemalist>

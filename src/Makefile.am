@@ -8,80 +8,81 @@
 
 bin_PROGRAMS = gnotime
 
-gnotime_SOURCES =     \
-	active-dialog.c    \
-	app.c              \
-	projects-tree.c    \
-	dialog.c           \
-	err.c              \
-	err-throw.c        \
-	export.c           \
-	file-io.c          \
-	gconf-gnomeui.c    \
-	gconf-io.c         \
-	ghtml.c            \
-	ghtml-deprecated.c \
-	idle-dialog.c      \
-	journal.c          \
-	log.c              \
-	main.c             \
-	menucmd.c          \
-	menus.c            \
-	myoaf.c            \
-	notes-area.c       \
-	plug-edit.c        \
-	plug-in.c          \
-	prefs.c            \
-	proj.c             \
-	proj-query.c       \
-	props-invl.c       \
-	props-proj.c       \
-	props-task.c       \
-	query.c            \
-	status-icon.c      \
-	timer.c            \
-	toolbar.c          \
-	util.c             \
-	xml-read.c         \
-	xml-write.c        \
+gnotime_SOURCES =               \
+	active-dialog.c         \
+	app.c                   \
+	projects-tree.c         \
+	dialog.c                \
+	err.c                   \
+	err-throw.c             \
+	export.c                \
+	file-io.c               \
+	ghtml.c                 \
+	ghtml-deprecated.c      \
+	gtt_gsettings_gnomeui.c \
+	gtt_gsettings_io.c      \
+	gtt_gsettings_io_p.c    \
+	idle-dialog.c           \
+	journal.c               \
+	log.c                   \
+	main.c                  \
+	menucmd.c               \
+	menus.c                 \
+	myoaf.c                 \
+	notes-area.c            \
+	plug-edit.c             \
+	plug-in.c               \
+	prefs.c                 \
+	proj.c                  \
+	proj-query.c            \
+	props-invl.c            \
+	props-proj.c            \
+	props-task.c            \
+	query.c                 \
+	status-icon.c           \
+	timer.c                 \
+	toolbar.c               \
+	util.c                  \
+	xml-read.c              \
+	xml-write.c             \
 	dbus.c
 
-noinst_HEADERS =      \
-	active-dialog.h    \
-	app.h              \
-	projects-tree.h    \
-	dbus.h             \
-	cur-proj.h         \
-	dialog.h           \
-	err-throw.h        \
-	export.h           \
-	file-io.h          \
-	gconf-gnomeui.h    \
-	gconf-io.h         \
-	gconf-io-p.h       \
-	ghtml.h            \
-	ghtml-deprecated.h \
-	gtt.h              \
-	idle-dialog.h      \
-	journal.h          \
-	log.h              \
-	menucmd.h          \
-	menus.h            \
-	myoaf.h            \
-	notes-area.h       \
-	plug-in.h          \
-	prefs.h            \
-	proj.h             \
-	proj_p.h           \
-	proj-query.h       \
-	props-invl.h       \
-	props-proj.h       \
-	props-task.h       \
-	query.h            \
-	status-icon.h      \
-	timer.h            \
-	toolbar.h          \
-	util.h             \
+noinst_HEADERS =                \
+	active-dialog.h         \
+	app.h                   \
+	projects-tree.h         \
+	dbus.h                  \
+	cur-proj.h              \
+	dialog.h                \
+	err-throw.h             \
+	export.h                \
+	file-io.h               \
+	ghtml.h                 \
+	ghtml-deprecated.h      \
+	gtt.h                   \
+	gtt_gsettings_gnomeui.h \
+	gtt_gsettings_io.h      \
+	gtt_gsettings_io_p.h    \
+	idle-dialog.h           \
+	journal.h               \
+	log.h                   \
+	menucmd.h               \
+	menus.h                 \
+	myoaf.h                 \
+	notes-area.h            \
+	plug-in.h               \
+	prefs.h                 \
+	proj.h                  \
+	proj_p.h                \
+	proj-query.h            \
+	props-invl.h            \
+	props-proj.h            \
+	props-task.h            \
+	query.h                 \
+	status-icon.h           \
+	timer.h                 \
+	toolbar.h               \
+	util.h                  \
 	xml-gtt.h
 
 # disable depricated when we find work-around for ctree, property box.
@@ -96,7 +97,6 @@ AM_CFLAGS = -g -Wall     \
 	${GTK_CFLAGS}     \
 	${LIBGNOME_CFLAGS}     \
 	${LIBGNOMEUI_CFLAGS}     \
-	${GCONF_CFLAGS}       \
 	${LIBGTKHTML_CFLAGS}  \
 	${LIBGLADE_CFLAGS}    \
 	${LIBXML2_CFLAGS} \
@@ -119,7 +119,6 @@ INCLUDES =                                   \
 	${GTK_CFLAGS}     \
 	${LIBGNOME_CFLAGS}     \
 	${LIBGNOMEUI_CFLAGS}     \
-	${GCONF_CFLAGS}       \
 	${GUILE_CFLAGS}
 
 gnotime_LDADD =          \
@@ -127,7 +126,6 @@ gnotime_LDADD =          \
 	${GTK_LIBS}     \
 	${LIBGNOME_LIBS}     \
 	${LIBGNOMEUI_LIBS}     \
-	${GCONF_LIBS}       \
 	$(LIBQOF_LIBS)        \
 	$(LIBDBUS_LIBS)       \
 	$(XSS_EXTENSION_LIBS) \

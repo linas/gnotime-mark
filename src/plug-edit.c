@@ -17,13 +17,15 @@
  */
 
 #include "config.h"
+
+#include "gtt_gsettings_io.h"
+
 #include <glade/glade.h>
 #include <glib.h>
 #include <gnome.h>
 
 #include "app.h"
 #include "dialog.h"
-#include "gconf-io.h"
 #include "journal.h"
 #include "menus.h"
 #include "plug-in.h"

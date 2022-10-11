@@ -1451,7 +1451,7 @@ gtt_ghtml_resolve_path (const char *path_frag, const char *reference_path)
 }
 
 /* XXX The show_report routine should probably be using data pulled from
- * GConf, in the same way that the user-defined items are obtained.
+ * GSettings, in the same way that the user-defined items are obtained.
  * Currently, these are hard-coded in menus.c.
  */
 

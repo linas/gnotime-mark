@@ -25,8 +25,6 @@
 #define GTT_APP_PROPER_NAME "GnoTime"
 #define GTT_APP_NAME "gnotime"
 
-#define XML_DATA_FILENAME "gnotime.d/gnotime-data.xml"
-
 /* err.c */
 
 void err_init (void);

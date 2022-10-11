@@ -1,5 +1,6 @@
-/*   GnomeUI to GConf2 input/output handling for GTimeTracker - a time tracker
+/* GnomeUI to GSettings input/output handling for GTimeTracker - a time tracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,11 +19,9 @@
 
 #include "config.h"
 
-#include <gconf/gconf-client.h>
-#include <gnome.h>
+#include "gtt_gsettings_gnomeui.h"
 
-#include "gconf-gnomeui.h"
-#include "gconf-io-p.h"
+#include "gtt_gsettings_io_p.h"
 
 /* ======================================================= */
 /* Convert gnome enums to strings */
@@ -99,76 +98,53 @@ string_to_gnome_ui_pixmap_type (const char *str)
 }
 
 /* ======================================================= */
-/* Save the contents of a GnomeUIInfo structure with GConf */
+/* Save the contents of a GnomeUIInfo structure with GSettings */
 
 void
-gtt_save_gnomeui_to_gconf (GConfClient *client, const char *path,
-                           GnomeUIInfo *gui)
+gtt_save_gnomeui_to_gsettings (GSettings *const setts, GnomeUIInfo *const gui)
 {
-  char *savepath, *tokptr;
-
-  if (!client || !gui || !path)
+  if (!gui || !setts)
     return;
 
   if (GNOME_APP_UI_ENDOFINFO == gui->type)
     return;
 
-  /* Reserve a big enough buffer for ourselves */
-  savepath = g_strdup_printf ("%sXXXXXXXXXXXXXXXXXXXX", path);
-  tokptr = savepath + strlen (path);
-
   /* Store the info */
-  strcpy (tokptr, "Type");
-  F_SETSTR (savepath, gnome_ui_info_type_to_string (gui->type));
-  strcpy (tokptr, "Label");
-  F_SETSTR (savepath, gui->label);
-  strcpy (tokptr, "Hint");
-  F_SETSTR (savepath, gui->hint);
-  strcpy (tokptr, "PixmapType");
-  F_SETSTR (savepath, gnome_ui_pixmap_type_to_string (gui->pixmap_type));
-  strcpy (tokptr, "PixmapInfo");
-  F_SETSTR (savepath, gui->pixmap_info);
-  strcpy (tokptr, "AcceleratorKey");
-  F_SETINT (savepath, gui->accelerator_key);
-  strcpy (tokptr, "AcMods");
-  F_SETINT (savepath, gui->ac_mods);
-
-  g_free (savepath);
+  set_str (setts, "type", gnome_ui_info_type_to_string (gui->type));
+  set_str (setts, "label", gui->label);
+  set_str (setts, "hint", gui->hint);
+  set_str (setts, "pixmap-type",
+           gnome_ui_pixmap_type_to_string (gui->pixmap_type));
+  set_str (setts, "pixmap-info", gui->pixmap_info);
+  set_int (setts, "accelerator-key", gui->accelerator_key);
+  set_int (setts, "ac-mods", gui->ac_mods);
 }
 
 /* ======================================================= */
-/* Restore the contents of a GnomeUIInfo structure from GConf */
+/* Restore the contents of a GnomeUIInfo structure from GSettings */
 
 void
-gtt_restore_gnomeui_from_gconf (GConfClient *client, const char *path,
-                                GnomeUIInfo *gui)
+gtt_restore_gnomeui_from_gsettings (GSettings *const setts,
+                                    GnomeUIInfo *const gui)
 {
-  char *savepath, *tokptr;
-
-  if (!client || !gui || !path)
+  if (!gui || !setts)
     return;
 
-  /* Reserve a big enough buffer for ourselves */
-  savepath = g_strdup_printf ("%sXXXXXXXXXXXXXXXXXXXX", path);
-  tokptr = savepath + strlen (path);
-
   /* Restore the info */
-  strcpy (tokptr, "Type");
-  gui->type = string_to_gnome_ui_info_type (F_GETSTR (savepath, ""));
-  strcpy (tokptr, "Label");
-  gui->label = F_GETSTR (savepath, "");
-  strcpy (tokptr, "Hint");
-  gui->hint = F_GETSTR (savepath, "");
-  strcpy (tokptr, "PixmapType");
-  gui->pixmap_type = string_to_gnome_ui_pixmap_type (F_GETSTR (savepath, ""));
-  strcpy (tokptr, "PixmapInfo");
-  gui->pixmap_info = F_GETSTR (savepath, "");
-  strcpy (tokptr, "AcceleratorKey");
-  gui->accelerator_key = F_GETINT (savepath, 0);
-  strcpy (tokptr, "AcMods");
-  gui->ac_mods = F_GETINT (savepath, 0);
+  gchar *tmp_str = NULL;
 
-  g_free (savepath);
+  get_str (setts, "type", &tmp_str);
+  gui->type = string_to_gnome_ui_info_type (tmp_str);
+  gui->label = g_settings_get_string (setts, "label");
+  gui->hint = g_settings_get_string (setts, "hint");
+  get_str (setts, "pixmap-type", &tmp_str);
+  gui->pixmap_type = string_to_gnome_ui_pixmap_type (tmp_str);
+  gui->pixmap_info = g_settings_get_string (setts, "pixmap-info");
+  gui->accelerator_key = g_settings_get_int (setts, "accelerator-key");
+  gui->ac_mods = g_settings_get_int (setts, "ac-mods");
+
+  g_free (tmp_str);
+  tmp_str = NULL;
 }
 
 /* ======================= END OF FILE ======================== */

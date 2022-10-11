@@ -75,4 +75,8 @@ some of the packages required to build GnoTime:
 -- libgtkhtml3-dev
 -- docbook-utils  (to build the documents subdirectory)
 
+Additional Installation Steps
+=============================
 
+- `sudo cp -v gsettings/com.github.goedson.gnotime.gschema.xml /usr/share/glib-2.0/schemas/` 
+- `sudo glib-compile-schemas /usr/share/glib-2.0/schemas`

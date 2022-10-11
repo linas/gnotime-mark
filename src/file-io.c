@@ -138,31 +138,6 @@ project_list_load_old (void)
           /* last_timer */
           last_timer = (time_t)atol (&s[1]);
         }
-      else if (s[0] == 's')
-        {
-          /* show seconds? */
-          config_show_secs = (s[3] == 'n');
-        }
-      else if (s[0] == 'b')
-        {
-          if (s[1] == 'h')
-            {
-              /* show clist titles */
-              config_show_clist_titles = (s[4] == 'n');
-            }
-          else if (s[1] == 's')
-            {
-              /* show status bar */
-              if (s[4] == 'n')
-                {
-                  config_show_statusbar = 1;
-                }
-              else
-                {
-                  config_show_statusbar = 0;
-                }
-            }
-        }
       else if ((s[0] >= '0') && (s[0] <= '9'))
         {
           time_t day_secs, ever_secs;
@@ -189,17 +164,6 @@ project_list_load_old (void)
   fclose (f);
 
   gtt_project_list_compute_secs ();
-
-  if (config_show_statusbar)
-    {
-      gtk_widget_show (status_bar);
-    }
-  else
-    {
-      gtk_widget_hide (status_bar);
-    }
-
-  update_status_bar ();
 
   return;
 
@@ -258,34 +222,6 @@ gtt_load_gnome_config (const char *prefix)
       first_proj_title = g_strdup (gtt_project_get_title (cur_proj));
     }
 
-  config_show_secs = GET_BOOL ("/Display/ShowSecs=false");
-  config_show_clist_titles = GET_BOOL ("/Display/ShowTableHeader=false");
-  config_show_subprojects = GET_BOOL ("/Display/ShowSubProjects=true");
-  config_show_statusbar = GET_BOOL ("/Display/ShowStatusbar=true");
-
-  config_show_title_ever = GET_BOOL ("/Display/ShowTimeEver=true");
-  config_show_title_day = GET_BOOL ("/Display/ShowTimeDay=true");
-  config_show_title_yesterday = GET_BOOL ("/Display/ShowTimeYesterday=false");
-  config_show_title_week = GET_BOOL ("/Display/ShowTimeWeek=false");
-  config_show_title_lastweek = GET_BOOL ("/Display/ShowTimeLastWeek=false");
-  config_show_title_month = GET_BOOL ("/Display/ShowTimeMonth=false");
-  config_show_title_year = GET_BOOL ("/Display/ShowTimeYear=false");
-  config_show_title_current = GET_BOOL ("/Display/ShowTimeCurrent=false");
-  config_show_title_desc = GET_BOOL ("/Display/ShowDesc=true");
-  config_show_title_task = GET_BOOL ("/Display/ShowTask=true");
-  config_show_title_estimated_start
-      = GET_BOOL ("/Display/ShowEstimatedStart=false");
-  config_show_title_estimated_end
-      = GET_BOOL ("/Display/ShowEstimatedEnd=false");
-  config_show_title_due_date = GET_BOOL ("/Display/ShowDueDate=false");
-  config_show_title_sizing = GET_BOOL ("/Display/ShowSizing=false");
-  config_show_title_percent_complete
-      = GET_BOOL ("/Display/ShowPercentComplete=false");
-  config_show_title_urgency = GET_BOOL ("/Display/ShowUrgency=true");
-  config_show_title_importance = GET_BOOL ("/Display/ShowImportance=true");
-  config_show_title_status = GET_BOOL ("/Display/ShowStatus=false");
-  prefs_update_projects_view ();
-
   /* ------------ */
   num = 0;
   for (i = 0; -1 < num; i++)
@@ -297,18 +233,6 @@ gtt_load_gnome_config (const char *prefix)
           //			ctree_set_col_width (global_ptw, i, num);
         }
     }
-
-  /* redraw the GUI */
-  if (config_show_statusbar)
-    {
-      gtk_widget_show (status_bar);
-    }
-  else
-    {
-      gtk_widget_hide (status_bar);
-    }
-
-  update_status_bar ();
 
   g_free (s);
 }

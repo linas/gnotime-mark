@@ -40,10 +40,13 @@
 
 #include <gio/gio.h>
 
+static void get_maybe_str (GSettings *setts, const gchar *key, gchar **value);
 static void get_str (GSettings *setts, const gchar *key, gchar **value);
 static void init_gsettings (void);
 static void set_bool (GSettings *setts, const gchar *key, gboolean value);
 static void set_int (GSettings *setts, const gchar *key, gint value);
+static void set_maybe_str (GSettings *setts, const gchar *key,
+                           const gchar *value);
 static void set_str (GSettings *setts, const gchar *key, const gchar *value);
 
 /* XXX these should not be externs, they should be part of
@@ -188,24 +191,16 @@ gtt_gsettings_save (void)
     toolbar = NULL;
   }
 
-  /* ------------- */
-  if (config_shell_start)
-    {
-      SETSTR ("/Actions/StartCommand", config_shell_start);
-    }
-  else
-    {
-      UNSET ("/Actions/StartCommand");
-    }
+  // Actions ------------------------------------------------------------------
+  {
+    GSettings *actions = g_settings_get_child (settings, "actions");
 
-  if (config_shell_stop)
-    {
-      SETSTR ("/Actions/StopCommand", config_shell_stop);
-    }
-  else
-    {
-      UNSET ("/Actions/StopCommand");
-    }
+    set_maybe_str (actions, "start-command", config_shell_start);
+    set_maybe_str (actions, "stop-command", config_shell_stop);
+
+    g_object_unref (actions);
+    actions = NULL;
+  }
 
   /* ------------- */
   SETBOOL ("/LogFile/Use", config_logfile_use);
@@ -515,13 +510,16 @@ gtt_gsettings_load (void)
     toolbar = NULL;
   }
 
-  /* ------------ */
-  config_shell_start = GETSTR ("/Actions/StartCommand",
-                               "echo start id=%D \\\"%t\\\"-\\\"%d\\\" %T  "
-                               "%H-%M-%S hours=%h min=%m secs=%s");
-  config_shell_stop = GETSTR ("/Actions/StopCommand",
-                              "echo stop id=%D \\\"%t\\\"-\\\"%d\\\" %T  "
-                              "%H-%M-%S hours=%h min=%m secs=%s");
+  // Actions ------------------------------------------------------------------
+  {
+    GSettings *actions = g_settings_get_child (settings, "actions");
+
+    get_maybe_str (actions, "start-command", &config_shell_start);
+    get_maybe_str (actions, "stop-command", &config_shell_stop);
+
+    g_object_unref (actions);
+    actions = NULL;
+  }
 
   /* ------------ */
   config_logfile_use = GETBOOL ("/LogFile/Use", FALSE);
@@ -599,6 +597,31 @@ gtt_gsettings_get_expander (void)
 }
 
 static void
+get_maybe_str (GSettings *const setts, const gchar *const key,
+               gchar **const value)
+{
+  if (NULL != *value)
+    {
+      g_free (*value);
+      *value = NULL;
+    }
+
+  GVariant *val = g_settings_get_value (setts, key);
+
+  GVariant *str = g_variant_get_maybe (val);
+  if (NULL != str)
+    {
+      gsize str_size;
+      *value = g_strdup (g_variant_get_string (str, &str_size));
+      g_variant_unref (str);
+      str = NULL;
+    }
+
+  g_variant_unref (val);
+  val = NULL;
+}
+
+static void
 get_str (GSettings *const setts, const gchar *const key, gchar **const value)
 {
   if (NULL != *value)
@@ -641,6 +664,28 @@ set_int (GSettings *const setts, const gchar *const key, const gint value)
           _ ("Failed to set integer GSettings option \"%s\" to value: %d"),
           key, value);
     }
+}
+
+static void
+set_maybe_str (GSettings *setts, const gchar *key, const gchar *const value)
+{
+  GVariantType *val_type = g_variant_type_new ("s");
+
+  GVariant *str_val = NULL;
+  if (NULL != value)
+    {
+      str_val = g_variant_new_string (value);
+    }
+  GVariant *val = g_variant_new_maybe (val_type, str_val);
+  if (FALSE == g_settings_set_value (setts, key, val))
+    {
+      g_warning (_ ("Failed to set maybe string GSettings option \"%s\" to "
+                    "value: \"%s\""),
+                 key, (NULL != value) ? value : "<nothing>");
+    }
+
+  g_variant_type_free (val_type);
+  val_type = NULL;
 }
 
 static void

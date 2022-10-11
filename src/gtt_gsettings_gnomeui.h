@@ -1,4 +1,4 @@
-/*   GnomeUI to GConf2 input/output handling for GTimeTracker - a time tracker
+/* GnomeUI to GSettings input/output handling for GTimeTracker - a time tracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
  * Copyright (C) 2022      Markus Prasser
  *
@@ -17,8 +17,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef GTT_GCONF_GNOMEUI_H_
-#define GTT_GCONF_GNOMEUI_H_
+#ifndef GTT_GSETTINGS_GNOMEUI_H
+#define GTT_GSETTINGS_GNOMEUI_H
 
 #include <gnome.h>
 
@@ -32,11 +32,11 @@
  * No big deal either way.
  */
 
-/* Save the contents of a GnomeUIInfo structure with GConf
+/* Save the contents of a GnomeUIInfo structure with GSettings
  * to the indicated path. */
 void gtt_save_gnomeui_to_gsettings (GSettings *setts, GnomeUIInfo *gui);
 
-/* Restore from GConf path into the designated GnomeUIInfo struct */
+/* Restore from GSettings path into the designated GnomeUIInfo struct */
 void gtt_restore_gnomeui_from_gsettings (GSettings *setts, GnomeUIInfo *gui);
 
-#endif
+#endif // GTT_GSETTINGS_GNOMEUI_H

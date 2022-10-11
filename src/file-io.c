@@ -1,6 +1,7 @@
 /*   Config file input/output handling for GnoTime
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2002,2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,7 +24,6 @@
 
 #include <errno.h>
 #include <glib.h>
-#include <gnome.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,19 +33,8 @@
 #include "err-throw.h"
 #include "file-io.h"
 #include "gtt.h"
-#include "menus.h"
-#include "plug-in.h"
-#include "prefs.h"
 #include "proj.h"
-#include "proj_p.h"
 #include "timer.h"
-#include "toolbar.h"
-
-#ifdef USE_GTT_DEBUG_FILE
-#define GTT_CONF "/gtt-DEBUG"
-#else /* not DEBUG */
-#define GTT_CONF "/" GTT_APP_NAME
-#endif /* not DEBUG */
 
 static const char *gtt_config_filepath = NULL;
 
@@ -56,45 +45,11 @@ extern char *first_proj_title; /* command line flag */
 
 /* ============================================================= */
 /* Configuration file I/O routines:
- * Note that this file supports reading from several old, 'obsolete'
- * config file formats taht GTT has used over the years.  We support
- * these reads so that users do not get left out in the cold when
- * upgrading from old versions of GTT.  All 'saves' are in the new
- * file format (currently, GConf-2).
+ * All deprecated storage formats have been dropped. All "saves" are in the new
+ * file format (currently GSettings).
  *
- * 1) Oldest format is data stuck into a ~/.gtimetrackerrc file
- *    and is handled by the project_list_load_old() routine.
- * 2) Next is Gnome-1 Gnome-Config files in ~/.gnome/gtt
- * 3) Next is Gnome-2 Gnome-Config files in ~/.gnome2/GnoTime
- * 4) Current is GConf2 system.
- *
- * Note that some of the older config files also contained project
- * data in them.  The newer versions stored project data seperately
- * from the app config data.
+ * 1) Current is GSettings system.
  */
-
-/* RC_NAME is old, depricated; stays here for backwards compat. */
-#define RC_NAME ".gtimetrackerrc"
-
-/* ======================================================= */
-
-#define GET_INT(str)                                                          \
-  ({                                                                          \
-    strcpy (p, str);                                                          \
-    gnome_config_get_int (s);                                                 \
-  })
-
-#define GET_BOOL(str)                                                         \
-  ({                                                                          \
-    strcpy (p, str);                                                          \
-    gnome_config_get_bool (s);                                                \
-  })
-
-#define GET_STR(str)                                                          \
-  ({                                                                          \
-    strcpy (p, str);                                                          \
-    gnome_config_get_string (s);                                              \
-  })
 
 /* ======================================================= */
 

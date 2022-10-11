@@ -1,4 +1,4 @@
-/*   GConf2 input/output handling for GTimeTracker - a time tracker
+/*   GSettings input/output handling for GTimeTracker - a time tracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
  * Copyright (C) 2022      Markus Prasser
  *
@@ -24,8 +24,6 @@
 #include "gtt_gsettings_gnomeui.h"
 #include "gtt_gsettings_io_p.h"
 
-#include <gconf/gconf-client.h>
-#include <gconf/gconf.h>
 #include <glib.h>
 #include <gnome.h>
 
@@ -57,8 +55,6 @@ extern int run_timer;
 int save_count = 0;
 
 static GSettings *settings = NULL;
-
-#define GTT_GCONF "/apps/gnotime"
 
 /* ======================================================= */
 
@@ -106,7 +102,6 @@ gtt_save_reports_menu (void)
 
 /* ======================================================= */
 /* Save only the GUI configuration info, not the actual data */
-/* XXX fixme -- this should really use GConfChangeSet */
 
 void
 gtt_gsettings_save (void)
@@ -115,14 +110,7 @@ gtt_gsettings_save (void)
   int x, y, w, h;
   const char *xpn;
 
-  GConfEngine *gengine;
-  GConfClient *client;
-
   init_gsettings ();
-
-  gengine = gconf_engine_get_default ();
-  client = gconf_client_get_for_engine (gengine);
-  SETINT ("/dir_exists", 1);
 
   // Geometry -----------------------------------------------------------------
   {
@@ -296,19 +284,6 @@ gtt_gsettings_save (void)
 
   /* Write out the user's report menu structure */
   gtt_save_reports_menu ();
-
-  /* Sync to file.
-   * XXX if this fails, the error is serious, and there should be a
-   * graphical popup.
-   */
-  {
-    GError *err_ret = NULL;
-    gconf_client_suggest_sync (client, &err_ret);
-    if (NULL != err_ret)
-      {
-        printf ("GTT: GConf: Sync Failed\n");
-      }
-  }
 }
 
 /* ======================================================= */
@@ -374,13 +349,8 @@ gtt_gsettings_load (void)
 {
   int i, num;
   int _n, _c, _j, _p, _t, _o, _h, _e;
-  GConfClient *client;
 
   init_gsettings ();
-
-  client = gconf_client_get_default ();
-  gconf_client_add_dir (client, GTT_GCONF, GCONF_CLIENT_PRELOAD_RECURSIVE,
-                        NULL);
 
   /* If already running, and we are over-loading a new file,
    * then save the currently running project, and try to set it

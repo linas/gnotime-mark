@@ -40,11 +40,13 @@
 
 #include <gio/gio.h>
 
+static GSList *get_int_arr (GSettings *setts, const gchar *key);
 static void get_maybe_str (GSettings *setts, const gchar *key, gchar **value);
 static void get_str (GSettings *setts, const gchar *key, gchar **value);
 static void init_gsettings (void);
 static void set_bool (GSettings *setts, const gchar *key, gboolean value);
 static void set_int (GSettings *setts, const gchar *key, gint value);
+static void set_int_arr (GSettings *setts, const gchar *key, GSList *value);
 static void set_maybe_str (GSettings *setts, const gchar *key,
                            const gchar *value);
 static void set_str (GSettings *setts, const gchar *key, const gchar *value);
@@ -242,8 +244,10 @@ gtt_gsettings_save (void)
     data = NULL;
   }
 
-  /* ------------- */
+  // CList --------------------------------------------------------------------
   {
+    GSettings *clist = g_settings_get_child (settings, "clist");
+
     long i, w;
     GSList *list = NULL;
     for (i = 0, w = 0; -1 < w; i++)
@@ -254,8 +258,11 @@ gtt_gsettings_save (void)
         list = g_slist_prepend (list, (gpointer)w);
       }
     list = g_slist_reverse (list);
-    SETLIST ("/CList/ColumnWidths", GCONF_VALUE_INT, list);
+    set_int_arr (clist, "column-widths", list);
     g_slist_free (list);
+
+    g_object_unref (clist);
+    clist = NULL;
   }
 
   // Misc ---------------------------------------------------------------------
@@ -608,9 +615,13 @@ gtt_gsettings_load (void)
     data = NULL;
   }
 
-  /* ------------ */
+  // CList --------------------------------------------------------------------
   {
-    GSList *node, *list = GETINTLIST ("/CList/ColumnWidths");
+    GSettings *clist = g_settings_get_child (settings, "clist");
+
+    GSList *list = get_int_arr (clist, "column-widths");
+
+    GSList *node = NULL;
     for (i = 0, node = list; node != NULL; node = node->next, i++)
       {
         num = (long)(node->data);
@@ -619,6 +630,11 @@ gtt_gsettings_load (void)
             gtt_projects_tree_set_col_width (projects_tree, i, num);
           }
       }
+    g_slist_free (list);
+    list = NULL;
+
+    g_object_unref (clist);
+    clist = NULL;
   }
 
   /* Read in the user-defined report locations */
@@ -673,6 +689,30 @@ gtt_gsettings_get_expander (void)
   display = NULL;
 
   return expander_state;
+}
+
+static GSList *
+get_int_arr (GSettings *setts, const gchar *key)
+{
+  GVariant *value = g_settings_get_value (setts, key);
+
+  GSList *res = NULL;
+
+  const gsize n_children = g_variant_n_children (value);
+  gsize i;
+  for (i = 0; i < n_children; ++i)
+    {
+      gint val;
+      g_variant_get_child (value, i, "i", &val);
+      res = g_slist_prepend (res, GINT_TO_POINTER (val));
+    }
+
+  g_variant_unref (value);
+  value = NULL;
+
+  res = g_slist_reverse (res);
+
+  return res;
 }
 
 static void
@@ -742,6 +782,27 @@ set_int (GSettings *const setts, const gchar *const key, const gint value)
       g_warning (
           _ ("Failed to set integer GSettings option \"%s\" to value: %d"),
           key, value);
+    }
+}
+
+static void
+set_int_arr (GSettings *setts, const gchar *key, GSList *value)
+{
+  GVariantBuilder builder;
+  g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
+
+  GSList *node = NULL;
+  for (node = value; node != NULL; node = node->next)
+    {
+      g_variant_builder_add (&builder, "i", GPOINTER_TO_INT (node->data));
+    }
+
+  GVariant *var = g_variant_builder_end (&builder);
+
+  if (FALSE == g_settings_set_value (setts, key, var))
+    {
+      g_warning (_ ("Failed to set integer array GSettings option \"%s\""),
+                 key);
     }
 }
 

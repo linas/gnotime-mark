@@ -5,6 +5,7 @@
     <child name="data" schema="com.github.goedson.gnotime.data"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
     <child name="logfile" schema="com.github.goedson.gnotime.logfile"/>
+    <child name="misc" schema="com.github.goedson.gnotime.misc"/>
     <child name="report" schema="com.github.goedson.gnotime.report"/>
     <child name="toolbar" schema="com.github.goedson.gnotime.toolbar"/>
   </schema>
@@ -91,6 +92,59 @@
     </key>
     <key name="use" type="b">
       <default>false</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.misc" path="/org/github/goedson/gnotime/misc/">
+    <key name="autosave-period" type="i">
+      <default>60</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="current-project" type="i">
+      <default>-1</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="day-start-offset" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="idle-timeout" type="i">
+      <default>300</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="last-timer" type="s">
+      <default>'-1'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="no-project-timeout" type="i">
+      <default>300</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="num-projects" type="i">
+      <default>-1</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="num-reports" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="timer-running" type="i">
+      <default>0</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="week-start-offset" type="i">
+      <default>0</default>
       <description></description>
       <summary></summary>
     </key>

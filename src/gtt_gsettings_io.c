@@ -99,7 +99,12 @@ gtt_save_reports_menu (void)
       *p = 0;
       gtt_save_gnomeui_to_gsettings (client, s, &reports_menu[i]);
     }
-  SETINT ("/Misc/NumReports", i);
+  {
+    GSettings *misc = g_settings_get_child (settings, "misc");
+    set_int (misc, "num-reports", i);
+    g_object_unref (misc);
+    misc = NULL;
+  }
 }
 
 /* ======================================================= */
@@ -243,19 +248,26 @@ gtt_gsettings_save (void)
     g_slist_free (list);
   }
 
-  /* ------------- */
-  /* Use string for time, to avoid integer conversion problems */
-  g_snprintf (s, sizeof (s), "%ld", time (0));
-  SETSTR ("/Misc/LastTimer", s);
-  SETINT ("/Misc/IdleTimeout", config_idle_timeout);
-  SETINT ("/Misc/NoProjectTimeout", config_no_project_timeout);
-  SETINT ("/Misc/AutosavePeriod", config_autosave_period);
-  SETINT ("/Misc/TimerRunning", timer_is_running ());
-  SETINT ("/Misc/CurrProject", gtt_project_get_id (cur_proj));
-  SETINT ("/Misc/NumProjects", -1);
+  // Misc ---------------------------------------------------------------------
+  {
+    GSettings *misc = g_settings_get_child (settings, "misc");
 
-  SETINT ("/Misc/DayStartOffset", config_daystart_offset);
-  SETINT ("/Misc/WeekStartOffset", config_weekstart_offset);
+    /* Use string for time, to avoid integer conversion problems */
+    g_snprintf (s, sizeof (s), "%ld", time (0));
+    set_str (misc, "last-timer", s);
+    set_int (misc, "idle-timeout", config_idle_timeout);
+    set_int (misc, "no-project-timeout", config_no_project_timeout);
+    set_int (misc, "autosave-period", config_autosave_period);
+    set_int (misc, "timer-running", timer_is_running ());
+    set_int (misc, "current-project", gtt_project_get_id (cur_proj));
+    set_int (misc, "num-projects", -1);
+
+    set_int (misc, "day-start-offset", config_daystart_offset);
+    set_int (misc, "week-start-offset", config_weekstart_offset);
+
+    g_object_unref (misc);
+    misc = NULL;
+  }
 
   SETINT ("/time_format", config_time_format);
 
@@ -334,7 +346,12 @@ gtt_restore_reports_menu (GnomeApp *app)
   client = gconf_client_get_default ();
 
   /* Read in the user-defined report locations */
-  num = GETINT ("/Misc/NumReports", 0);
+  {
+    GSettings *misc = g_settings_get_child (settings, "misc");
+    num = g_settings_get_int (misc, "num-reports");
+    g_object_unref (misc);
+    misc = NULL;
+  }
   reports_menu = g_new0 (GnomeUIInfo, num + 1);
 
   for (i = 0; i < num; i++)
@@ -406,14 +423,23 @@ gtt_gsettings_load (void)
   _h = config_show_tb_help;
   _e = config_show_tb_exit;
 
-  /* Get last running project */
-  cur_proj_id = GETINT ("/Misc/CurrProject", -1);
+  // Misc ---------------------------------------------------------------------
+  {
+    GSettings *misc = g_settings_get_child (settings, "misc");
 
-  config_idle_timeout = GETINT ("/Misc/IdleTimeout", 300);
-  config_no_project_timeout = GETINT ("/Misc/NoProjectTimeout", 300);
-  config_autosave_period = GETINT ("/Misc/AutosavePeriod", 60);
-  config_daystart_offset = GETINT ("/Misc/DayStartOffset", 0);
-  config_weekstart_offset = GETINT ("/Misc/WeekStartOffset", 0);
+    /* Get last running project */
+    cur_proj_id = g_settings_get_int (misc, "current-project");
+
+    config_idle_timeout = g_settings_get_int (misc, "idle-timeout");
+    config_no_project_timeout
+        = g_settings_get_int (misc, "no-project-timeout");
+    config_autosave_period = g_settings_get_int (misc, "autosave-period");
+    config_daystart_offset = g_settings_get_int (misc, "day-start-offset");
+    config_weekstart_offset = g_settings_get_int (misc, "week-start-offset");
+
+    g_object_unref (misc);
+    misc = NULL;
+  }
 
   // Geometry -----------------------------------------------------------------
   {
@@ -568,9 +594,20 @@ gtt_gsettings_load (void)
   /* Read in the user-defined report locations */
   gtt_restore_reports_menu (GNOME_APP (app_window));
 
-  run_timer = GETINT ("/Misc/TimerRunning", 0);
-  /* Use string for time, to avoid unsigned-long problems */
-  last_timer = (time_t)atol (GETSTR ("/Misc/LastTimer", "-1"));
+  // Misc ---------------------------------------------------------------------
+  {
+    GSettings *misc = g_settings_get_child (settings, "misc");
+
+    run_timer = g_settings_get_int (misc, "timer-running");
+    /* Use string for time, to avoid unsigned-long problems */
+    gchar *val = g_settings_get_string (misc, "last-timer");
+    last_timer = (time_t)atol (val);
+    g_free (val);
+    val = NULL;
+
+    g_object_unref (misc);
+    misc = NULL;
+  }
 
   /* redraw the GUI */
   if (config_show_statusbar)

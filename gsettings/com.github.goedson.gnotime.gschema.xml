@@ -4,6 +4,7 @@
     <child name="actions" schema="com.github.goedson.gnotime.actions"/>
     <child name="data" schema="com.github.goedson.gnotime.data"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
+    <child name="logfile" schema="com.github.goedson.gnotime.logfile"/>
     <child name="toolbar" schema="com.github.goedson.gnotime.toolbar"/>
   </schema>
 
@@ -61,6 +62,34 @@
     </key>
     <key name="y" type="i">
       <default>10</default>
+      <description></description>
+      <summary></summary>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.logfile" path="/org/github/goedson/gnotime/logfile/">
+    <key name="entry-start" type="ms">
+      <default l10n="messages">'project %t started'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="entry-stop" type="ms">
+      <default l10n="messages">'stopped project %t'</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="filename" type="ms">
+      <default>nothing</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="min-secs" type="i">
+      <default>3</default>
+      <description></description>
+      <summary></summary>
+    </key>
+    <key name="use" type="b">
+      <default>false</default>
       <description></description>
       <summary></summary>
     </key>

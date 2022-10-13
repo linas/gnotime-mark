@@ -647,8 +647,19 @@ task_popup_cb (Wiggy *wig)
 static void
 on_print_clicked_cb (GtkWidget *w, gpointer data)
 {
-  GladeXML *glxml;
-  glxml = gtt_glade_xml_new ("glade/not-implemented.glade", "Not Implemented");
+  GtkWidget *dlg = gtk_message_dialog_new (
+      NULL, 0, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+      _ ("This function is not yet implemented!\nComing Soon, I hope!"));
+  gtk_widget_set_name (dlg, "Not Implemented");
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (dlg), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (dlg), FALSE);
+  gtk_window_set_position (GTK_WINDOW (dlg), GTK_WIN_POS_NONE);
+  gtk_window_set_resizable (GTK_WINDOW (dlg), FALSE);
+  gtk_window_set_title (GTK_WINDOW (dlg), _ ("Information"));
+
+  const gint result = gtk_dialog_run (GTK_DIALOG (dlg));
+  gtk_widget_destroy (dlg);
+  dlg = NULL;
 }
 #endif
 

@@ -8,7 +8,6 @@ gttglade_DATA =              \
   interval_popup.glade       \
   journal.glade              \
   notes.glade                \
-  plugin.glade               \
   plugin_editor.glade        \
   prefs.glade                \
   project_properties.glade   \

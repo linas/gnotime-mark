@@ -23,6 +23,5 @@ glade/journal.glade
 glade/notes.glade
 glade/prefs.glade
 glade/project_properties.glade
-glade/task_popup.glade
 glade/task_properties.glade
 gnotime.desktop.in

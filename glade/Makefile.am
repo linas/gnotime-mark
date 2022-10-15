@@ -5,7 +5,6 @@ gttglade_DATA =              \
   active.glade               \
   idle.glade                 \
   interval_edit.glade        \
-  interval_popup.glade       \
   journal.glade              \
   notes.glade                \
   plugin_editor.glade        \

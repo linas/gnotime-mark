@@ -18,7 +18,6 @@ src/timer.c
 src/toolbar.c
 glade/idle.glade
 glade/interval_edit.glade
-glade/interval_popup.glade
 glade/journal.glade
 glade/notes.glade
 glade/prefs.glade

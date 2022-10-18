@@ -19,7 +19,6 @@ src/toolbar.c
 glade/idle.glade
 glade/interval_edit.glade
 glade/journal.glade
-glade/notes.glade
 glade/prefs.glade
 glade/project_properties.glade
 glade/task_properties.glade

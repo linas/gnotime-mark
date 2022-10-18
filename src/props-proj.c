@@ -1,6 +1,7 @@
 /*   Project Properties for GTimeTracker - a time tracker
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2002,2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -59,15 +60,15 @@ typedef struct _PropDlg
   GttProject *proj;
 } PropDlg;
 
-/* ============================================================== */
+static GtkWidget *connect_changed (GtkWidget *wdgt, PropDlg *dlg);
+static GnomeDateEdit *dated (GtkWidget *wdgt, PropDlg *dlg);
+static gpointer get_menu (GtkOptionMenu *wdgt, const gchar *key);
+static void mentry (GtkOptionMenu *wdgt, const gchar *name, guint order,
+                    int val);
+static GtkOptionMenu *mugged (GtkWidget *wdgt, PropDlg *dlg);
+static GtkTextView *texted (GtkWidget *wdgt, PropDlg *dlg);
 
-#define GET_MENU(WIDGET, NAME)                                                \
-  ({                                                                          \
-    GtkWidget *menu, *menu_item;                                              \
-    menu = gtk_option_menu_get_menu (WIDGET);                                 \
-    menu_item = gtk_menu_get_active (GTK_MENU (menu));                        \
-    (g_object_get_data (G_OBJECT (menu_item), NAME));                         \
-  })
+/* ============================================================== */
 
 static void
 prop_set (GnomePropertyBox *pb, gint page, PropDlg *dlg)
@@ -131,12 +132,12 @@ prop_set (GnomePropertyBox *pb, gint page, PropDlg *dlg)
     {
       gtt_project_freeze (dlg->proj);
 
-      ivl = (long)GET_MENU (dlg->urgency, "urgency");
+      ivl = (long)get_menu (dlg->urgency, "urgency");
       gtt_project_set_urgency (dlg->proj, (GttRank)ivl);
-      ivl = (long)GET_MENU (dlg->importance, "importance");
+      ivl = (long)get_menu (dlg->importance, "importance");
       gtt_project_set_importance (dlg->proj, (GttRank)ivl);
 
-      ivl = (long)GET_MENU (dlg->status, "status");
+      ivl = (long)get_menu (dlg->status, "status");
       gtt_project_set_status (dlg->proj, (GttProjectStatus)ivl);
 
       tval = gnome_date_edit_get_time (dlg->start);
@@ -279,65 +280,11 @@ do_set_project (GttProject *proj, PropDlg *dlg)
 
 /* ============================================================== */
 
-#define TAGGED(NAME)                                                          \
-  ({                                                                          \
-    GtkWidget *widget;                                                        \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    gtk_signal_connect_object (GTK_OBJECT (widget), "changed",                \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
-                               GTK_OBJECT (dlg->dlg));                        \
-    widget;                                                                   \
-  })
-
-#define DATED(NAME)                                                           \
-  ({                                                                          \
-    GtkWidget *widget;                                                        \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    gtk_signal_connect_object (GTK_OBJECT (widget), "date_changed",           \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
-                               GTK_OBJECT (dlg->dlg));                        \
-    gtk_signal_connect_object (GTK_OBJECT (widget), "time_changed",           \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
-                               GTK_OBJECT (dlg->dlg));                        \
-    GNOME_DATE_EDIT (widget);                                                 \
-  })
-
 static void
 wrapper (void *gobj, void *data)
 {
   gnome_property_box_changed (GNOME_PROPERTY_BOX (data));
 }
-
-#define TEXTED(NAME)                                                          \
-  ({                                                                          \
-    GtkWidget *widget;                                                        \
-    GtkTextBuffer *buff;                                                      \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    buff = gtk_text_view_get_buffer (GTK_TEXT_VIEW (widget));                 \
-    g_signal_connect_object (G_OBJECT (buff), "changed",                      \
-                             G_CALLBACK (wrapper), G_OBJECT (dlg->dlg), 0);   \
-    widget;                                                                   \
-  })
-
-#define MUGGED(NAME)                                                          \
-  ({                                                                          \
-    GtkWidget *widget, *mw;                                                   \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    mw = gtk_option_menu_get_menu (GTK_OPTION_MENU (widget));                 \
-    gtk_signal_connect_object (GTK_OBJECT (mw), "selection_done",             \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
-                               GTK_OBJECT (dlg->dlg));                        \
-    GTK_OPTION_MENU (widget);                                                 \
-  })
-
-#define MENTRY(WIDGET, NAME, ORDER, VAL)                                      \
-  {                                                                           \
-    GtkWidget *menu_item;                                                     \
-    GtkMenu *menu = GTK_MENU (gtk_option_menu_get_menu (WIDGET));             \
-    gtk_option_menu_set_history (WIDGET, ORDER);                              \
-    menu_item = gtk_menu_get_active (menu);                                   \
-    g_object_set_data (G_OBJECT (menu_item), NAME, (gpointer)VAL);            \
-  }
 
 /* ================================================================= */
 
@@ -371,49 +318,61 @@ prop_dialog_new (void)
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
 
-  dlg->title = GTK_ENTRY (TAGGED ("title box"));
-  dlg->desc = GTK_ENTRY (TAGGED ("desc box"));
-  dlg->notes = GTK_TEXT_VIEW (TEXTED ("notes box"));
+  dlg->title = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "title box"), dlg));
+  dlg->desc = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "desc box"), dlg));
+  dlg->notes = texted (glade_xml_get_widget (gtxml, "notes box"), dlg);
 
-  dlg->regular = GTK_ENTRY (TAGGED ("regular box"));
-  dlg->overtime = GTK_ENTRY (TAGGED ("overtime box"));
-  dlg->overover = GTK_ENTRY (TAGGED ("overover box"));
-  dlg->flatfee = GTK_ENTRY (TAGGED ("flatfee box"));
+  dlg->regular = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "regular box"), dlg));
+  dlg->overtime = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "overtime box"), dlg));
+  dlg->overover = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "overover box"), dlg));
+  dlg->flatfee = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "flatfee box"), dlg));
 
-  dlg->minimum = GTK_ENTRY (TAGGED ("minimum box"));
-  dlg->interval = GTK_ENTRY (TAGGED ("interval box"));
-  dlg->gap = GTK_ENTRY (TAGGED ("gap box"));
+  dlg->minimum = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "minimum box"), dlg));
+  dlg->interval = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "interval box"), dlg));
+  dlg->gap = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "gap box"), dlg));
 
-  dlg->urgency = MUGGED ("urgency menu");
-  dlg->importance = MUGGED ("importance menu");
-  dlg->status = MUGGED ("status menu");
+  dlg->urgency = mugged (glade_xml_get_widget (gtxml, "urgency menu"), dlg);
+  dlg->importance
+      = mugged (glade_xml_get_widget (gtxml, "importance menu"), dlg);
+  dlg->status = mugged (glade_xml_get_widget (gtxml, "status menu"), dlg);
 
-  dlg->start = DATED ("start date");
-  dlg->end = DATED ("end date");
-  dlg->due = DATED ("due date");
+  dlg->start = dated (glade_xml_get_widget (gtxml, "start date"), dlg);
+  dlg->end = dated (glade_xml_get_widget (gtxml, "end date"), dlg);
+  dlg->due = dated (glade_xml_get_widget (gtxml, "due date"), dlg);
 
-  dlg->sizing = GTK_ENTRY (TAGGED ("sizing box"));
-  dlg->percent = GTK_ENTRY (TAGGED ("percent box"));
+  dlg->sizing = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "sizing box"), dlg));
+  dlg->percent = GTK_ENTRY (
+      connect_changed (glade_xml_get_widget (gtxml, "percent box"), dlg));
 
   /* ------------------------------------------------------ */
   /* initialize menu values */
 
-  MENTRY (dlg->urgency, "urgency", 0, GTT_UNDEFINED);
-  MENTRY (dlg->urgency, "urgency", 1, GTT_LOW);
-  MENTRY (dlg->urgency, "urgency", 2, GTT_MEDIUM);
-  MENTRY (dlg->urgency, "urgency", 3, GTT_HIGH);
+  mentry (dlg->urgency, "urgency", 0, GTT_UNDEFINED);
+  mentry (dlg->urgency, "urgency", 1, GTT_LOW);
+  mentry (dlg->urgency, "urgency", 2, GTT_MEDIUM);
+  mentry (dlg->urgency, "urgency", 3, GTT_HIGH);
 
-  MENTRY (dlg->importance, "importance", 0, GTT_UNDEFINED);
-  MENTRY (dlg->importance, "importance", 1, GTT_LOW);
-  MENTRY (dlg->importance, "importance", 2, GTT_MEDIUM);
-  MENTRY (dlg->importance, "importance", 3, GTT_HIGH);
+  mentry (dlg->importance, "importance", 0, GTT_UNDEFINED);
+  mentry (dlg->importance, "importance", 1, GTT_LOW);
+  mentry (dlg->importance, "importance", 2, GTT_MEDIUM);
+  mentry (dlg->importance, "importance", 3, GTT_HIGH);
 
-  MENTRY (dlg->status, "status", 0, GTT_NO_STATUS);
-  MENTRY (dlg->status, "status", 1, GTT_NOT_STARTED);
-  MENTRY (dlg->status, "status", 2, GTT_IN_PROGRESS);
-  MENTRY (dlg->status, "status", 3, GTT_ON_HOLD);
-  MENTRY (dlg->status, "status", 4, GTT_CANCELLED);
-  MENTRY (dlg->status, "status", 5, GTT_COMPLETED);
+  mentry (dlg->status, "status", 0, GTT_NO_STATUS);
+  mentry (dlg->status, "status", 1, GTT_NOT_STARTED);
+  mentry (dlg->status, "status", 2, GTT_IN_PROGRESS);
+  mentry (dlg->status, "status", 3, GTT_ON_HOLD);
+  mentry (dlg->status, "status", 4, GTT_CANCELLED);
+  mentry (dlg->status, "status", 5, GTT_COMPLETED);
 
   gnome_dialog_close_hides (GNOME_DIALOG (dlg->dlg), TRUE);
 
@@ -454,6 +413,70 @@ prop_dialog_set_project (GttProject *proj)
   gtt_project_remove_notifier (dlog->proj, redraw, dlog);
   do_set_project (proj, dlog);
   gtt_project_add_notifier (proj, redraw, dlog);
+}
+
+static GtkWidget *
+connect_changed (GtkWidget *const wdgt, PropDlg *const dlg)
+{
+  gtk_signal_connect_object (GTK_OBJECT (wdgt), "changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+
+  return wdgt;
+}
+
+static GnomeDateEdit *
+dated (GtkWidget *const wdgt, PropDlg *const dlg)
+{
+  gtk_signal_connect_object (GTK_OBJECT (wdgt), "date_changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_signal_connect_object (GTK_OBJECT (wdgt), "time_changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+
+  return GNOME_DATE_EDIT (wdgt);
+}
+
+static gpointer
+get_menu (GtkOptionMenu *const wdgt, const gchar *const key)
+{
+  GtkWidget *const menu = gtk_option_menu_get_menu (wdgt);
+  GtkWidget *const menu_item = gtk_menu_get_active (GTK_MENU (menu));
+
+  return g_object_get_data (G_OBJECT (menu_item), key);
+}
+
+static void
+mentry (GtkOptionMenu *const wdgt, const gchar *const name, const guint order,
+        const int val)
+{
+  GtkMenu *const menu = GTK_MENU (gtk_option_menu_get_menu (wdgt));
+  gtk_option_menu_set_history (wdgt, order);
+  GtkWidget *const menu_item = gtk_menu_get_active (menu);
+  g_object_set_data (G_OBJECT (menu_item), name, GINT_TO_POINTER (val));
+}
+
+static GtkOptionMenu *
+mugged (GtkWidget *const wdgt, PropDlg *const dlg)
+{
+  GtkWidget *const mw = gtk_option_menu_get_menu (GTK_OPTION_MENU (wdgt));
+  gtk_signal_connect_object (GTK_OBJECT (mw), "selection_done",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+
+  return GTK_OPTION_MENU (wdgt);
+}
+
+static GtkTextView *
+texted (GtkWidget *const wdgt, PropDlg *const dlg)
+{
+  GtkTextView *const tv = GTK_TEXT_VIEW (wdgt);
+  GtkTextBuffer *const tvb = gtk_text_view_get_buffer (tv);
+  g_signal_connect_object (G_OBJECT (tvb), "changed", G_CALLBACK (wrapper),
+                           G_OBJECT (dlg->dlg), 0);
+
+  return tv;
 }
 
 /* ==================== END OF FILE ============================= */

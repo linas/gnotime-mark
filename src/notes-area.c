@@ -1,5 +1,6 @@
 /*   Notes Area display of project notes for GTimeTracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -65,6 +66,10 @@ struct NotesArea_s
   gboolean proj_freeze;
   GttTask *task_freeze;
 };
+
+static GtkEntry *connect_entry (GtkWidget *wdgt, GCallback cb, NotesArea *dlg);
+static GtkTextView *connect_text (GtkWidget *wdgt, GCallback cb,
+                                  NotesArea *dlg);
 
 /* ============================================================== */
 
@@ -322,24 +327,6 @@ enum
 
 /* ============================================================== */
 
-#define CONNECT_ENTRY(GLADE_NAME, CB)                                         \
-  ({                                                                          \
-    GtkEntry *entry;                                                          \
-    entry = GTK_ENTRY (glade_xml_get_widget (gtxml, GLADE_NAME));             \
-    g_signal_connect (G_OBJECT (entry), "changed", G_CALLBACK (CB), dlg);     \
-    entry;                                                                    \
-  })
-
-#define CONNECT_TEXT(GLADE_NAME, CB)                                          \
-  ({                                                                          \
-    GtkTextView *tv;                                                          \
-    GtkTextBuffer *buff;                                                      \
-    tv = GTK_TEXT_VIEW (glade_xml_get_widget (gtxml, GLADE_NAME));            \
-    buff = gtk_text_view_get_buffer (tv);                                     \
-    g_signal_connect (G_OBJECT (buff), "changed", G_CALLBACK (CB), dlg);      \
-    tv;                                                                       \
-  })
-
 NotesArea *
 notes_area_new (void)
 {
@@ -364,8 +351,11 @@ notes_area_new (void)
   dlg->edit_task
       = GTK_BUTTON (glade_xml_get_widget (gtxml, "edit_diary_entry_button"));
 
-  dlg->proj_title = CONNECT_ENTRY ("proj title entry", proj_title_changed);
-  dlg->proj_desc = CONNECT_ENTRY ("proj desc entry", proj_desc_changed);
+  dlg->proj_title
+      = connect_entry (glade_xml_get_widget (gtxml, "proj title entry"),
+                       proj_title_changed, dlg);
+  dlg->proj_desc = connect_entry (
+      glade_xml_get_widget (gtxml, "proj desc entry"), proj_desc_changed, dlg);
   dlg->task_combo
       = GTK_COMBO_BOX (glade_xml_get_widget (gtxml, "diary_entry_combo"));
 
@@ -377,8 +367,12 @@ notes_area_new (void)
                                   "text", 0, NULL);
   g_object_set (cell, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 
-  dlg->proj_notes = CONNECT_TEXT ("proj notes textview", proj_notes_changed);
-  dlg->task_notes = CONNECT_TEXT ("diary notes textview", task_notes_changed);
+  dlg->proj_notes
+      = connect_text (glade_xml_get_widget (gtxml, "proj notes textview"),
+                      proj_notes_changed, dlg);
+  dlg->task_notes
+      = connect_text (glade_xml_get_widget (gtxml, "diary notes textview"),
+                      task_notes_changed, dlg);
 
   g_signal_connect (G_OBJECT (dlg->close_proj), "clicked",
                     G_CALLBACK (close_proj_area), dlg);
@@ -679,6 +673,27 @@ build_column_menu (void)
   gtk_menu_shell_append (GTK_MENU_SHELL (column_menu), move_right);
 
   return column_menu;
+}
+
+static GtkEntry *
+connect_entry (GtkWidget *const wdgt, GCallback cb, NotesArea *const dlg)
+{
+  GtkEntry *const entry = GTK_ENTRY (wdgt);
+
+  g_signal_connect (G_OBJECT (entry), "changed", G_CALLBACK (cb), dlg);
+
+  return entry;
+}
+
+static GtkTextView *
+connect_text (GtkWidget *const wdgt, GCallback cb, NotesArea *const dlg)
+{
+  GtkTextView *const tv = GTK_TEXT_VIEW (wdgt);
+
+  GtkTextBuffer *const tvb = gtk_text_view_get_buffer (tv);
+  g_signal_connect (G_OBJECT (tvb), "changed", G_CALLBACK (cb), dlg);
+
+  return tv;
 }
 
 /* ========================= END OF FILE ======================== */

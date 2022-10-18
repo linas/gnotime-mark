@@ -341,6 +341,126 @@ prop_dialog_new (void)
       connect_changed (glade_xml_get_widget (gtxml, "gap box"), dlg));
 
   dlg->urgency = mugged (glade_xml_get_widget (gtxml, "urgency menu"), dlg);
+
+  GtkWidget *urgency_menu = glade_xml_get_widget (gtxml, "convertwidget3");
+
+  GtkWidget *urgency_menu_item1 = gtk_menu_item_new_with_label (_ ("Not Set"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (urgency_menu_item1), TRUE);
+  gtk_widget_set_name (urgency_menu_item1, "convertwidget4");
+  gtk_widget_show (urgency_menu_item1);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (urgency_menu), urgency_menu_item1);
+
+  GtkWidget *urgency_menu_item2 = gtk_menu_item_new_with_label (_ ("Low"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (urgency_menu_item2), TRUE);
+  gtk_widget_set_name (urgency_menu_item2, "convertwidget5");
+  gtk_widget_show (urgency_menu_item2);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (urgency_menu), urgency_menu_item2);
+
+  GtkWidget *urgency_menu_item3 = gtk_menu_item_new_with_label (_ ("Medium"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (urgency_menu_item3), TRUE);
+  gtk_widget_set_name (urgency_menu_item3, "convertwidget6");
+  gtk_widget_show (urgency_menu_item3);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (urgency_menu), urgency_menu_item3);
+
+  GtkWidget *urgency_menu_item4 = gtk_menu_item_new_with_label (_ ("High"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (urgency_menu_item4), TRUE);
+  gtk_widget_set_name (urgency_menu_item4, "convertwidget7");
+  gtk_widget_show (urgency_menu_item4);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (urgency_menu), urgency_menu_item4);
+
+  GtkWidget *importance_menu = glade_xml_get_widget (gtxml, "convertwidget8");
+
+  GtkWidget *importance_menu_item1
+      = gtk_menu_item_new_with_label (_ ("Not Set"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (importance_menu_item1),
+                                   TRUE);
+  gtk_widget_set_name (importance_menu_item1, "convertwidget9");
+  gtk_widget_show (importance_menu_item1);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (importance_menu),
+                         importance_menu_item1);
+
+  GtkWidget *importance_menu_item2 = gtk_menu_item_new_with_label (_ ("Low"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (importance_menu_item2),
+                                   TRUE);
+  gtk_widget_set_name (importance_menu_item2, "convertwidget10");
+  gtk_widget_show (importance_menu_item2);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (importance_menu),
+                         importance_menu_item2);
+
+  GtkWidget *importance_menu_item3
+      = gtk_menu_item_new_with_label (_ ("Medium"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (importance_menu_item3),
+                                   TRUE);
+  gtk_widget_set_name (importance_menu_item3, "convertwidget11");
+  gtk_widget_show (importance_menu_item3);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (importance_menu),
+                         importance_menu_item3);
+
+  GtkWidget *importance_menu_item4 = gtk_menu_item_new_with_label (_ ("High"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (importance_menu_item4),
+                                   TRUE);
+  gtk_widget_set_name (importance_menu_item4, "convertwidget12");
+  gtk_widget_show (importance_menu_item4);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (importance_menu),
+                         importance_menu_item4);
+
+  GtkWidget *status_menu = glade_xml_get_widget (gtxml, "convertwidget13");
+
+  GtkWidget *status_menu_item1
+      = gtk_menu_item_new_with_label (_ ("No Status"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (status_menu_item1), TRUE);
+  gtk_widget_set_name (status_menu_item1, "convertwidget14");
+  gtk_widget_show (status_menu_item1);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (status_menu), status_menu_item1);
+
+  GtkWidget *status_menu_item2
+      = gtk_menu_item_new_with_label (_ ("Not Started"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (status_menu_item2), TRUE);
+  gtk_widget_set_name (status_menu_item2, "convertwidget15");
+  gtk_widget_show (status_menu_item2);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (status_menu), status_menu_item2);
+
+  GtkWidget *status_menu_item3
+      = gtk_menu_item_new_with_label (_ ("In Progress"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (status_menu_item3), TRUE);
+  gtk_widget_set_name (status_menu_item3, "convertwidget16");
+  gtk_widget_show (status_menu_item3);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (status_menu), status_menu_item3);
+
+  GtkWidget *status_menu_item4 = gtk_menu_item_new_with_label (_ ("On Hold"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (status_menu_item4), TRUE);
+  gtk_widget_set_name (status_menu_item4, "convertwidget17");
+  gtk_widget_show (status_menu_item4);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (status_menu), status_menu_item4);
+
+  GtkWidget *status_menu_item5
+      = gtk_menu_item_new_with_label (_ ("Cancelled"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (status_menu_item5), TRUE);
+  gtk_widget_set_name (status_menu_item5, "convertwidget18");
+  gtk_widget_show (status_menu_item5);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (status_menu), status_menu_item5);
+
+  GtkWidget *status_menu_item6
+      = gtk_menu_item_new_with_label (_ ("Completed"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (status_menu_item6), TRUE);
+  gtk_widget_set_name (status_menu_item6, "convertwidget19");
+  gtk_widget_show (status_menu_item6);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (status_menu), status_menu_item6);
+
   dlg->importance
       = mugged (glade_xml_get_widget (gtxml, "importance menu"), dlg);
   dlg->status = mugged (glade_xml_get_widget (gtxml, "status menu"), dlg);

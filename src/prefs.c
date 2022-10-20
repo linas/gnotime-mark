@@ -900,23 +900,74 @@ time_format_options (PrefsDialog *dlg)
 }
 
 static void
-currency_options (PrefsDialog *dlg)
+currency_options (GtkWidget *const vbox, PrefsDialog *dlg)
 {
-  GtkWidget *w;
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *frame11 = gtk_frame_new (_ ("Currency settings"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame11), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame11), 0, 0.5);
+  gtk_widget_set_name (frame11, "frame11");
 
-  w = getwid (gtxml, "currency_symbol", dlg);
-  dlg->currency_symbol = GTK_ENTRY (w);
+  GtkWidget *table8 = gtk_table_new (2, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table8), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table8), 3);
+  gtk_widget_set_name (table8, "table8");
 
-  w = glade_xml_get_widget (gtxml, "currency_symbol_label");
-  dlg->currency_symbol_label = w;
-
-  w = getchwid (gtxml, "currency_use_locale", dlg);
-  dlg->currency_use_locale = GTK_CHECK_BUTTON (w);
-
-  gtk_signal_connect (GTK_OBJECT (w), "clicked",
+  GtkWidget *currency_use_locale
+      = gtk_check_button_new_with_label (_ ("Use my locale formating"));
+  dlg->currency_use_locale = GTK_CHECK_BUTTON (currency_use_locale);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (currency_use_locale), TRUE);
+  gtk_widget_set_can_focus (currency_use_locale, TRUE);
+  gtk_widget_set_events (currency_use_locale,
+                         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+                             | GDK_POINTER_MOTION_HINT_MASK
+                             | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (currency_use_locale, "currency_use_locale");
+  gtk_signal_connect (GTK_OBJECT (currency_use_locale), "clicked",
                       GTK_SIGNAL_FUNC (currency_sensitive_cb),
                       (gpointer *)dlg);
+  gtk_signal_connect_object (GTK_OBJECT (currency_use_locale), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (currency_use_locale);
+
+  gtk_table_attach (GTK_TABLE (table8), currency_use_locale, 0, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *currency_symbol_label = gtk_label_new (_ ("Currency Symbol"));
+  dlg->currency_symbol_label = currency_symbol_label;
+  gtk_label_set_justify (GTK_LABEL (currency_symbol_label),
+                         GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (currency_symbol_label), 0, 0.5);
+  gtk_widget_set_name (currency_symbol_label, "currency_symbol_label");
+  gtk_widget_show (currency_symbol_label);
+
+  gtk_table_attach (GTK_TABLE (table8), currency_symbol_label, 0, 1, 1, 2,
+                    GTK_FILL, 0, 0, 0);
+
+  GtkWidget *currency_symbol = gtk_entry_new ();
+  dlg->currency_symbol = GTK_ENTRY (currency_symbol);
+  gtk_entry_set_invisible_char (GTK_ENTRY (currency_symbol), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (currency_symbol), 6);
+  gtk_entry_set_text (GTK_ENTRY (currency_symbol), "$");
+  gtk_widget_set_can_focus (currency_symbol, TRUE);
+  gtk_widget_set_name (currency_symbol, "currency_symbol");
+  gtk_widget_set_tooltip_text (
+      currency_symbol,
+      _ ("Place your local currency symbol for use in the reports"));
+  gtk_signal_connect_object (GTK_OBJECT (currency_symbol), "changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (currency_symbol);
+
+  gtk_table_attach (GTK_TABLE (table8), currency_symbol, 1, 2, 1, 2,
+                    GTK_EXPAND, 0, 0, 0);
+
+  gtk_widget_show (table8);
+
+  gtk_container_add (GTK_CONTAINER (frame11), table8);
+  gtk_widget_show (frame11);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox), frame11);
 }
 
 /* ============================================================== */
@@ -956,7 +1007,7 @@ prefs_dialog_new (void)
   toolbar_options (dlg);
   misc_options (dlg);
   time_format_options (dlg);
-  currency_options (dlg);
+  currency_options (glade_xml_get_widget (gtxml, "vbox6"), dlg);
 
   gnome_dialog_close_hides (GNOME_DIALOG (dlg->dlg), TRUE);
   return dlg;

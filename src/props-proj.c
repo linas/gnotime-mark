@@ -340,9 +340,19 @@ prop_dialog_new (void)
   dlg->gap = GTK_ENTRY (
       connect_changed (glade_xml_get_widget (gtxml, "gap box"), dlg));
 
-  dlg->urgency = mugged (glade_xml_get_widget (gtxml, "urgency menu"), dlg);
+  GtkWidget *sizing_table = glade_xml_get_widget (gtxml, "sizing table");
 
-  GtkWidget *urgency_menu = glade_xml_get_widget (gtxml, "convertwidget3");
+  GtkWidget *urgency = gtk_option_menu_new ();
+  gtk_widget_set_can_focus (urgency, TRUE);
+  gtk_widget_set_name (urgency, "urgency menu");
+  gtk_widget_set_tooltip_text (
+      urgency, _ ("Does this item need immediate attention? Note that some "
+                  "urgent tasks might not be important.  For example, Bill "
+                  "may want you to answer his email today, but you may have "
+                  "better things to do today"));
+
+  GtkWidget *urgency_menu = gtk_menu_new ();
+  gtk_widget_set_name (urgency_menu, "convertwidget3");
 
   GtkWidget *urgency_menu_item1 = gtk_menu_item_new_with_label (_ ("Not Set"));
   gtk_menu_item_set_use_underline (GTK_MENU_ITEM (urgency_menu_item1), TRUE);
@@ -371,8 +381,27 @@ prop_dialog_new (void)
   gtk_widget_show (urgency_menu_item4);
 
   gtk_menu_shell_append (GTK_MENU_SHELL (urgency_menu), urgency_menu_item4);
+  gtk_widget_show (urgency_menu);
 
-  GtkWidget *importance_menu = glade_xml_get_widget (gtxml, "convertwidget8");
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (urgency), urgency_menu);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (urgency), 0);
+  dlg->urgency = mugged (urgency, dlg);
+  gtk_widget_show (urgency);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), urgency, 1, 2, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *importance = gtk_option_menu_new ();
+  gtk_widget_set_can_focus (importance, TRUE);
+  gtk_widget_set_name (importance, "importance menu");
+  gtk_widget_set_tooltip_text (
+      importance,
+      _ ("How important is it to perform this task?  Not everything important "
+         "is urgent.  For example, it is important to file a tax return every "
+         "year, but you have a lot of time to get ready to do this."));
+
+  GtkWidget *importance_menu = gtk_menu_new ();
+  gtk_widget_set_name (importance_menu, "convertwidget8");
 
   GtkWidget *importance_menu_item1
       = gtk_menu_item_new_with_label (_ ("Not Set"));
@@ -411,8 +440,24 @@ prop_dialog_new (void)
 
   gtk_menu_shell_append (GTK_MENU_SHELL (importance_menu),
                          importance_menu_item4);
+  gtk_widget_show (importance_menu);
 
-  GtkWidget *status_menu = glade_xml_get_widget (gtxml, "convertwidget13");
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (importance), importance_menu);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (importance), 0);
+  dlg->importance = mugged (importance, dlg);
+  gtk_widget_show (importance);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), importance, 1, 2, 1, 2, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *status = gtk_option_menu_new ();
+  gtk_widget_set_can_focus (status, TRUE);
+  gtk_widget_set_name (status, "status menu");
+  gtk_widget_set_tooltip_text (status,
+                               _ ("What is the status of this project?"));
+
+  GtkWidget *status_menu = gtk_menu_new ();
+  gtk_widget_set_name (status_menu, "convertwidget13");
 
   GtkWidget *status_menu_item1
       = gtk_menu_item_new_with_label (_ ("No Status"));
@@ -460,10 +505,15 @@ prop_dialog_new (void)
   gtk_widget_show (status_menu_item6);
 
   gtk_menu_shell_append (GTK_MENU_SHELL (status_menu), status_menu_item6);
+  gtk_widget_show (status_menu);
 
-  dlg->importance
-      = mugged (glade_xml_get_widget (gtxml, "importance menu"), dlg);
-  dlg->status = mugged (glade_xml_get_widget (gtxml, "status menu"), dlg);
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (status), status_menu);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (status), 0);
+  dlg->status = mugged (status, dlg);
+  gtk_widget_show (status);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), status, 1, 2, 2, 3, GTK_FILL, 0,
+                    0, 0);
 
   dlg->start = dated (glade_xml_get_widget (gtxml, "start date"), dlg);
   dlg->end = dated (glade_xml_get_widget (gtxml, "end date"), dlg);

@@ -870,17 +870,126 @@ misc_options (PrefsDialog *dlg)
   w = getwid (gtxml, "no project secs", dlg);
   dlg->no_project_secs = GTK_ENTRY (w);
 
-  w = getwid (gtxml, "daystart entry", dlg);
-  dlg->daystart_secs = GTK_ENTRY (w);
+  GtkWidget *const vbox4 = glade_xml_get_widget (gtxml, "vbox4");
 
-  w = getwid (gtxml, "daystart combobox", dlg);
-  dlg->daystart_menu = GTK_COMBO_BOX (w);
+  GtkWidget *const frame8 = gtk_frame_new (_ ("End of Day/Week"));
+  gtk_frame_set_label_align (GTK_FRAME (frame8), 0, 0.5);
+  gtk_widget_set_name (frame8, "frame8");
 
-  gtk_signal_connect_object (GTK_OBJECT (w), "changed",
+  GtkWidget *const table6 = gtk_table_new (2, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table6), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table6), 3);
+  gtk_widget_set_name (table6, "table6");
+
+  GtkWidget *const weekstart_combobox = gtk_combo_box_text_new ();
+  dlg->weekstart_menu = GTK_COMBO_BOX (weekstart_combobox);
+  gtk_widget_set_events (weekstart_combobox, GDK_BUTTON_PRESS_MASK
+                                                 | GDK_BUTTON_RELEASE_MASK
+                                                 | GDK_POINTER_MOTION_HINT_MASK
+                                                 | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (weekstart_combobox, "weekstart combobox");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (weekstart_combobox),
+                                  _ ("Sunday"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (weekstart_combobox),
+                                  _ ("Monday"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (weekstart_combobox),
+                                  _ ("Tuesday"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (weekstart_combobox),
+                                  _ ("Wednesday"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (weekstart_combobox),
+                                  _ ("Thursday"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (weekstart_combobox),
+                                  _ ("Friday"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (weekstart_combobox),
+                                  _ ("Saturday"));
+  gtk_signal_connect_object (GTK_OBJECT (weekstart_combobox), "changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (weekstart_combobox);
+
+  gtk_table_attach (GTK_TABLE (table6), weekstart_combobox, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+
+  GtkWidget *const label17 = gtk_label_new (_ ("New Day Starts At:"));
+  gtk_misc_set_alignment (GTK_MISC (label17), 0, 0.5);
+  gtk_widget_set_name (label17, "label17");
+  gtk_widget_show (label17);
+
+  gtk_table_attach (GTK_TABLE (table6), label17, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const label18 = gtk_label_new (_ ("New Week Starts On:"));
+  gtk_misc_set_alignment (GTK_MISC (label18), 0, 0.5);
+  gtk_widget_set_name (label18, "label18");
+  gtk_widget_show (label18);
+
+  gtk_table_attach (GTK_TABLE (table6), label18, 0, 1, 1, 2, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const hbox1 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox1, "hbox1");
+
+  GtkWidget *const daystart_entry = gtk_entry_new ();
+  dlg->daystart_secs = GTK_ENTRY (daystart_entry);
+  gtk_entry_set_invisible_char (GTK_ENTRY (daystart_entry), '*');
+  gtk_widget_set_can_focus (daystart_entry, TRUE);
+  gtk_widget_set_name (daystart_entry, "daystart entry");
+  gtk_widget_set_tooltip_text (
+      daystart_entry,
+      _ ("The time of night at which one day ends and the next day begins.  "
+         "By default midnight, you can set this to any value."));
+  gtk_signal_connect_object (GTK_OBJECT (daystart_entry), "changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (daystart_entry);
+
+  gtk_box_pack_start_defaults (GTK_BOX (hbox1), daystart_entry);
+
+  GtkWidget *const daystart_combobox = gtk_combo_box_text_new ();
+  dlg->daystart_menu = GTK_COMBO_BOX (daystart_combobox);
+  gtk_widget_set_events (daystart_combobox, GDK_BUTTON_PRESS_MASK
+                                                | GDK_BUTTON_RELEASE_MASK
+                                                | GDK_POINTER_MOTION_HINT_MASK
+                                                | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (daystart_combobox, "daystart combobox");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("9 PM"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("10 PM"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("11 PM"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("12 Midnight"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("01 AM"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("02 AM"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("03 AM"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("04 AM"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("05 AM"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (daystart_combobox),
+                                  _ ("06 AM"));
+  gtk_signal_connect_object (GTK_OBJECT (daystart_combobox), "changed",
                              GTK_SIGNAL_FUNC (daystart_menu_changed), dlg);
+  gtk_signal_connect_object (GTK_OBJECT (daystart_combobox), "changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (daystart_combobox);
 
-  w = getwid (gtxml, "weekstart combobox", dlg);
-  dlg->weekstart_menu = GTK_COMBO_BOX (w);
+  gtk_box_pack_start_defaults (GTK_BOX (hbox1), daystart_combobox);
+  gtk_widget_show (hbox1);
+
+  gtk_table_attach (GTK_TABLE (table6), hbox1, 1, 2, 0, 1, GTK_FILL, GTK_FILL,
+                    0, 0);
+  gtk_widget_show (table6);
+
+  gtk_container_add (GTK_CONTAINER (frame8), table6);
+  gtk_widget_show (frame8);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox4), frame8);
 }
 
 static void

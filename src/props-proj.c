@@ -342,6 +342,20 @@ prop_dialog_new (void)
 
   GtkWidget *sizing_table = glade_xml_get_widget (gtxml, "sizing table");
 
+  GtkWidget *label38 = gtk_label_new (_ ("Urgency:"));
+  gtk_label_set_justify (GTK_LABEL (label38), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label38), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label38), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label38), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label38), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label38), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label38), 0, 0);
+  gtk_widget_set_name (label38, "label38");
+  gtk_widget_show (label38);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label38, 0, 1, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
   GtkWidget *urgency = gtk_option_menu_new ();
   gtk_widget_set_can_focus (urgency, TRUE);
   gtk_widget_set_name (urgency, "urgency menu");
@@ -389,6 +403,20 @@ prop_dialog_new (void)
   gtk_widget_show (urgency);
 
   gtk_table_attach (GTK_TABLE (sizing_table), urgency, 1, 2, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *label39 = gtk_label_new (_ ("Importance:"));
+  gtk_label_set_justify (GTK_LABEL (label39), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label39), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label39), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label39), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label39), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label39), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label39), 0, 0);
+  gtk_widget_set_name (label39, "label39");
+  gtk_widget_show (label39);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label39, 0, 1, 1, 2, GTK_FILL, 0,
                     0, 0);
 
   GtkWidget *importance = gtk_option_menu_new ();
@@ -449,6 +477,20 @@ prop_dialog_new (void)
 
   gtk_table_attach (GTK_TABLE (sizing_table), importance, 1, 2, 1, 2, GTK_FILL,
                     0, 0, 0);
+
+  GtkWidget *label40 = gtk_label_new (_ ("Status:"));
+  gtk_label_set_justify (GTK_LABEL (label40), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label40), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label40), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label40), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label40), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label40), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label40), 0, 0);
+  gtk_widget_set_name (label40, "label40");
+  gtk_widget_show (label40);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label40, 0, 1, 2, 3, GTK_FILL, 0,
+                    0, 0);
 
   GtkWidget *status = gtk_option_menu_new ();
   gtk_widget_set_can_focus (status, TRUE);

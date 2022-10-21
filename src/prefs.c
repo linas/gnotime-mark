@@ -884,19 +884,76 @@ misc_options (PrefsDialog *dlg)
 }
 
 static void
-time_format_options (PrefsDialog *dlg)
+time_format_options (GtkWidget *const vbox, PrefsDialog *dlg)
 {
-  GtkWidget *w;
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *frame10 = gtk_frame_new (_ ("Time format"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame10), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame10), 0, 0.5);
+  gtk_widget_set_name (frame10, "frame10");
 
-  w = getchwid (gtxml, "time_format_am_pm", dlg);
-  dlg->time_format_am_pm = GTK_RADIO_BUTTON (w);
+  GtkWidget *const alignment1 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment1), 0, 0, 12, 0);
+  gtk_widget_set_name (alignment1, "alignment1");
 
-  w = getchwid (gtxml, "time_format_24_hs", dlg);
-  dlg->time_format_24_hs = GTK_RADIO_BUTTON (w);
+  GtkWidget *const vbox6 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox6, "vbox6");
 
-  w = getchwid (gtxml, "time_format_locale", dlg);
-  dlg->time_format_locale = GTK_RADIO_BUTTON (w);
+  GtkWidget *const time_format_am_pm
+      = gtk_radio_button_new_with_mnemonic (NULL, _ ("12 hours"));
+  dlg->time_format_am_pm = GTK_RADIO_BUTTON (time_format_am_pm);
+  gtk_button_set_use_underline (GTK_BUTTON (time_format_am_pm), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (time_format_am_pm), TRUE);
+  gtk_widget_set_can_focus (time_format_am_pm, TRUE);
+  gtk_widget_set_name (time_format_am_pm, "time_format_am_pm");
+  gtk_signal_connect_object (GTK_OBJECT (time_format_am_pm), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (time_format_am_pm);
+
+  // FIXME: Find out why the button group mechanism is not working
+  GSList *const time_format_btn_grp
+      = gtk_radio_button_get_group (GTK_RADIO_BUTTON (time_format_am_pm));
+
+  gtk_box_pack_start (GTK_BOX (vbox6), time_format_am_pm, FALSE, FALSE, 0);
+
+  GtkWidget *const time_format_24_hs = gtk_radio_button_new_with_mnemonic (
+      time_format_btn_grp, _ ("24 hours"));
+  dlg->time_format_24_hs = GTK_RADIO_BUTTON (time_format_24_hs);
+  gtk_button_set_use_underline (GTK_BUTTON (time_format_24_hs), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (time_format_24_hs), TRUE);
+  gtk_widget_set_can_focus (time_format_24_hs, TRUE);
+  gtk_widget_set_name (time_format_24_hs, "time_format_24_hs");
+  gtk_signal_connect_object (GTK_OBJECT (time_format_24_hs), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (time_format_24_hs);
+
+  gtk_box_pack_start (GTK_BOX (vbox6), time_format_24_hs, FALSE, FALSE, 0);
+
+  GtkWidget *const time_format_locale = gtk_radio_button_new_with_mnemonic (
+      time_format_btn_grp, _ ("Use my locale formating"));
+  dlg->time_format_locale = GTK_RADIO_BUTTON (time_format_locale);
+  gtk_button_set_use_underline (GTK_BUTTON (time_format_locale), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (time_format_locale), TRUE);
+  gtk_widget_set_can_focus (time_format_locale, TRUE);
+  gtk_widget_set_name (time_format_locale, "time_format_locale");
+  gtk_signal_connect_object (GTK_OBJECT (time_format_locale), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (time_format_locale);
+
+  gtk_box_pack_start (GTK_BOX (vbox6), time_format_locale, FALSE, FALSE, 0);
+  gtk_widget_show (vbox6);
+
+  gtk_container_add (GTK_CONTAINER (alignment1), vbox6);
+  gtk_widget_show (alignment1);
+
+  gtk_container_add (GTK_CONTAINER (frame10), alignment1);
+  gtk_widget_show (frame10);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox), frame10);
+
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (time_format_locale), TRUE);
 }
 
 static void
@@ -1006,7 +1063,7 @@ prefs_dialog_new (void)
   logfile_options (dlg);
   toolbar_options (dlg);
   misc_options (dlg);
-  time_format_options (dlg);
+  time_format_options (glade_xml_get_widget (gtxml, "vbox6"), dlg);
   currency_options (glade_xml_get_widget (gtxml, "vbox6"), dlg);
 
   gnome_dialog_close_hides (GNOME_DIALOG (dlg->dlg), TRUE);

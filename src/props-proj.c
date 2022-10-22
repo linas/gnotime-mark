@@ -405,6 +405,34 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (sizing_table), urgency, 1, 2, 0, 1, GTK_FILL, 0,
                     0, 0);
 
+  GtkWidget *label46 = gtk_label_new (_ ("            "));
+  gtk_label_set_justify (GTK_LABEL (label46), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label46), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label46), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label46), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label46), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label46), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label46), 0, 0);
+  gtk_widget_set_name (label46, "label46");
+  gtk_widget_show (label46);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label46, 2, 3, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *label47 = gtk_label_new (_ ("            "));
+  gtk_label_set_justify (GTK_LABEL (label47), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label47), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label47), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label47), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label47), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label47), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label47), 0, 0);
+  gtk_widget_set_name (label47, "label47");
+  gtk_widget_show (label47);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label47, 3, 4, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
   GtkWidget *label39 = gtk_label_new (_ ("Importance:"));
   gtk_label_set_justify (GTK_LABEL (label39), GTK_JUSTIFY_CENTER);
   gtk_label_set_line_wrap (GTK_LABEL (label39), FALSE);
@@ -557,14 +585,132 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (sizing_table), status, 1, 2, 2, 3, GTK_FILL, 0,
                     0, 0);
 
-  dlg->start = dated (glade_xml_get_widget (gtxml, "start date"), dlg);
-  dlg->end = dated (glade_xml_get_widget (gtxml, "end date"), dlg);
-  dlg->due = dated (glade_xml_get_widget (gtxml, "due date"), dlg);
+  GtkWidget *label41 = gtk_label_new (_ ("Planned Start:"));
+  gtk_label_set_justify (GTK_LABEL (label41), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label41), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label41), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label41), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label41), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label41), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label41), 0, 0);
+  gtk_widget_set_name (label41, "label41");
+  gtk_widget_show (label41);
 
-  dlg->sizing = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "sizing box"), dlg));
-  dlg->percent = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "percent box"), dlg));
+  gtk_table_attach (GTK_TABLE (sizing_table), label41, 0, 1, 3, 4, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *start_date = gnome_date_edit_new (0, TRUE, TRUE);
+  dlg->start = dated (start_date, dlg);
+  gnome_date_edit_set_popup_range (GNOME_DATE_EDIT (start_date), 7, 19);
+  gtk_widget_set_name (start_date, "start date");
+  gtk_widget_show (start_date);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), start_date, 1, 4, 3, 4,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label42 = gtk_label_new (_ ("Planned Finish:"));
+  gtk_label_set_justify (GTK_LABEL (label42), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label42), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label42), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label42), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label42), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label42), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label42), 0, 0);
+  gtk_widget_set_name (label42, "label42");
+  gtk_widget_show (label42);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label42, 0, 1, 4, 5, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *end_date = gnome_date_edit_new (0, TRUE, TRUE);
+  dlg->end = dated (end_date, dlg);
+  gnome_date_edit_set_popup_range (GNOME_DATE_EDIT (end_date), 7, 19);
+  gtk_widget_set_name (end_date, "end date");
+  gtk_widget_show (end_date);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), end_date, 1, 4, 4, 5,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label43 = gtk_label_new (_ ("Due Date:"));
+  gtk_label_set_justify (GTK_LABEL (label43), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label43), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label43), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label43), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label43), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label43), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label43), 0, 0);
+  gtk_widget_set_name (label43, "label43");
+  gtk_widget_show (label43);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label43, 0, 1, 5, 6, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *due_date = gnome_date_edit_new (0, TRUE, TRUE);
+  dlg->due = dated (due_date, dlg);
+  gnome_date_edit_set_popup_range (GNOME_DATE_EDIT (due_date), 7, 19);
+  gtk_widget_set_name (due_date, "due date");
+  gtk_widget_show (due_date);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), due_date, 1, 4, 5, 6,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label44 = gtk_label_new (_ ("Hours to Finish:"));
+  gtk_label_set_justify (GTK_LABEL (label44), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label44), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label44), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label44), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label44), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label44), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label44), 0, 0);
+  gtk_widget_set_name (label44, "label44");
+  gtk_widget_show (label44);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label44, 0, 1, 6, 7, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *sizing_box = gtk_entry_new ();
+  dlg->sizing = GTK_ENTRY (connect_changed (sizing_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (sizing_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (sizing_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (sizing_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (sizing_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (sizing_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (sizing_box), TRUE);
+  gtk_widget_set_can_focus (sizing_box, TRUE);
+  gtk_widget_set_name (sizing_box, "sizing box");
+  gtk_widget_show (sizing_box);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), sizing_box, 1, 2, 6, 7,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label45 = gtk_label_new (_ ("% Complete"));
+  gtk_label_set_justify (GTK_LABEL (label45), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label45), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label45), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label45), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label45), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label45), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label45), 0, 0);
+  gtk_widget_set_name (label45, "label45");
+  gtk_widget_show (label45);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label45, 0, 1, 7, 8, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *percent_box = gtk_entry_new ();
+  dlg->percent = GTK_ENTRY (connect_changed (percent_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (percent_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (percent_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (percent_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (percent_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (percent_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (percent_box), TRUE);
+  gtk_widget_set_can_focus (percent_box, TRUE);
+  gtk_widget_set_name (percent_box, "percent box");
+  gtk_widget_show (percent_box);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), percent_box, 1, 2, 7, 8,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
   /* ------------------------------------------------------ */
   /* initialize menu values */

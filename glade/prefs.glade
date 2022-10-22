@@ -972,60 +972,6 @@
                 </child>
               </widget>
             </child>
-            <child>
-              <widget class="GtkFrame" id="frame9">
-                <property name="visible">True</property>
-                <property name="border_width">4</property>
-                <property name="label_xalign">0</property>
-                <child>
-                  <widget class="GtkTable" id="table7">
-                    <property name="visible">True</property>
-                    <property name="n_rows">1</property>
-                    <property name="n_columns">2</property>
-                    <property name="column_spacing">8</property>
-                    <property name="row_spacing">3</property>
-                    <child>
-                      <widget class="GtkLabel" id="label19">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Idle Seconds:</property>
-                        <property name="justify">GTK_JUSTIFY_CENTER</property>
-                      </widget>
-                      <packing>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkEntry" id="no project secs">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="tooltip"
-                        translatable="yes">A warning will be displayed after this number of seconds with no running project.  Set to -1 to disable.</property>
-                        <property name="invisible_char">*</property>
-                      </widget>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                  </widget>
-                </child>
-                <child>
-                  <widget class="GtkLabel" id="label20">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">No Project Timeout</property>
-                  </widget>
-                  <packing>
-                    <property name="type">label_item</property>
-                  </packing>
-                </child>
-              </widget>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
           </widget>
           <packing>
             <property name="position">5</property>

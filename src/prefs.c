@@ -867,10 +867,50 @@ misc_options (PrefsDialog *dlg)
   w = getwid (gtxml, "idle secs", dlg);
   dlg->idle_secs = GTK_ENTRY (w);
 
-  w = getwid (gtxml, "no project secs", dlg);
-  dlg->no_project_secs = GTK_ENTRY (w);
-
   GtkWidget *const vbox4 = glade_xml_get_widget (gtxml, "vbox4");
+
+  GtkWidget *const frame9 = gtk_frame_new (_ ("No Project Timeout"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame9), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame9), 0, 0.5);
+  gtk_widget_set_name (frame9, "frame9");
+
+  GtkWidget *const table7 = gtk_table_new (1, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table7), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table7), 3);
+  gtk_widget_set_name (table7, "table7");
+
+  GtkWidget *const label19 = gtk_label_new (_ ("Idle Seconds:"));
+  gtk_label_set_justify (GTK_LABEL (label19), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label19), 0, 0.5);
+  gtk_widget_set_name (label19, "label19");
+  gtk_widget_show (label19);
+
+  gtk_table_attach (GTK_TABLE (table7), label19, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const no_project_secs = gtk_entry_new ();
+  dlg->no_project_secs = GTK_ENTRY (no_project_secs);
+  gtk_entry_set_invisible_char (GTK_ENTRY (no_project_secs), '*');
+  gtk_widget_set_can_focus (no_project_secs, TRUE);
+  gtk_widget_set_name (no_project_secs, "no project secs");
+  gtk_widget_set_tooltip_text (
+      no_project_secs,
+      _ ("A warning will be displayed after this number of seconds with no "
+         "running project.  Set to -1 to disable."));
+  gtk_signal_connect_object (GTK_OBJECT (no_project_secs), "changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (no_project_secs);
+
+  gtk_table_attach (GTK_TABLE (table7), no_project_secs, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  gtk_widget_show (table7);
+
+  gtk_container_add (GTK_CONTAINER (frame9), table7);
+  gtk_widget_show (frame9);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox4), frame9);
 
   GtkWidget *const frame8 = gtk_frame_new (_ ("End of Day/Week"));
   gtk_frame_set_label_align (GTK_FRAME (frame8), 0, 0.5);

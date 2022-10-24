@@ -835,18 +835,51 @@ logfile_options (PrefsDialog *dlg)
 }
 
 static void
-toolbar_options (PrefsDialog *dlg)
+toolbar_options (GtkWidget *const vbox, PrefsDialog *dlg)
 {
-  GtkWidget *w;
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const frame3 = gtk_frame_new (_ ("Toolbar"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame3), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame3), 0, 0.5);
+  gtk_widget_set_name (frame3, "frame3");
 
-  GtkWidget *const vbox1 = glade_xml_get_widget (gtxml, "vbox1");
+  GtkWidget *const vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox2, "vbox2");
 
-  w = getchwid (gtxml, "show toolbar", dlg);
-  dlg->show_toolbar = GTK_CHECK_BUTTON (w);
-
-  gtk_signal_connect (GTK_OBJECT (w), "clicked",
+  GtkWidget *const show_toolbar
+      = gtk_check_button_new_with_mnemonic (_ ("Show Toolbar"));
+  dlg->show_toolbar = GTK_CHECK_BUTTON (show_toolbar);
+  gtk_button_set_use_underline (GTK_BUTTON (show_toolbar), TRUE);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_toolbar), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_toolbar), TRUE);
+  gtk_widget_set_can_focus (show_toolbar, TRUE);
+  gtk_widget_set_name (show_toolbar, "show toolbar");
+  gtk_signal_connect (GTK_OBJECT (show_toolbar), "clicked",
                       GTK_SIGNAL_FUNC (toolbar_sensitive_cb), (gpointer *)dlg);
+  gtk_signal_connect_object (GTK_OBJECT (show_toolbar), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_toolbar);
+
+  gtk_box_pack_start (GTK_BOX (vbox2), show_toolbar, FALSE, FALSE, 0);
+
+  GtkWidget *const show_tips
+      = gtk_check_button_new_with_mnemonic (_ ("Show Tooltips"));
+  dlg->show_tb_tips = tbwid (show_tips, dlg);
+  gtk_button_set_use_underline (GTK_BUTTON (show_tips), TRUE);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_tips), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_tips), TRUE);
+  gtk_widget_set_can_focus (show_tips, TRUE);
+  gtk_widget_set_name (show_tips, "show_tips");
+  gtk_widget_show (show_tips);
+
+  gtk_box_pack_start (GTK_BOX (vbox2), show_tips, FALSE, FALSE, 0);
+
+  gtk_widget_show (vbox2);
+
+  gtk_container_add (GTK_CONTAINER (frame3), vbox2);
+  gtk_widget_show (frame3);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox), frame3);
 
   GtkWidget *const frame4 = gtk_frame_new (_ ("Toolbar Segments"));
   gtk_container_set_border_width (GTK_CONTAINER (frame4), 4);
@@ -955,9 +988,7 @@ toolbar_options (PrefsDialog *dlg)
   gtk_container_add (GTK_CONTAINER (frame4), vbox3);
   gtk_widget_show (frame4);
 
-  gtk_box_pack_start_defaults (GTK_BOX (vbox1), frame4);
-
-  dlg->show_tb_tips = tbwid (glade_xml_get_widget (gtxml, "show tips"), dlg);
+  gtk_box_pack_start_defaults (GTK_BOX (vbox), frame4);
 }
 
 static void
@@ -1349,7 +1380,7 @@ prefs_dialog_new (void)
   field_options (dlg);
   shell_command_options (dlg);
   logfile_options (dlg);
-  toolbar_options (dlg);
+  toolbar_options (glade_xml_get_widget (gtxml, "vbox1"), dlg);
   misc_options (dlg);
   time_format_options (glade_xml_get_widget (gtxml, "vbox6"), dlg);
   currency_options (glade_xml_get_widget (gtxml, "vbox6"), dlg);

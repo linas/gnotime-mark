@@ -735,22 +735,87 @@ daystart_menu_changed (gpointer data, GtkComboBox *w)
 /* ============================================================== */
 
 static void
-display_options (PrefsDialog *dlg)
+display_options (GtkWidget *notebook1, PrefsDialog *dlg)
 {
-  GtkWidget *w;
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const label1 = gtk_label_new (_ ("Display"));
+  gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
 
-  w = getchwid (gtxml, "show secs", dlg);
-  dlg->show_secs = GTK_CHECK_BUTTON (w);
+  GtkWidget *const frame1 = gtk_frame_new (_ ("Project List Display"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame1), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame1), 0, 0.5);
+  gtk_widget_set_name (frame1, "frame1");
 
-  w = getchwid (gtxml, "show statusbar", dlg);
-  dlg->show_statusbar = GTK_CHECK_BUTTON (w);
+  GtkWidget *const table1 = gtk_table_new (4, 1, FALSE);
+  gtk_widget_set_name (table1, "table1");
 
-  w = getchwid (gtxml, "show header", dlg);
-  dlg->show_clist_titles = GTK_CHECK_BUTTON (w);
+  GtkWidget *const show_secs
+      = gtk_check_button_new_with_mnemonic (_ ("Show Seconds"));
+  dlg->show_secs = GTK_CHECK_BUTTON (show_secs);
+  gtk_button_set_use_underline (GTK_BUTTON (show_secs), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_secs), TRUE);
+  gtk_widget_set_can_focus (show_secs, TRUE);
+  gtk_widget_set_name (show_secs, "show secs");
+  gtk_signal_connect_object (GTK_OBJECT (show_secs), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_secs);
 
-  w = getchwid (gtxml, "show sub", dlg);
-  dlg->show_subprojects = GTK_CHECK_BUTTON (w);
+  gtk_table_attach (GTK_TABLE (table1), show_secs, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const show_statusbar
+      = gtk_check_button_new_with_mnemonic (_ ("Show Status Bar"));
+  dlg->show_statusbar = GTK_CHECK_BUTTON (show_statusbar);
+  gtk_button_set_use_underline (GTK_BUTTON (show_statusbar), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_statusbar), TRUE);
+  gtk_widget_set_can_focus (show_statusbar, TRUE);
+  gtk_widget_set_name (show_statusbar, "show statusbar");
+  gtk_signal_connect_object (GTK_OBJECT (show_statusbar), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_statusbar);
+
+  gtk_table_attach (GTK_TABLE (table1), show_statusbar, 0, 1, 1, 2, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const show_header
+      = gtk_check_button_new_with_mnemonic (_ ("Show Table Header"));
+  dlg->show_clist_titles = GTK_CHECK_BUTTON (show_header);
+  gtk_button_set_use_underline (GTK_BUTTON (show_header), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_header), TRUE);
+  gtk_widget_set_can_focus (show_header, TRUE);
+  gtk_widget_set_name (show_header, "show header");
+  gtk_signal_connect_object (GTK_OBJECT (show_header), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_header);
+
+  gtk_table_attach (GTK_TABLE (table1), show_header, 0, 1, 2, 3, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const show_sub
+      = gtk_check_button_new_with_mnemonic (_ ("Show Sub-Projects"));
+  dlg->show_subprojects = GTK_CHECK_BUTTON (show_sub);
+  gtk_button_set_use_underline (GTK_BUTTON (show_sub), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_sub), TRUE);
+  gtk_widget_set_can_focus (show_sub, TRUE);
+  gtk_widget_set_name (show_sub, "show sub");
+  gtk_signal_connect_object (GTK_OBJECT (show_sub), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_sub);
+
+  gtk_table_attach (GTK_TABLE (table1), show_sub, 0, 1, 3, 4, GTK_FILL, 0, 0,
+                    0);
+
+  gtk_widget_show (table1);
+  gtk_container_add (GTK_CONTAINER (frame1), table1);
+
+  gtk_widget_show (frame1);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), frame1, label1, 1);
 }
 
 static void
@@ -1561,7 +1626,7 @@ prefs_dialog_new (void)
 
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
-  display_options (dlg);
+  display_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
   field_options (dlg);
   shell_command_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
   logfile_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);

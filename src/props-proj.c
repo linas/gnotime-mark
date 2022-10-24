@@ -324,14 +324,216 @@ prop_dialog_new (void)
       connect_changed (glade_xml_get_widget (gtxml, "desc box"), dlg));
   dlg->notes = texted (glade_xml_get_widget (gtxml, "notes box"), dlg);
 
-  dlg->regular = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "regular box"), dlg));
-  dlg->overtime = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "overtime box"), dlg));
-  dlg->overover = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "overover box"), dlg));
-  dlg->flatfee = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "flatfee box"), dlg));
+  GtkWidget *rate_table = glade_xml_get_widget (gtxml, "rate table");
+
+  GtkWidget *label22 = gtk_label_new (_ ("Regular Rate:"));
+  gtk_label_set_justify (GTK_LABEL (label22), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label22), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label22), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label22), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label22), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label22), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label22), 0, 0);
+  gtk_widget_set_name (label22, "label22");
+  gtk_widget_show (label22);
+
+  gtk_table_attach (GTK_TABLE (rate_table), label22, 0, 1, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *combo_regular = gnome_entry_new ("regular_rate");
+  gnome_entry_set_max_saved (GNOME_ENTRY (combo_regular), 10);
+  gtk_widget_set_name (combo_regular, "combo regular");
+
+  GtkWidget *regular_box = gnome_entry_gtk_entry (GNOME_ENTRY (combo_regular));
+  dlg->regular = GTK_ENTRY (connect_changed (regular_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (regular_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (regular_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (regular_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (regular_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (regular_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (regular_box), TRUE);
+  gtk_widget_set_can_focus (regular_box, TRUE);
+  gtk_widget_set_name (regular_box, "regular box");
+  gtk_widget_set_tooltip_text (
+      regular_box,
+      _ ("The dollars per hour normally charged for this project."));
+  gtk_widget_show (regular_box);
+
+  gtk_widget_show (combo_regular);
+
+  gtk_table_attach (GTK_TABLE (rate_table), combo_regular, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label26 = gtk_label_new (_ ("        "));
+  gtk_label_set_justify (GTK_LABEL (label26), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label26), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label26), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label26), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label26), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label26), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label26), 0, 0);
+  gtk_widget_set_name (label26, "label26");
+  gtk_widget_show (label26);
+
+  gtk_table_attach (GTK_TABLE (rate_table), label26, 2, 3, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *label23 = gtk_label_new (_ ("Overtime Rate:"));
+  gtk_label_set_justify (GTK_LABEL (label23), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label23), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label23), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label23), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label23), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label23), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label23), 0, 0);
+  gtk_widget_set_name (label23, "label23");
+  gtk_widget_show (label23);
+
+  gtk_table_attach (GTK_TABLE (rate_table), label23, 0, 1, 1, 2, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *label27 = gtk_label_new (_ (""));
+  gtk_label_set_justify (GTK_LABEL (label27), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label27), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label27), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label27), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label27), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label27), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label27), 0, 0);
+  gtk_widget_set_name (label27, "label27");
+  gtk_widget_show (label27);
+
+  gtk_table_attach (GTK_TABLE (rate_table), label27, 2, 3, 1, 2, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *overtime_combo = gnome_entry_new ("overtime_rate");
+  gnome_entry_set_max_saved (GNOME_ENTRY (overtime_combo), 10);
+  gtk_widget_set_name (overtime_combo, "overtime combo");
+
+  GtkWidget *overtime_box
+      = gnome_entry_gtk_entry (GNOME_ENTRY (overtime_combo));
+  dlg->overtime = GTK_ENTRY (connect_changed (overtime_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (overtime_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (overtime_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (overtime_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (overtime_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (overtime_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (overtime_box), TRUE);
+  gtk_widget_set_can_focus (overtime_box, TRUE);
+  gtk_widget_set_name (overtime_box, "overtime box");
+  gtk_widget_set_tooltip_text (
+      overtime_box,
+      _ ("The dollars per hour charged for overtime work on this project."));
+  gtk_widget_show (overtime_box);
+
+  gtk_widget_show (overtime_combo);
+
+  gtk_table_attach (GTK_TABLE (rate_table), overtime_combo, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label24 = gtk_label_new (_ ("Double-Overtime Rate:"));
+  gtk_label_set_justify (GTK_LABEL (label24), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label24), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label24), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label24), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label24), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label24), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label24), 0, 0);
+  gtk_widget_set_name (label24, "label24");
+  gtk_widget_show (label24);
+
+  gtk_table_attach (GTK_TABLE (rate_table), label24, 0, 1, 2, 3, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *overover_combo = gnome_entry_new ("overover_rate");
+  gnome_entry_set_max_saved (GNOME_ENTRY (overover_combo), 10);
+  gtk_widget_set_name (overover_combo, "overover combo");
+
+  GtkWidget *overover_box
+      = gnome_entry_gtk_entry (GNOME_ENTRY (overover_combo));
+  dlg->overover = GTK_ENTRY (connect_changed (overover_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (overover_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (overover_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (overover_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (overover_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (overover_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (overover_box), TRUE);
+  gtk_widget_set_can_focus (overover_box, TRUE);
+  gtk_widget_set_name (overover_box, "overover box");
+  gtk_widget_set_tooltip_text (
+      overover_box, _ ("The over-overtime rate (overtime on Sundays, etc.)"));
+  gtk_widget_show (overover_box);
+
+  gtk_widget_show (overover_combo);
+
+  gtk_table_attach (GTK_TABLE (rate_table), overover_combo, 1, 2, 2, 3,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label28 = gtk_label_new (_ (""));
+  gtk_label_set_justify (GTK_LABEL (label28), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label28), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label28), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label28), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label28), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label28), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label28), 0, 0);
+  gtk_widget_set_name (label28, "label28");
+  gtk_widget_show (label28);
+
+  gtk_table_attach (GTK_TABLE (rate_table), label28, 2, 3, 2, 3, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *label25 = gtk_label_new (_ ("Flat Fee:"));
+  gtk_label_set_justify (GTK_LABEL (label25), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label25), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label25), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label25), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label25), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label25), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label25), 0, 0);
+  gtk_widget_set_name (label25, "label25");
+  gtk_widget_show (label25);
+
+  gtk_table_attach (GTK_TABLE (rate_table), label25, 0, 1, 3, 4, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *flatfee_combo = gnome_entry_new ("flat_fee");
+  gnome_entry_set_max_saved (GNOME_ENTRY (flatfee_combo), 10);
+  gtk_widget_set_name (flatfee_combo, "flatfee combo");
+
+  GtkWidget *flatfee_box = gnome_entry_gtk_entry (GNOME_ENTRY (flatfee_combo));
+  dlg->flatfee = GTK_ENTRY (connect_changed (flatfee_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (flatfee_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (flatfee_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (flatfee_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (flatfee_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (flatfee_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (flatfee_box), TRUE);
+  gtk_widget_set_can_focus (flatfee_box, TRUE);
+  gtk_widget_set_name (flatfee_box, "flatfee box");
+  gtk_widget_set_tooltip_text (
+      flatfee_box, _ ("If this project is billed for one price no matter how "
+                      "long it takes, enter the fee here."));
+  gtk_widget_show (flatfee_box);
+
+  gtk_widget_show (flatfee_combo);
+
+  gtk_table_attach (GTK_TABLE (rate_table), flatfee_combo, 1, 2, 3, 4,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label29 = gtk_label_new (_ ("                        "));
+  gtk_label_set_justify (GTK_LABEL (label29), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label29), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label29), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label29), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label29), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label29), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label29), 0, 0);
+  gtk_widget_set_name (label29, "label29");
+  gtk_widget_show (label29);
+
+  gtk_table_attach (GTK_TABLE (rate_table), label29, 2, 3, 3, 4, GTK_FILL, 0,
+                    0, 0);
 
   GtkWidget *interval_table = glade_xml_get_widget (gtxml, "interval table");
 

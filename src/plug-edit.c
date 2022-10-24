@@ -1,5 +1,6 @@
 /*   Report Menu Editor for GTimeTracker - a time tracker
  *   Copyright (C) 2001,2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -680,6 +681,44 @@ edit_plugin_dialog_new (void)
   dlg->gtxml = gtxml;
 
   dlg->dialog = GTK_DIALOG (glade_xml_get_widget (gtxml, "Plugin Editor"));
+
+  GtkWidget *const hbox3 = glade_xml_get_widget (gtxml, "hbox3");
+
+  GtkWidget *const label7 = gtk_label_new (_ ("Modifiers:"));
+  gtk_widget_set_name (label7, "label7");
+  gtk_widget_show (label7);
+
+  gtk_box_pack_start (GTK_BOX (hbox3), label7, FALSE, FALSE, 4);
+
+  GtkWidget *const checkbutton1
+      = gtk_check_button_new_with_mnemonic (_ ("Ctrl"));
+  gtk_button_set_use_underline (GTK_BUTTON (checkbutton1), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (checkbutton1), TRUE);
+  gtk_widget_set_can_focus (checkbutton1, TRUE);
+  gtk_widget_set_name (checkbutton1, "checkbutton1");
+  gtk_widget_show (checkbutton1);
+
+  gtk_box_pack_start (GTK_BOX (hbox3), checkbutton1, FALSE, FALSE, 0);
+
+  GtkWidget *const checkbutton2
+      = gtk_check_button_new_with_mnemonic (_ ("Shift"));
+  gtk_button_set_use_underline (GTK_BUTTON (checkbutton2), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (checkbutton2), TRUE);
+  gtk_widget_set_can_focus (checkbutton2, TRUE);
+  gtk_widget_set_name (checkbutton2, "checkbutton2");
+  gtk_widget_show (checkbutton2);
+
+  gtk_box_pack_start (GTK_BOX (hbox3), checkbutton2, FALSE, FALSE, 0);
+
+  GtkWidget *const checkbutton3
+      = gtk_check_button_new_with_mnemonic (_ ("Alt"));
+  gtk_button_set_use_underline (GTK_BUTTON (checkbutton3), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (checkbutton3), TRUE);
+  gtk_widget_set_can_focus (checkbutton3, TRUE);
+  gtk_widget_set_name (checkbutton3, "checkbutton3");
+  gtk_widget_show (checkbutton3);
+
+  gtk_box_pack_start (GTK_BOX (hbox3), checkbutton3, FALSE, FALSE, 0);
 
   /* ------------------------------------------------------ */
   /* Dialog dismissal buttons */

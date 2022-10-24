@@ -861,13 +861,50 @@ toolbar_options (PrefsDialog *dlg)
 static void
 misc_options (PrefsDialog *dlg)
 {
-  GtkWidget *w;
   GladeXML *gtxml = dlg->gtxml;
 
-  w = getwid (gtxml, "idle secs", dlg);
-  dlg->idle_secs = GTK_ENTRY (w);
-
   GtkWidget *const vbox4 = glade_xml_get_widget (gtxml, "vbox4");
+
+  GtkWidget *const frame6 = gtk_frame_new (_ ("Inactivity Timeout"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame6), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame6), 0, 0.5);
+  gtk_widget_set_name (frame6, "frame6");
+
+  GtkWidget *const table3 = gtk_table_new (1, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table3), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table3), 3);
+  gtk_widget_set_name (table3, "table3");
+
+  GtkWidget *const label8 = gtk_label_new (_ ("Idle Seconds:"));
+  gtk_label_set_justify (GTK_LABEL (label8), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label8), 0, 0.5);
+  gtk_widget_set_name (label8, "label8");
+  gtk_widget_show (label8);
+
+  gtk_table_attach (GTK_TABLE (table3), label8, 0, 1, 0, 1, GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const idle_secs = gtk_entry_new ();
+  dlg->idle_secs = GTK_ENTRY (idle_secs);
+  gtk_entry_set_invisible_char (GTK_ENTRY (idle_secs), '*');
+  gtk_widget_set_can_focus (idle_secs, TRUE);
+  gtk_widget_set_name (idle_secs, "idle secs");
+  gtk_widget_set_tooltip_text (
+      idle_secs, _ ("The current active project will be made inactive after "
+                    "there has been no keyboard/mouse activity after this "
+                    "number of seconds.  Set to -1 to disable."));
+  gtk_signal_connect_object (GTK_OBJECT (idle_secs), "changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (idle_secs);
+
+  gtk_table_attach (GTK_TABLE (table3), idle_secs, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+  gtk_widget_show (table3);
+
+  gtk_container_add (GTK_CONTAINER (frame6), table3);
+  gtk_widget_show (frame6);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox4), frame6);
 
   GtkWidget *const frame9 = gtk_frame_new (_ ("No Project Timeout"));
   gtk_container_set_border_width (GTK_CONTAINER (frame9), 4);

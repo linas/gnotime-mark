@@ -333,12 +333,162 @@ prop_dialog_new (void)
   dlg->flatfee = GTK_ENTRY (
       connect_changed (glade_xml_get_widget (gtxml, "flatfee box"), dlg));
 
-  dlg->minimum = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "minimum box"), dlg));
-  dlg->interval = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "interval box"), dlg));
-  dlg->gap = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "gap box"), dlg));
+  GtkWidget *interval_table = glade_xml_get_widget (gtxml, "interval table");
+
+  GtkWidget *label31 = gtk_label_new (_ ("Minimum Interval: "));
+  gtk_label_set_justify (GTK_LABEL (label31), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label31), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label31), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label31), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label31), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label31), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label31), 0, 0);
+  gtk_widget_set_name (label31, "label31");
+  gtk_widget_show (label31);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label31, 0, 1, 0, 1, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *entry22 = gnome_entry_new ("min_interval");
+  gnome_entry_set_max_saved (GNOME_ENTRY (entry22), 10);
+  gtk_widget_set_name (entry22, "entry22");
+
+  GtkWidget *minimum_box = gnome_entry_gtk_entry (GNOME_ENTRY (entry22));
+  dlg->minimum = GTK_ENTRY (connect_changed (minimum_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (minimum_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (minimum_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (minimum_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (minimum_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (minimum_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (minimum_box), TRUE);
+  gtk_widget_set_can_focus (minimum_box, TRUE);
+  gtk_widget_set_name (minimum_box, "minimum box");
+  gtk_widget_set_tooltip_text (
+      minimum_box, _ ("Intervals smaller than this will be discarded"));
+  gtk_widget_show (minimum_box);
+
+  gtk_widget_show (entry22);
+
+  gtk_table_attach (GTK_TABLE (interval_table), entry22, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label34 = gtk_label_new (_ ("seconds"));
+  gtk_label_set_justify (GTK_LABEL (label34), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label34), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label34), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label34), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label34), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label34), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label34), 0, 0);
+  gtk_widget_set_name (label34, "label34");
+  gtk_widget_show (label34);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label34, 2, 3, 0, 1, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *label32 = gtk_label_new (_ ("Auto-merge Interval:"));
+  gtk_label_set_justify (GTK_LABEL (label32), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label32), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label32), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label32), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label32), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label32), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label32), 0, 0);
+  gtk_widget_set_name (label32, "label32");
+  gtk_widget_show (label32);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label32, 0, 1, 1, 2, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *entry23 = gnome_entry_new ("merge_interval");
+  gnome_entry_set_max_saved (GNOME_ENTRY (entry23), 10);
+  gtk_widget_set_name (entry23, "entry23");
+
+  GtkWidget *interval_box = gnome_entry_gtk_entry (GNOME_ENTRY (entry23));
+  dlg->interval = GTK_ENTRY (connect_changed (interval_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (interval_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (interval_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (interval_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (interval_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (interval_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (interval_box), TRUE);
+  gtk_widget_set_can_focus (interval_box, TRUE);
+  gtk_widget_set_name (interval_box, "interval box");
+  gtk_widget_set_tooltip_text (
+      interval_box,
+      _ ("Time below which an interval is merged with its neighbors"));
+  gtk_widget_show (interval_box);
+
+  gtk_widget_show (entry23);
+
+  gtk_table_attach (GTK_TABLE (interval_table), entry23, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label35 = gtk_label_new (_ ("seconds"));
+  gtk_label_set_justify (GTK_LABEL (label35), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label35), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label35), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label35), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label35), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label35), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label35), 0, 0);
+  gtk_widget_set_name (label35, "label35");
+  gtk_widget_show (label35);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label35, 2, 3, 1, 2, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *label33 = gtk_label_new (_ ("Auto-merge Gap"));
+  gtk_label_set_justify (GTK_LABEL (label33), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label33), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label33), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label33), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label33), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label33), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label33), 0, 0);
+  gtk_widget_set_name (label33, "label33");
+  gtk_widget_show (label33);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label33, 0, 1, 2, 3, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *entry24 = gnome_entry_new ("merge_gap");
+  gnome_entry_set_max_saved (GNOME_ENTRY (entry24), 10);
+  gtk_widget_set_name (entry24, "entry24");
+
+  GtkWidget *gap_box = gnome_entry_gtk_entry (GNOME_ENTRY (entry24));
+  dlg->gap = GTK_ENTRY (connect_changed (gap_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (gap_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (gap_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (gap_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (gap_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (gap_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (gap_box), TRUE);
+  gtk_widget_set_can_focus (gap_box, TRUE);
+  gtk_widget_set_name (gap_box, "gap box");
+  gtk_widget_set_tooltip_text (
+      gap_box, _ ("If the gap between intervals is smaller than this, the "
+                  "intervals will be merged together."));
+  gtk_widget_show (gap_box);
+
+  gtk_widget_show (entry24);
+
+  gtk_table_attach (GTK_TABLE (interval_table), entry24, 1, 2, 2, 3,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label36 = gtk_label_new (_ ("seconds"));
+  gtk_label_set_justify (GTK_LABEL (label36), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label36), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label36), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label36), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label36), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label36), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label36), 0, 0);
+  gtk_widget_set_name (label36, "label36");
+  gtk_widget_show (label36);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label36, 2, 3, 2, 3, GTK_FILL,
+                    0, 0, 0);
 
   GtkWidget *sizing_table = glade_xml_get_widget (gtxml, "sizing table");
 

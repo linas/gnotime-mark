@@ -684,6 +684,95 @@ edit_plugin_dialog_new (void)
 
   GtkWidget *const vbox2 = glade_xml_get_widget (gtxml, "vbox2");
 
+  GtkWidget *const table1 = gtk_table_new (4, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table1), 2);
+  gtk_table_set_row_spacings (GTK_TABLE (table1), 2);
+  gtk_widget_set_name (table1, "table1");
+
+  GtkWidget *const label1 = gtk_label_new (_ ("Label:"));
+  gtk_misc_set_alignment (GTK_MISC (label1), 0, 0.5);
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
+
+  gtk_table_attach (GTK_TABLE (table1), label1, 0, 1, 0, 1, GTK_FILL, 0, 4, 0);
+
+  GtkWidget *const plugin_name = gtk_entry_new ();
+  dlg->plugin_name = GTK_ENTRY (plugin_name);
+  gtk_entry_set_invisible_char (GTK_ENTRY (plugin_name), '*');
+  gtk_widget_set_can_focus (plugin_name, TRUE);
+  gtk_widget_set_name (plugin_name, "plugin name");
+  gtk_widget_set_tooltip_text (plugin_name,
+                               _ ("Enter the name for the menu item here."));
+  g_signal_connect (G_OBJECT (plugin_name), "changed",
+                    G_CALLBACK (edit_plugin_changed_cb), dlg);
+  gtk_widget_show (plugin_name);
+
+  gtk_table_attach (GTK_TABLE (table1), plugin_name, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label2 = gtk_label_new (_ ("Path:"));
+  gtk_misc_set_alignment (GTK_MISC (label2), 0, 0.5);
+  gtk_widget_set_name (label2, "label2");
+  gtk_widget_show (label2);
+
+  gtk_table_attach (GTK_TABLE (table1), label2, 0, 1, 1, 2, GTK_FILL, 0, 4, 0);
+
+  GtkWidget *const plugin_path
+      = gtk_file_chooser_button_new (NULL, GTK_FILE_CHOOSER_ACTION_OPEN);
+  dlg->plugin_path = GTK_FILE_CHOOSER (plugin_path);
+  gtk_widget_set_events (plugin_path, GDK_BUTTON_PRESS_MASK
+                                          | GDK_BUTTON_RELEASE_MASK
+                                          | GDK_POINTER_MOTION_HINT_MASK
+                                          | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (plugin_path, "plugin path");
+  g_signal_connect (G_OBJECT (plugin_path), "changed",
+                    G_CALLBACK (edit_plugin_changed_cb), dlg);
+  gtk_widget_show (plugin_path);
+
+  gtk_table_attach_defaults (GTK_TABLE (table1), plugin_path, 1, 2, 1, 2);
+
+  GtkWidget *const label3 = gtk_label_new (_ ("Tooltip:"));
+  gtk_misc_set_alignment (GTK_MISC (label3), 0, 0.5);
+  gtk_widget_set_name (label3, "label3");
+  gtk_widget_show (label3);
+
+  gtk_table_attach (GTK_TABLE (table1), label3, 0, 1, 2, 3, GTK_FILL, 0, 4, 0);
+
+  GtkWidget *const plugin_tooltip = gtk_entry_new ();
+  dlg->plugin_tooltip = GTK_ENTRY (plugin_tooltip);
+  gtk_entry_set_invisible_char (GTK_ENTRY (plugin_tooltip), '*');
+  gtk_widget_set_can_focus (plugin_tooltip, TRUE);
+  gtk_widget_set_name (plugin_tooltip, "plugin tooltip");
+  gtk_widget_set_tooltip_text (
+      plugin_tooltip, _ ("Enter the popup hint for the menu item here."));
+  g_signal_connect (G_OBJECT (plugin_tooltip), "changed",
+                    G_CALLBACK (edit_plugin_changed_cb), dlg);
+  gtk_widget_show (plugin_tooltip);
+
+  gtk_table_attach (GTK_TABLE (table1), plugin_tooltip, 1, 2, 2, 3,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label4 = gtk_label_new (_ ("Icon:"));
+  gtk_misc_set_alignment (GTK_MISC (label4), 0, 0.5);
+  gtk_widget_set_name (label4, "label4");
+  gtk_widget_show (label4);
+
+  gtk_table_attach (GTK_TABLE (table1), label4, 0, 1, 3, 4, GTK_FILL, 0, 4, 0);
+
+  GtkWidget *const icon_path
+      = gtk_file_chooser_button_new (NULL, GTK_FILE_CHOOSER_ACTION_OPEN);
+  gtk_widget_set_events (
+      icon_path, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+                     | GDK_POINTER_MOTION_HINT_MASK | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (icon_path, "icon path");
+  gtk_widget_show (icon_path);
+
+  gtk_table_attach_defaults (GTK_TABLE (table1), icon_path, 1, 2, 3, 4);
+
+  gtk_widget_show (table1);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox2), table1);
+
   GtkWidget *const table2 = gtk_table_new (2, 2, TRUE);
   gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
   gtk_table_set_row_spacings (GTK_TABLE (table2), 4);
@@ -832,31 +921,6 @@ edit_plugin_dialog_new (void)
 
   glade_xml_signal_connect_data (gtxml, "on_cancel_button_clicked",
                                  GTK_SIGNAL_FUNC (edit_plugin_cancel_cb), dlg);
-
-  /* ------------------------------------------------------ */
-  /* Grab the various entry boxes and hook them up */
-  e = glade_xml_get_widget (gtxml, "plugin name");
-  dlg->plugin_name = GTK_ENTRY (e);
-
-  e = glade_xml_get_widget (gtxml, "plugin path");
-  dlg->plugin_path = GTK_FILE_CHOOSER (e);
-
-  e = glade_xml_get_widget (gtxml, "plugin tooltip");
-  dlg->plugin_tooltip = GTK_ENTRY (e);
-
-  /* ------------------------------------------------------ */
-  /* Inpout widget changed events */
-  glade_xml_signal_connect_data (gtxml, "on_plugin_name_changed",
-                                 GTK_SIGNAL_FUNC (edit_plugin_changed_cb),
-                                 dlg);
-
-  glade_xml_signal_connect_data (gtxml, "on_plugin_path_changed",
-                                 GTK_SIGNAL_FUNC (edit_plugin_changed_cb),
-                                 dlg);
-
-  glade_xml_signal_connect_data (gtxml, "on_plugin_tooltip_changed",
-                                 GTK_SIGNAL_FUNC (edit_plugin_changed_cb),
-                                 dlg);
 
   /* ------------------------------------------------------ */
   /* Menu order change buttons */

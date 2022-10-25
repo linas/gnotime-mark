@@ -26,10 +26,7 @@
 
 /* These routines provide some simplisitic save/restore
  * functions for GnomeUIInfo structures, so that we can
- * save and restore menu structures.  An alternative,
- * possibly prefered way of doing this would be to
- * output glade XML, and manage the menus with glade.
- * No big deal either way.
+ * save and restore menu structures.
  */
 
 /* Save the contents of a GnomeUIInfo structure with GSettings

@@ -30,8 +30,7 @@ GTT four basic parts:
    that it could be piped to anything (e.g. to cgi-bins
    in apache).
 
-4) The Gnome GUI.  This is most of the rest of the files,
-   including the parts of the GUI done up with glade.
+4) The Gnome GUI.  This is most of the rest of the files.
 
 
 Projects, Sub-projects, Tasks and Intervals

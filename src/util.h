@@ -19,16 +19,12 @@
 #ifndef __GTT_UTIL_H__
 #define __GTT_UTIL_H__
 
-#include <glade/glade.h>
-#include <gtk/gtktext.h>
+#include <gtk/gtk.h>
 
 /* ------------------------------------------------------------------ */
 /* some gtk-like utilities */
 void xxxgtk_textview_set_text (GtkTextView *text, const char *str);
 char *xxxgtk_textview_get_text (GtkTextView *text);
-
-/* Glade loader, it will look in the right directories */
-GladeXML *gtt_glade_xml_new (const char *filename, const char *widget);
 
 /* ------------------------------------------------------------------ */
 /* Functions that used to be in qof,m but are not there any longer. */

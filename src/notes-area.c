@@ -1,5 +1,6 @@
 /*   Notes Area display of project notes for GTimeTracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,7 +20,6 @@
 #include "config.h"
 #include <glib-object.h>
 
-#include <glade/glade.h>
 #include <gnome.h>
 
 #include "menus.h"
@@ -30,7 +30,6 @@
 
 struct NotesArea_s
 {
-  GladeXML *gtxml;
   GtkPaned *vpane; /* top level pane */
   GtkContainer
       *projects_tree_holder; /* scrolled widget that holds the projects tree */
@@ -65,6 +64,10 @@ struct NotesArea_s
   gboolean proj_freeze;
   GttTask *task_freeze;
 };
+
+static GtkEntry *connect_entry (GtkWidget *wdgt, GCallback cb, NotesArea *dlg);
+static GtkTextView *connect_text (GtkWidget *wdgt, GCallback cb,
+                                  NotesArea *dlg);
 
 /* ============================================================== */
 
@@ -102,6 +105,8 @@ task_memo_changed (GtkEntry *entry, NotesArea *na)
   na->ignore_events = FALSE;
 }
 #endif /* UNUSED_CODE_RIGHT_NOW */
+
+static GtkWidget *build_column_menu (void);
 
 /* ============================================================== */
 
@@ -320,52 +325,241 @@ enum
 
 /* ============================================================== */
 
-#define CONNECT_ENTRY(GLADE_NAME, CB)                                         \
-  ({                                                                          \
-    GtkEntry *entry;                                                          \
-    entry = GTK_ENTRY (glade_xml_get_widget (gtxml, GLADE_NAME));             \
-    g_signal_connect (G_OBJECT (entry), "changed", G_CALLBACK (CB), dlg);     \
-    entry;                                                                    \
-  })
-
-#define CONNECT_TEXT(GLADE_NAME, CB)                                          \
-  ({                                                                          \
-    GtkTextView *tv;                                                          \
-    GtkTextBuffer *buff;                                                      \
-    tv = GTK_TEXT_VIEW (glade_xml_get_widget (gtxml, GLADE_NAME));            \
-    buff = gtk_text_view_get_buffer (tv);                                     \
-    g_signal_connect (G_OBJECT (buff), "changed", G_CALLBACK (CB), dlg);      \
-    tv;                                                                       \
-  })
-
 NotesArea *
 notes_area_new (void)
 {
   NotesArea *dlg;
-  GladeXML *gtxml;
 
   dlg = g_new0 (NotesArea, 1);
 
-  gtxml = gtt_glade_xml_new ("glade/notes.glade", "top window");
-  dlg->gtxml = gtxml;
+  GtkWidget *top_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_widget_set_name (top_window, "top window");
+  gtk_window_set_title (GTK_WINDOW (top_window), _ ("window1"));
 
-  dlg->vpane = GTK_PANED (glade_xml_get_widget (gtxml, "notes vpane"));
-  dlg->projects_tree_holder
-      = GTK_CONTAINER (glade_xml_get_widget (gtxml, "ctree holder"));
-  dlg->hpane = GTK_PANED (glade_xml_get_widget (gtxml, "leftright hpane"));
-  dlg->close_proj
-      = GTK_BUTTON (glade_xml_get_widget (gtxml, "close proj button"));
-  dlg->close_task
-      = GTK_BUTTON (glade_xml_get_widget (gtxml, "close diary button"));
-  dlg->new_task
-      = GTK_BUTTON (glade_xml_get_widget (gtxml, "new_diary_entry_button"));
-  dlg->edit_task
-      = GTK_BUTTON (glade_xml_get_widget (gtxml, "edit_diary_entry_button"));
+  GtkWidget *notes_vpane = gtk_vpaned_new ();
+  dlg->vpane = GTK_PANED (notes_vpane);
+  gtk_widget_set_can_focus (notes_vpane, TRUE);
+  gtk_widget_set_name (notes_vpane, "notes vpane");
 
-  dlg->proj_title = CONNECT_ENTRY ("proj title entry", proj_title_changed);
-  dlg->proj_desc = CONNECT_ENTRY ("proj desc entry", proj_desc_changed);
-  dlg->task_combo
-      = GTK_COMBO_BOX (glade_xml_get_widget (gtxml, "diary_entry_combo"));
+  GtkWidget *ctree_holder = gtk_scrolled_window_new (NULL, NULL);
+  dlg->projects_tree_holder = GTK_CONTAINER (ctree_holder);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (ctree_holder),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_widget_set_can_focus (ctree_holder, TRUE);
+  gtk_widget_set_name (ctree_holder, "ctree holder");
+  gtk_widget_show (ctree_holder);
+
+  gtk_paned_pack1 (GTK_PANED (notes_vpane), ctree_holder, FALSE, TRUE);
+
+  GtkWidget *leftright_hpane = gtk_hpaned_new ();
+  dlg->hpane = GTK_PANED (leftright_hpane);
+  gtk_widget_set_can_focus (leftright_hpane, TRUE);
+  gtk_widget_set_name (leftright_hpane, "leftright hpane");
+
+  GtkWidget *vbox1 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox1, "vbox1");
+
+  GtkWidget *hbox1 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox1, "hbox1");
+
+  GtkWidget *label1 = gtk_label_new (_ ("Project Title:"));
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
+
+  gtk_box_pack_start (GTK_BOX (hbox1), label1, FALSE, FALSE, 0);
+
+  GtkWidget *close_proj_button = gtk_button_new ();
+  dlg->close_proj = GTK_BUTTON (close_proj_button);
+  gtk_button_set_relief (GTK_BUTTON (close_proj_button), GTK_RELIEF_NONE);
+  gtk_widget_set_can_focus (close_proj_button, TRUE);
+  gtk_widget_set_name (close_proj_button, "close proj button");
+  gtk_widget_set_receives_default (close_proj_button, FALSE);
+  gtk_widget_set_tooltip_text (close_proj_button,
+                               _ ("Close the project subwindow"));
+
+  GtkWidget *image1
+      = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_BUTTON);
+  gtk_widget_set_name (image1, "image1");
+  gtk_widget_show (image1);
+
+  gtk_button_set_image (GTK_BUTTON (close_proj_button), image1);
+  g_signal_connect (G_OBJECT (close_proj_button), "clicked",
+                    G_CALLBACK (close_proj_area), dlg);
+  gtk_widget_show (close_proj_button);
+
+  gtk_box_pack_start (GTK_BOX (hbox1), close_proj_button, FALSE, FALSE, 0);
+
+  GtkWidget *proj_title_entry = gtk_entry_new ();
+  dlg->proj_title
+      = connect_entry (proj_title_entry, G_CALLBACK (proj_title_changed), dlg);
+  gtk_widget_set_can_focus (proj_title_entry, TRUE);
+  gtk_widget_set_name (proj_title_entry, _ ("proj title entry"));
+  gtk_widget_set_tooltip_text (proj_title_entry,
+                               _ ("Edit the project title in this box"));
+  gtk_widget_show (proj_title_entry);
+
+  gtk_box_pack_start (GTK_BOX (hbox1), proj_title_entry, TRUE, TRUE, 4);
+  gtk_widget_show (hbox1);
+
+  gtk_box_pack_start (GTK_BOX (vbox1), hbox1, FALSE, FALSE, 0);
+
+  GtkWidget *hbox3 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox3, "hbox3");
+
+  GtkWidget *label3 = gtk_label_new (_ ("Desc:"));
+  gtk_widget_set_name (label3, "label3");
+  gtk_widget_show (label3);
+
+  gtk_box_pack_start (GTK_BOX (hbox3), label3, FALSE, FALSE, 0);
+
+  GtkWidget *proj_desc_entry = gtk_entry_new ();
+  dlg->proj_desc
+      = connect_entry (proj_desc_entry, G_CALLBACK (proj_desc_changed), dlg);
+  gtk_widget_set_can_focus (proj_desc_entry, TRUE);
+  gtk_widget_set_name (proj_desc_entry, "proj desc entry");
+  gtk_widget_set_tooltip_text (proj_desc_entry,
+                               _ ("Edit the project description"));
+  gtk_widget_show (proj_desc_entry);
+
+  gtk_box_pack_start (GTK_BOX (hbox3), proj_desc_entry, TRUE, TRUE, 4);
+
+  gtk_widget_show (hbox3);
+
+  gtk_box_pack_start (GTK_BOX (vbox1), hbox3, FALSE, FALSE, 2);
+
+  GtkWidget *scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                       GTK_SHADOW_IN);
+  gtk_widget_set_can_focus (scrolledwindow1, TRUE);
+  gtk_widget_set_name (scrolledwindow1, "scrolledwindow1");
+
+  GtkWidget *proj_notes_textview = gtk_text_view_new ();
+  dlg->proj_notes = connect_text (proj_notes_textview,
+                                  G_CALLBACK (proj_notes_changed), dlg);
+  gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (proj_notes_textview),
+                               GTK_WRAP_WORD);
+  gtk_widget_set_can_focus (proj_notes_textview, TRUE);
+  gtk_widget_set_name (proj_notes_textview, "proj notes textview");
+  gtk_widget_show (proj_notes_textview);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow1), proj_notes_textview);
+  gtk_widget_show (scrolledwindow1);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox1), scrolledwindow1);
+  gtk_widget_show (vbox1);
+
+  gtk_paned_pack1 (GTK_PANED (leftright_hpane), vbox1, FALSE, TRUE);
+
+  GtkWidget *vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox2, "vbox2");
+
+  GtkWidget *hbox2 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox2, "hbox2");
+
+  GtkWidget *label2 = gtk_label_new (_ ("Diary Entry:"));
+  gtk_widget_set_name (label2, "label2");
+  gtk_widget_show (label2);
+
+  gtk_box_pack_start (GTK_BOX (hbox2), label2, FALSE, FALSE, 0);
+
+  GtkWidget *diary_entry_combo = gtk_combo_box_new ();
+  dlg->task_combo = GTK_COMBO_BOX (diary_entry_combo);
+  gtk_widget_set_name (diary_entry_combo, "diary_entry_combo");
+  g_signal_connect (G_OBJECT (diary_entry_combo), "changed",
+                    G_CALLBACK (task_selected_cb), dlg);
+  gtk_widget_show (diary_entry_combo);
+
+  gtk_box_pack_start_defaults (GTK_BOX (hbox2), diary_entry_combo);
+
+  GtkWidget *edit_diary_entry_button
+      = gtk_button_new_from_stock (GTK_STOCK_EDIT);
+  dlg->edit_task = GTK_BUTTON (edit_diary_entry_button);
+  gtk_widget_set_can_focus (edit_diary_entry_button, TRUE);
+  gtk_widget_set_events (edit_diary_entry_button,
+                         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+                             | GDK_POINTER_MOTION_HINT_MASK
+                             | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (edit_diary_entry_button, "edit_diary_entry_button");
+  gtk_widget_set_receives_default (edit_diary_entry_button, TRUE);
+  g_signal_connect (G_OBJECT (edit_diary_entry_button), "clicked",
+                    G_CALLBACK (edit_task_cb), dlg);
+  gtk_widget_show (edit_diary_entry_button);
+
+  gtk_box_pack_start (GTK_BOX (hbox2), edit_diary_entry_button, FALSE, FALSE,
+                      0);
+
+  GtkWidget *new_diary_entry_button
+      = gtk_button_new_from_stock (GTK_STOCK_NEW);
+  dlg->new_task = GTK_BUTTON (new_diary_entry_button);
+  gtk_button_set_use_underline (GTK_BUTTON (new_diary_entry_button), TRUE);
+  gtk_widget_set_can_focus (new_diary_entry_button, TRUE);
+  gtk_widget_set_name (new_diary_entry_button, "new_diary_entry_button");
+  gtk_widget_set_receives_default (new_diary_entry_button, FALSE);
+  gtk_widget_set_tooltip_text (new_diary_entry_button,
+                               _ ("Create a new diary entry"));
+  g_signal_connect (G_OBJECT (new_diary_entry_button), "clicked",
+                    G_CALLBACK (new_task_cb), dlg);
+  gtk_widget_show (new_diary_entry_button);
+
+  gtk_box_pack_start (GTK_BOX (hbox2), new_diary_entry_button, FALSE, FALSE,
+                      0);
+
+  GtkWidget *close_diary_button = gtk_button_new ();
+  dlg->close_task = GTK_BUTTON (close_diary_button);
+  gtk_button_set_relief (GTK_BUTTON (close_diary_button), GTK_RELIEF_NONE);
+  gtk_widget_set_can_focus (close_diary_button, TRUE);
+  gtk_widget_set_name (close_diary_button, "close diary button");
+  gtk_widget_set_receives_default (close_diary_button, FALSE);
+
+  GtkWidget *image2
+      = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_BUTTON);
+  gtk_widget_set_name (image2, "image2");
+  gtk_widget_show (image2);
+
+  gtk_button_set_image (GTK_BUTTON (close_diary_button), image2);
+  g_signal_connect (G_OBJECT (close_diary_button), "clicked",
+                    G_CALLBACK (close_task_area), dlg);
+  gtk_widget_show (close_diary_button);
+
+  gtk_box_pack_start (GTK_BOX (hbox2), close_diary_button, FALSE, FALSE, 0);
+
+  gtk_widget_show (hbox2);
+
+  gtk_box_pack_start (GTK_BOX (vbox2), hbox2, FALSE, TRUE, 0);
+
+  GtkWidget *scrolledwindow2 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow2),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow2),
+                                       GTK_SHADOW_IN);
+  gtk_widget_set_can_focus (scrolledwindow2, TRUE);
+  gtk_widget_set_name (scrolledwindow2, "scrolledwindow2");
+
+  GtkWidget *diary_notes_textview = gtk_text_view_new ();
+  dlg->task_notes = connect_text (diary_notes_textview,
+                                  G_CALLBACK (task_notes_changed), dlg);
+  gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (diary_notes_textview),
+                               GTK_WRAP_WORD);
+  gtk_widget_set_can_focus (diary_notes_textview, TRUE);
+  gtk_widget_set_name (diary_notes_textview, "diary notes textview");
+  gtk_widget_show (diary_notes_textview);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow2), diary_notes_textview);
+  gtk_widget_show (scrolledwindow2);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox2), scrolledwindow2);
+  gtk_widget_show (vbox2);
+
+  gtk_paned_pack2 (GTK_PANED (leftright_hpane), vbox2, TRUE, TRUE);
+  gtk_widget_show (leftright_hpane);
+
+  gtk_paned_pack2 (GTK_PANED (notes_vpane), leftright_hpane, TRUE, TRUE);
+
+  gtk_widget_show (notes_vpane);
+
+  gtk_container_add (GTK_CONTAINER (top_window), notes_vpane);
 
   gtk_combo_box_set_model (dlg->task_combo, NULL);
   GtkCellRenderer *cell;
@@ -374,24 +568,6 @@ notes_area_new (void)
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (dlg->task_combo), cell,
                                   "text", 0, NULL);
   g_object_set (cell, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
-
-  dlg->proj_notes = CONNECT_TEXT ("proj notes textview", proj_notes_changed);
-  dlg->task_notes = CONNECT_TEXT ("diary notes textview", task_notes_changed);
-
-  g_signal_connect (G_OBJECT (dlg->close_proj), "clicked",
-                    G_CALLBACK (close_proj_area), dlg);
-
-  g_signal_connect (G_OBJECT (dlg->close_task), "clicked",
-                    G_CALLBACK (close_task_area), dlg);
-
-  g_signal_connect (G_OBJECT (dlg->new_task), "clicked",
-                    G_CALLBACK (new_task_cb), dlg);
-
-  g_signal_connect (G_OBJECT (dlg->edit_task), "clicked",
-                    G_CALLBACK (edit_task_cb), dlg);
-
-  g_signal_connect (G_OBJECT (dlg->task_combo), "changed",
-                    G_CALLBACK (task_selected_cb), dlg);
 
   gtk_widget_show (GTK_WIDGET (dlg->vpane));
 
@@ -615,6 +791,89 @@ notes_area_set_pane_sizes (NotesArea *na, int vp, int hp)
     return;
   gtk_paned_set_position (na->vpane, vp);
   gtk_paned_set_position (na->hpane, hp);
+}
+
+static GtkWidget *
+build_column_menu (void)
+{
+  GtkWidget *column_menu = gtk_menu_new ();
+
+  GtkWidget *sort_up = gtk_image_menu_item_new_with_label (_ ("Sort"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (sort_up), TRUE);
+  gtk_widget_set_name (sort_up, "sort_up");
+  gtk_widget_set_tooltip_text (
+      sort_up, _ ("Sort the entries in this column in alphabetical order."));
+
+  GtkWidget *image7 = gtk_image_new_from_stock (GTK_STOCK_SORT_ASCENDING,
+                                                GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (image7), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (image7), 0, 0);
+  gtk_widget_set_name (image7, "image7");
+  gtk_widget_show (image7);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (sort_up), image7);
+  gtk_widget_show (sort_up);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (column_menu), sort_up);
+
+  GtkWidget *move_left = gtk_image_menu_item_new_with_label (_ ("Move Left"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (move_left), TRUE);
+  gtk_widget_set_name (move_left, "move_left");
+  gtk_widget_set_tooltip_text (move_left, _ ("Move this column to the left."));
+
+  GtkWidget *image8
+      = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (image8), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (image8), 0, 0);
+  gtk_widget_set_name (image8, "image8");
+  gtk_widget_show (image8);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (move_left), image8);
+  gtk_widget_show (move_left);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (column_menu), move_left);
+
+  GtkWidget *move_right
+      = gtk_image_menu_item_new_with_label (_ ("Move Right"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (move_right), TRUE);
+  gtk_widget_set_name (move_right, "move_right");
+  gtk_widget_set_tooltip_text (move_right,
+                               _ ("Move this column to the right."));
+
+  GtkWidget *image9
+      = gtk_image_new_from_stock (GTK_STOCK_MEDIA_FORWARD, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (image9), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (image9), 0, 0);
+  gtk_widget_set_name (image9, "image9");
+  gtk_widget_show (image9);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (move_right), image9);
+  gtk_widget_show (move_right);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (column_menu), move_right);
+
+  return column_menu;
+}
+
+static GtkEntry *
+connect_entry (GtkWidget *const wdgt, GCallback cb, NotesArea *const dlg)
+{
+  GtkEntry *const entry = GTK_ENTRY (wdgt);
+
+  g_signal_connect (G_OBJECT (entry), "changed", G_CALLBACK (cb), dlg);
+
+  return entry;
+}
+
+static GtkTextView *
+connect_text (GtkWidget *const wdgt, GCallback cb, NotesArea *const dlg)
+{
+  GtkTextView *const tv = GTK_TEXT_VIEW (wdgt);
+
+  GtkTextBuffer *const tvb = gtk_text_view_get_buffer (tv);
+  g_signal_connect (G_OBJECT (tvb), "changed", G_CALLBACK (cb), dlg);
+
+  return tv;
 }
 
 /* ========================= END OF FILE ======================== */

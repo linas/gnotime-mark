@@ -1,5 +1,6 @@
 /*   Edit Interval Properties for GTimeTracker - a time tracker
  *   Copyright (C) 2001,2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,7 +19,6 @@
 
 #include "config.h"
 
-#include <glade/glade.h>
 #include <glib.h>
 #include <gnome.h>
 #include <stdio.h>
@@ -31,7 +31,6 @@
 struct EditIntervalDialog_s
 {
   GttInterval *interval;
-  GladeXML *gtxml;
   GtkWidget *interval_edit;
   GtkWidget *start_widget;
   GtkWidget *stop_widget;
@@ -175,35 +174,254 @@ EditIntervalDialog *
 edit_interval_dialog_new (void)
 {
   EditIntervalDialog *dlg;
-  GladeXML *glxml;
   GtkWidget *w, *menu, *menu_item;
 
   dlg = g_malloc (sizeof (EditIntervalDialog));
   dlg->interval = NULL;
 
-  glxml = gtt_glade_xml_new ("glade/interval_edit.glade", "Interval Edit");
-  dlg->gtxml = glxml;
+  GtkWidget *interval_edit = gtk_dialog_new ();
+  dlg->interval_edit = interval_edit;
+  gtk_dialog_set_has_separator (GTK_DIALOG (interval_edit), TRUE);
+  gtk_widget_set_name (interval_edit, "Interval Edit");
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (interval_edit), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (interval_edit), FALSE);
+  gtk_window_set_position (GTK_WINDOW (interval_edit), GTK_WIN_POS_NONE);
+  gtk_window_set_resizable (GTK_WINDOW (interval_edit), TRUE);
+  g_signal_connect (G_OBJECT (interval_edit), "close",
+                    G_CALLBACK (gtk_widget_hide), interval_edit);
 
-  dlg->interval_edit = glade_xml_get_widget (glxml, "Interval Edit");
+  GtkWidget *const action_area
+      = gtk_dialog_get_action_area (GTK_DIALOG (dlg->interval_edit));
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (action_area), GTK_BUTTONBOX_END);
 
-  glade_xml_signal_connect_data (glxml, "on_ok_button_clicked",
-                                 GTK_SIGNAL_FUNC (interval_edit_ok_cb), dlg);
+  GtkWidget *const ok_button = gtk_button_new_from_stock (GTK_STOCK_OK);
+  gtk_button_set_relief (GTK_BUTTON (ok_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (ok_button, TRUE);
+  gtk_widget_set_can_focus (ok_button, TRUE);
+  gtk_widget_set_name (ok_button, "ok_button");
+  g_signal_connect (G_OBJECT (ok_button), "clicked",
+                    G_CALLBACK (interval_edit_ok_cb), dlg);
+  gtk_widget_show (ok_button);
 
-  glade_xml_signal_connect_data (glxml, "on_apply_button_clicked",
-                                 GTK_SIGNAL_FUNC (interval_edit_apply_cb),
-                                 dlg);
+  gtk_box_pack_start_defaults (GTK_BOX (action_area), ok_button);
 
-  glade_xml_signal_connect_data (glxml, "on_cancel_button_clicked",
-                                 GTK_SIGNAL_FUNC (interval_edit_cancel_cb),
-                                 dlg);
+  GtkWidget *const apply_button = gtk_button_new_from_stock (GTK_STOCK_APPLY);
+  gtk_button_set_relief (GTK_BUTTON (apply_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (apply_button, TRUE);
+  gtk_widget_set_can_focus (apply_button, TRUE);
+  gtk_widget_set_name (apply_button, "apply_button");
+  g_signal_connect (G_OBJECT (apply_button), "clicked",
+                    G_CALLBACK (interval_edit_apply_cb), dlg);
+  gtk_widget_show (apply_button);
 
-  dlg->start_widget = glade_xml_get_widget (glxml, "start_date");
-  dlg->stop_widget = glade_xml_get_widget (glxml, "stop_date");
-  dlg->fuzz_widget = glade_xml_get_widget (glxml, "fuzz_menu");
+  gtk_box_pack_start_defaults (GTK_BOX (action_area), apply_button);
+
+  GtkWidget *const cancel_button
+      = gtk_button_new_from_stock (GTK_STOCK_CANCEL);
+  gtk_button_set_relief (GTK_BUTTON (cancel_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (cancel_button, TRUE);
+  gtk_widget_set_can_focus (cancel_button, TRUE);
+  gtk_widget_set_name (cancel_button, "cancel_button");
+  g_signal_connect (G_OBJECT (cancel_button), "clicked",
+                    G_CALLBACK (interval_edit_cancel_cb), dlg);
+  gtk_widget_show (cancel_button);
+
+  gtk_box_pack_start_defaults (GTK_BOX (action_area), cancel_button);
+
+  GtkWidget *const help_button = gtk_button_new_from_stock (GTK_STOCK_HELP);
+  gtk_button_set_relief (GTK_BUTTON (help_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (help_button, TRUE);
+  gtk_widget_set_can_focus (help_button, TRUE);
+  gtk_widget_set_name (help_button, "help_button");
+  gtk_widget_show (help_button);
+
+  gtk_box_pack_start_defaults (GTK_BOX (action_area), help_button);
+
+  gtk_widget_show (action_area);
+
+  GtkWidget *const content_area
+      = gtk_dialog_get_content_area (GTK_DIALOG (dlg->interval_edit));
+  gtk_box_set_homogeneous (GTK_BOX (content_area), FALSE);
+  gtk_box_set_spacing (GTK_BOX (content_area), 8);
+
+  GtkWidget *const table1 = gtk_table_new (3, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table1), 0);
+  gtk_table_set_row_spacings (GTK_TABLE (table1), 0);
+  gtk_widget_set_name (table1, "table1");
+
+  GtkWidget *const label1 = gtk_label_new (_ ("Start"));
+  gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label1), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label1), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label1), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label1), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label1), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label1), 0, 0);
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
+
+  gtk_table_attach (GTK_TABLE (table1), label1, 0, 1, 0, 1, GTK_FILL, 0, 10,
+                    6);
+
+  GtkWidget *const start_date = gnome_date_edit_new (0, TRUE, TRUE);
+  dlg->start_widget = start_date;
+  gnome_date_edit_set_flags (GNOME_DATE_EDIT (start_date),
+                             GNOME_DATE_EDIT_24_HR
+                                 | GNOME_DATE_EDIT_DISPLAY_SECONDS
+                                 | GNOME_DATE_EDIT_SHOW_TIME);
+  gnome_date_edit_set_popup_range (GNOME_DATE_EDIT (start_date), 7, 19);
+  gtk_widget_set_name (start_date, "start_date");
+  gtk_widget_show (start_date);
+
+  gtk_table_attach (GTK_TABLE (table1), start_date, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 4, 0);
+
+  GtkWidget *const label2 = gtk_label_new (_ ("Stop"));
+  gtk_label_set_justify (GTK_LABEL (label2), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label2), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label2), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label2), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label2), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label2), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label2), 0, 0);
+  gtk_widget_set_name (label2, "label2");
+  gtk_widget_show (label2);
+
+  gtk_table_attach (GTK_TABLE (table1), label2, 0, 1, 1, 2, GTK_FILL, 0, 10,
+                    6);
+
+  GtkWidget *const stop_date = gnome_date_edit_new (0, TRUE, TRUE);
+  dlg->stop_widget = stop_date;
+  gnome_date_edit_set_flags (GNOME_DATE_EDIT (stop_date),
+                             GNOME_DATE_EDIT_24_HR
+                                 | GNOME_DATE_EDIT_DISPLAY_SECONDS
+                                 | GNOME_DATE_EDIT_SHOW_TIME);
+  gnome_date_edit_set_popup_range (GNOME_DATE_EDIT (stop_date), 7, 19);
+  gtk_widget_set_name (stop_date, "stop_date");
+  gtk_widget_show (stop_date);
+
+  gtk_table_attach (GTK_TABLE (table1), stop_date, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 4, 0);
+
+  GtkWidget *const label3 = gtk_label_new (_ ("Start Fuzz"));
+  gtk_label_set_justify (GTK_LABEL (label3), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label3), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label3), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label3), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label3), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label3), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label3), 0, 0);
+  gtk_widget_set_name (label3, "label3");
+  gtk_widget_show (label3);
+
+  gtk_table_attach (GTK_TABLE (table1), label3, 0, 1, 2, 3, GTK_FILL, 0, 10,
+                    6);
+
+  GtkWidget *const fuzz_menu = gtk_option_menu_new ();
+  dlg->fuzz_widget = fuzz_menu;
+  gtk_widget_set_can_focus (fuzz_menu, TRUE);
+  gtk_widget_set_name (fuzz_menu, "fuzz_menu");
+  gtk_widget_set_tooltip_text (fuzz_menu,
+                               _ ("Set how Uncertain the Start Time Is"));
+
+  GtkWidget *const convertwidget1 = gtk_menu_new ();
+  gtk_widget_set_name (convertwidget1, "convertwidget1");
+
+  GtkWidget *const convertwidget2
+      = gtk_menu_item_new_with_mnemonic (_ ("Exact Time"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget2), TRUE);
+  gtk_widget_set_name (convertwidget2, "convertwidget2");
+  gtk_widget_show (convertwidget2);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget2);
+
+  GtkWidget *const convertwidget3
+      = gtk_menu_item_new_with_mnemonic (_ ("5 Min"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget3), TRUE);
+  gtk_widget_set_name (convertwidget3, "convertwidget3");
+  gtk_widget_show (convertwidget3);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget3);
+
+  GtkWidget *const convertwidget4
+      = gtk_menu_item_new_with_mnemonic (_ ("10 Min"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget4), TRUE);
+  gtk_widget_set_name (convertwidget4, "convertwidget4");
+  gtk_widget_show (convertwidget4);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget4);
+
+  GtkWidget *const convertwidget5
+      = gtk_menu_item_new_with_mnemonic (_ ("15 Min"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget5), TRUE);
+  gtk_widget_set_name (convertwidget5, "convertwidget5");
+  gtk_widget_show (convertwidget5);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget5);
+
+  GtkWidget *const convertwidget6
+      = gtk_menu_item_new_with_mnemonic (_ ("20 Min"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget6), TRUE);
+  gtk_widget_set_name (convertwidget6, "convertwidget6");
+  gtk_widget_show (convertwidget6);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget6);
+
+  GtkWidget *const convertwidget7
+      = gtk_menu_item_new_with_mnemonic (_ ("30 Min"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget7), TRUE);
+  gtk_widget_set_name (convertwidget7, "convertwidget7");
+  gtk_widget_show (convertwidget7);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget7);
+
+  GtkWidget *const convertwidget8
+      = gtk_menu_item_new_with_mnemonic (_ ("1 Hour"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget8), TRUE);
+  gtk_widget_set_name (convertwidget8, "convertwidget8");
+  gtk_widget_show (convertwidget8);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget8);
+
+  GtkWidget *const convertwidget9
+      = gtk_menu_item_new_with_mnemonic (_ ("2 Hours"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget9), TRUE);
+  gtk_widget_set_name (convertwidget9, "convertwidget9");
+  gtk_widget_show (convertwidget9);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget9);
+
+  GtkWidget *const convertwidget10
+      = gtk_menu_item_new_with_mnemonic (_ ("3 Hours"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget10), TRUE);
+  gtk_widget_set_name (convertwidget10, "convertwidget10");
+  gtk_widget_show (convertwidget10);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget10);
+
+  GtkWidget *const convertwidget11
+      = gtk_menu_item_new_with_mnemonic (_ ("Today"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget11), TRUE);
+  gtk_widget_set_name (convertwidget11, "convertwidget11");
+  gtk_widget_show (convertwidget11);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget1), convertwidget11);
+
+  gtk_widget_show (convertwidget1);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (fuzz_menu), convertwidget1);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (fuzz_menu), 0);
+  gtk_widget_show (fuzz_menu);
+
+  gtk_table_attach (GTK_TABLE (table1), fuzz_menu, 1, 2, 2, 3, GTK_FILL, 0, 4,
+                    0);
+  gtk_widget_show (table1);
+
+  gtk_box_pack_start (GTK_BOX (content_area), table1, FALSE, FALSE, 0);
+  gtk_widget_show (content_area);
 
   /* ----------------------------------------------- */
-  /* install option data by hand ... ugh
-   * wish glade did this for us .. */
+  // Install option data by hand
   w = dlg->fuzz_widget;
   menu = gtk_option_menu_get_menu (GTK_OPTION_MENU (w));
 

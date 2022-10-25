@@ -684,6 +684,63 @@ edit_plugin_dialog_new (void)
 
   GtkWidget *const vbox2 = glade_xml_get_widget (gtxml, "vbox2");
 
+  GtkWidget *const table2 = gtk_table_new (2, 2, TRUE);
+  gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
+  gtk_table_set_row_spacings (GTK_TABLE (table2), 4);
+  gtk_widget_set_name (table2, "table2");
+
+  GtkWidget *const add_button = gtk_button_new_with_mnemonic (_ ("Add"));
+  gtk_button_set_use_underline (GTK_BUTTON (add_button), TRUE);
+  gtk_widget_set_can_focus (add_button, TRUE);
+  gtk_widget_set_name (add_button, "add button");
+  gtk_widget_set_tooltip_text (
+      add_button, _ ("Add a new menu entry at the selected position."));
+  g_signal_connect (G_OBJECT (add_button), "clicked",
+                    G_CALLBACK (edit_plugin_add_cb), dlg);
+  gtk_widget_show (add_button);
+
+  gtk_table_attach (GTK_TABLE (table2), add_button, 0, 1, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const child_button
+      = gtk_button_new_with_mnemonic (_ ("Add Child"));
+  gtk_button_set_use_underline (GTK_BUTTON (child_button), TRUE);
+  gtk_widget_set_can_focus (child_button, TRUE);
+  gtk_widget_set_name (child_button, "child button");
+  gtk_widget_show (child_button);
+
+  gtk_table_attach (GTK_TABLE (table2), child_button, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const separator_button
+      = gtk_button_new_with_mnemonic (_ ("Add Separator"));
+  gtk_button_set_use_underline (GTK_BUTTON (separator_button), TRUE);
+  gtk_widget_set_can_focus (separator_button, TRUE);
+  gtk_widget_set_name (separator_button, "separator button");
+  gtk_widget_set_tooltip_text (
+      separator_button, _ ("Add a horizontal bar (separator) to the menu."));
+  gtk_widget_show (separator_button);
+
+  gtk_table_attach (GTK_TABLE (table2), separator_button, 0, 1, 1, 2,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const delete_button = gtk_button_new_with_mnemonic (_ ("Delete"));
+  gtk_button_set_use_underline (GTK_BUTTON (delete_button), TRUE);
+  gtk_widget_set_can_focus (delete_button, TRUE);
+  gtk_widget_set_name (delete_button, "delete button");
+  gtk_widget_set_tooltip_text (delete_button,
+                               _ ("Delete the selected menu entry."));
+  g_signal_connect (G_OBJECT (delete_button), "clicked",
+                    G_CALLBACK (edit_plugin_delete_cb), dlg);
+  gtk_widget_show (delete_button);
+
+  gtk_table_attach (GTK_TABLE (table2), delete_button, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  gtk_widget_show (table2);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox2), table2);
+
   GtkWidget *const frame1 = gtk_frame_new (_ ("Accelerator"));
   gtk_frame_set_label_align (GTK_FRAME (frame1), 0, 0.5);
   gtk_widget_set_name (frame1, "frame1");
@@ -775,14 +832,6 @@ edit_plugin_dialog_new (void)
 
   glade_xml_signal_connect_data (gtxml, "on_cancel_button_clicked",
                                  GTK_SIGNAL_FUNC (edit_plugin_cancel_cb), dlg);
-
-  /* ------------------------------------------------------ */
-  /* Menu item add/delete buttons */
-  glade_xml_signal_connect_data (gtxml, "on_add_button_clicked",
-                                 GTK_SIGNAL_FUNC (edit_plugin_add_cb), dlg);
-
-  glade_xml_signal_connect_data (gtxml, "on_delete_button_clicked",
-                                 GTK_SIGNAL_FUNC (edit_plugin_delete_cb), dlg);
 
   /* ------------------------------------------------------ */
   /* Grab the various entry boxes and hook them up */

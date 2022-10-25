@@ -318,11 +318,150 @@ prop_dialog_new (void)
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
 
-  dlg->title = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "title box"), dlg));
-  dlg->desc = GTK_ENTRY (
-      connect_changed (glade_xml_get_widget (gtxml, "desc box"), dlg));
-  dlg->notes = texted (glade_xml_get_widget (gtxml, "notes box"), dlg);
+  GtkWidget *notebook1 = glade_xml_get_widget (gtxml, "notebook1");
+
+  GtkWidget *label15 = gtk_label_new (_ ("Project"));
+  gtk_label_set_line_wrap (GTK_LABEL (label15), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label15), FALSE);
+  gtk_label_set_justify (GTK_LABEL (label15), GTK_JUSTIFY_CENTER);
+  gtk_label_set_use_markup (GTK_LABEL (label15), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label15), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label15), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label15), 0, 0);
+  gtk_widget_set_name (label15, "label15");
+  gtk_widget_show (label15);
+
+  GtkWidget *title_table = gtk_table_new (3, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (title_table), 3);
+  gtk_table_set_row_spacings (GTK_TABLE (title_table), 3);
+  gtk_widget_set_name (title_table, "title table");
+
+  GtkWidget *label18 = gtk_label_new (_ ("Project Title:"));
+  gtk_label_set_justify (GTK_LABEL (label18), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label18), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label18), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label18), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label18), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label18), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label18), 0, 0);
+  gtk_widget_set_name (label18, "label18");
+  gtk_widget_show (label18);
+
+  gtk_table_attach (GTK_TABLE (title_table), label18, 0, 1, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *entry7 = gnome_entry_new ("project_title");
+  gnome_entry_set_max_saved (GNOME_ENTRY (entry7), 10);
+  gtk_widget_set_name (entry7, "entry7");
+
+  GtkWidget *title_box = gnome_entry_gtk_entry (GNOME_ENTRY (entry7));
+  dlg->title = GTK_ENTRY (connect_changed (title_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (title_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (title_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (title_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (title_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (title_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (title_box), TRUE);
+  gtk_widget_set_can_focus (title_box, TRUE);
+  gtk_widget_set_name (title_box, "title box");
+  gtk_widget_set_tooltip_text (title_box,
+                               _ ("A title to assign to this project"));
+  gtk_widget_show (title_box);
+
+  gtk_widget_show (entry7);
+
+  gtk_table_attach (GTK_TABLE (title_table), entry7, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label19 = gtk_label_new (_ ("Project Description:"));
+  gtk_label_set_justify (GTK_LABEL (label19), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label19), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label19), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label19), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label19), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label19), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label19), 0, 0);
+  gtk_widget_set_name (label19, "label19");
+  gtk_widget_show (label19);
+
+  gtk_table_attach (GTK_TABLE (title_table), label19, 0, 1, 1, 2, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *entry9 = gnome_entry_new ("project_description");
+  gnome_entry_set_max_saved (GNOME_ENTRY (entry9), 10);
+  gtk_widget_set_name (entry9, "entry9");
+
+  GtkWidget *desc_box = gnome_entry_gtk_entry (GNOME_ENTRY (entry9));
+  dlg->desc = GTK_ENTRY (connect_changed (desc_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (desc_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (desc_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (desc_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (desc_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (desc_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (desc_box), TRUE);
+  gtk_widget_set_can_focus (desc_box, TRUE);
+  gtk_widget_set_name (desc_box, "desc box");
+  gtk_widget_set_tooltip_text (
+      desc_box,
+      _ ("a short description that will be printed on the invoice."));
+  gtk_widget_show (desc_box);
+
+  gtk_widget_show (entry9);
+
+  gtk_table_attach (GTK_TABLE (title_table), entry9, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *label20 = gtk_label_new (_ ("Notes:"));
+  gtk_label_set_justify (GTK_LABEL (label20), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label20), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label20), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label20), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label20), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label20), 0, 0);
+  gtk_misc_set_padding (GTK_MISC (label20), 0, 0);
+  gtk_widget_set_name (label20, "label20");
+  gtk_widget_show (label20);
+
+  gtk_table_attach (GTK_TABLE (title_table), label20, 0, 1, 2, 3, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_placement (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                     GTK_CORNER_TOP_LEFT);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                       GTK_SHADOW_IN);
+  gtk_widget_set_name (scrolledwindow1, "scrolledwindow1");
+
+  GtkWidget *notes_box = gtk_text_view_new ();
+  dlg->notes = texted (notes_box, dlg);
+  gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (notes_box), TRUE);
+  gtk_text_view_set_editable (GTK_TEXT_VIEW (notes_box), TRUE);
+  gtk_text_view_set_indent (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_justification (GTK_TEXT_VIEW (notes_box),
+                                   GTK_JUSTIFY_LEFT);
+  gtk_text_view_set_left_margin (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_inside_wrap (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_right_margin (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (notes_box), GTK_WRAP_WORD);
+  gtk_widget_set_can_focus (notes_box, TRUE);
+  gtk_widget_set_name (notes_box, "notes box");
+  gtk_widget_set_tooltip_text (notes_box,
+                               _ ("Internal notes about the project that will "
+                                  "not be printed on an invoice."));
+  gtk_widget_show (notes_box);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow1), notes_box);
+  gtk_widget_show (scrolledwindow1);
+
+  gtk_table_attach (GTK_TABLE (title_table), scrolledwindow1, 1, 2, 2, 3,
+                    GTK_FILL, 0, 0, 0);
+  gtk_widget_show (title_table);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), title_table, label15, 0);
 
   GtkWidget *rate_table = glade_xml_get_widget (gtxml, "rate table");
 

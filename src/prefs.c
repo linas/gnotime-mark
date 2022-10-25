@@ -20,7 +20,6 @@
 
 #include "config.h"
 
-#include <glade/glade.h>
 #include <gnome.h>
 #include <qof.h>
 #include <string.h>
@@ -88,7 +87,6 @@ char *config_data_url = NULL;
 
 typedef struct _PrefsDialog
 {
-  GladeXML *gtxml;
   GnomePropertyBox *dlg;
   GtkCheckButton *show_secs;
   GtkCheckButton *show_statusbar;
@@ -1351,8 +1349,16 @@ logfile_options (GtkWidget *notebook1, PrefsDialog *dlg)
 }
 
 static void
-toolbar_options (GtkWidget *const vbox, PrefsDialog *dlg)
+toolbar_options (GtkWidget *notebook1, PrefsDialog *dlg)
 {
+  GtkWidget *const label4 = gtk_label_new (_ ("Toolbar"));
+  gtk_label_set_justify (GTK_LABEL (label4), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label4, "label4");
+  gtk_widget_show (label4);
+
+  GtkWidget *const vbox1 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox1, "vbox1");
+
   GtkWidget *const frame3 = gtk_frame_new (_ ("Toolbar"));
   gtk_container_set_border_width (GTK_CONTAINER (frame3), 4);
   gtk_frame_set_label_align (GTK_FRAME (frame3), 0, 0.5);
@@ -1395,7 +1401,7 @@ toolbar_options (GtkWidget *const vbox, PrefsDialog *dlg)
   gtk_container_add (GTK_CONTAINER (frame3), vbox2);
   gtk_widget_show (frame3);
 
-  gtk_box_pack_start_defaults (GTK_BOX (vbox), frame3);
+  gtk_box_pack_start_defaults (GTK_BOX (vbox1), frame3);
 
   GtkWidget *const frame4 = gtk_frame_new (_ ("Toolbar Segments"));
   gtk_container_set_border_width (GTK_CONTAINER (frame4), 4);
@@ -1504,15 +1510,22 @@ toolbar_options (GtkWidget *const vbox, PrefsDialog *dlg)
   gtk_container_add (GTK_CONTAINER (frame4), vbox3);
   gtk_widget_show (frame4);
 
-  gtk_box_pack_start_defaults (GTK_BOX (vbox), frame4);
+  gtk_box_pack_start_defaults (GTK_BOX (vbox1), frame4);
+
+  gtk_widget_show (vbox1);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), vbox1, label4, 4);
 }
 
 static void
-misc_options (PrefsDialog *dlg)
+misc_options (GtkWidget *notebook1, PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const label5 = gtk_label_new (_ ("Misc"));
+  gtk_label_set_justify (GTK_LABEL (label5), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label5, "label5");
+  gtk_widget_show (label5);
 
-  GtkWidget *const vbox4 = glade_xml_get_widget (gtxml, "vbox4");
+  GtkWidget *const vbox4 = gtk_vbox_new (FALSE, 0);
 
   GtkWidget *const frame6 = gtk_frame_new (_ ("Inactivity Timeout"));
   gtk_container_set_border_width (GTK_CONTAINER (frame6), 4);
@@ -1716,6 +1729,10 @@ misc_options (PrefsDialog *dlg)
   gtk_widget_show (frame8);
 
   gtk_box_pack_start_defaults (GTK_BOX (vbox4), frame8);
+
+  gtk_widget_show (vbox4);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), vbox4, label5, 5);
 }
 
 static void
@@ -1874,32 +1891,54 @@ static PrefsDialog *
 prefs_dialog_new (void)
 {
   PrefsDialog *dlg;
-  GladeXML *gtxml;
 
   dlg = g_malloc (sizeof (PrefsDialog));
 
-  gtxml = gtt_glade_xml_new ("glade/prefs.glade", "Global Preferences");
-  dlg->gtxml = gtxml;
+  GtkWidget *const global_preferences = gnome_property_box_new ();
+  dlg->dlg = GNOME_PROPERTY_BOX (global_preferences);
+  gtk_widget_set_name (global_preferences, "Global Preferences");
+  gtk_window_set_resizable (GTK_WINDOW (global_preferences), FALSE);
 
-  dlg->dlg = GNOME_PROPERTY_BOX (
-      glade_xml_get_widget (gtxml, "Global Preferences"));
+  gtk_signal_connect (GTK_OBJECT (global_preferences), "help",
+                      GTK_SIGNAL_FUNC (help_cb), "preferences");
 
-  gtk_signal_connect (GTK_OBJECT (dlg->dlg), "help", GTK_SIGNAL_FUNC (help_cb),
-                      "preferences");
-
-  gtk_signal_connect (GTK_OBJECT (dlg->dlg), "apply",
+  gtk_signal_connect (GTK_OBJECT (global_preferences), "apply",
                       GTK_SIGNAL_FUNC (prefs_set), dlg);
 
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
-  display_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
-  field_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
-  shell_command_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
-  logfile_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
-  toolbar_options (glade_xml_get_widget (gtxml, "vbox1"), dlg);
-  misc_options (dlg);
-  time_format_options (glade_xml_get_widget (gtxml, "vbox6"), dlg);
-  currency_options (glade_xml_get_widget (gtxml, "vbox6"), dlg);
+
+  GtkWidget *notebook1 = gtk_notebook_new ();
+  gtk_widget_set_can_focus (notebook1, TRUE);
+  gtk_widget_set_name (notebook1, "notebook1");
+
+  display_options (notebook1, dlg);
+  field_options (notebook1, dlg);
+  shell_command_options (notebook1, dlg);
+  logfile_options (notebook1, dlg);
+  toolbar_options (notebook1, dlg);
+  misc_options (notebook1, dlg);
+
+  GtkWidget *label21 = gtk_label_new (_ ("Reports"));
+  gtk_widget_set_name (label21, "label21");
+  gtk_widget_show (label21);
+
+  GtkWidget *vbox6 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox6, "vbox6");
+
+  time_format_options (vbox6, dlg);
+  currency_options (vbox6, dlg);
+
+  gtk_widget_show (vbox6);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), vbox6, label21, 6);
+
+  gtk_widget_show (notebook1);
+
+  gtk_box_pack_start_defaults (
+      GTK_BOX (GNOME_DIALOG (global_preferences)->vbox), notebook1);
+
+  gtk_widget_show (global_preferences);
 
   gnome_dialog_close_hides (GNOME_DIALOG (dlg->dlg), TRUE);
   return dlg;

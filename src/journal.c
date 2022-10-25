@@ -1268,19 +1268,115 @@ do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
   /* ---------------------------------------------------- */
   /* This is the popup for asking for the user to input an URL. */
 
-  glxml = gtt_glade_xml_new ("glade/journal.glade", "Publish Dialog");
-  wig->publish_popup = glade_xml_get_widget (glxml, "Publish Dialog");
-  wig->publish_entry = GTK_ENTRY (glade_xml_get_widget (glxml, "url entry"));
+  GtkWidget *publish_dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  wig->publish_popup = publish_dialog;
+  gtk_widget_set_name (publish_dialog, "Publish Dialog");
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (publish_dialog), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (publish_dialog), FALSE);
+  gtk_window_set_position (GTK_WINDOW (publish_dialog), GTK_WIN_POS_NONE);
+  gtk_window_set_resizable (GTK_WINDOW (publish_dialog), TRUE);
+  gtk_window_set_title (GTK_WINDOW (publish_dialog),
+                        _ ("GnoTime: Publish Report"));
 
-  glade_xml_signal_connect_data (glxml, "on_pub_help_clicked",
-                                 GTK_SIGNAL_FUNC (gtt_help_popup), NULL);
+  GtkWidget *vbox1 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox1, "vbox1");
 
-  glade_xml_signal_connect_data (glxml, "on_pub_cancel_clicked",
-                                 GTK_SIGNAL_FUNC (on_pub_cancel_clicked_cb),
-                                 wig);
+  GtkWidget *label2 = gtk_label_new (
+      _ ("<b>Publish This Report</b>\nEnter a URL such as one of the "
+         "following:\nmailto:<i>&lt;username&gt;@&lt;hostname&gt;</i>\nssh://"
+         "<i>host.net/some/file/path</i>\nftp://<i>username:passwd@host.net/"
+         "path/to/file</i>"));
+  gtk_label_set_justify (GTK_LABEL (label2), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label2), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label2), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label2), TRUE);
+  gtk_label_set_use_underline (GTK_LABEL (label2), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label2), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label2), 2, 6);
+  gtk_widget_set_name (label2, "label2");
+  gtk_widget_show (label2);
 
-  glade_xml_signal_connect_data (glxml, "on_pub_ok_clicked",
-                                 GTK_SIGNAL_FUNC (on_pub_ok_clicked_cb), wig);
+  gtk_box_pack_start (GTK_BOX (vbox1), label2, TRUE, TRUE, 0);
+
+  GtkWidget *hbox1 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox1, "hbox1");
+
+  GtkWidget *label1 = gtk_label_new (_ ("URL:"));
+  gtk_label_set_line_wrap (GTK_LABEL (label1), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label1), FALSE);
+  gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_LEFT);
+  gtk_label_set_use_markup (GTK_LABEL (label1), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label1), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label1), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label1), 0, 0);
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
+
+  gtk_box_pack_start (GTK_BOX (hbox1), label1, FALSE, FALSE, 4);
+
+  GtkWidget *url_entry = gtk_entry_new ();
+  wig->publish_entry = GTK_ENTRY (url_entry);
+  gtk_entry_set_activates_default (GTK_ENTRY (url_entry), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (url_entry), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (url_entry), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (url_entry), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (url_entry), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (url_entry), TRUE);
+  gtk_widget_set_can_focus (url_entry, TRUE);
+  gtk_widget_set_name (url_entry, "url entry");
+  gtk_widget_show (url_entry);
+
+  gtk_box_pack_start (GTK_BOX (hbox1), url_entry, TRUE, TRUE, 4);
+
+  gtk_widget_show (hbox1);
+
+  gtk_box_pack_start (GTK_BOX (vbox1), hbox1, TRUE, TRUE, 0);
+
+  GtkWidget *hbuttonbox1 = gtk_hbutton_box_new ();
+  gtk_box_set_spacing (GTK_BOX (hbuttonbox1), 4);
+  gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox1), GTK_BUTTONBOX_END);
+  gtk_widget_set_name (hbuttonbox1, "hbuttonbox1");
+
+  GtkWidget *pub_help_button = gtk_button_new_from_stock (GTK_STOCK_HELP);
+  gtk_button_set_relief (GTK_BUTTON (pub_help_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (pub_help_button, TRUE);
+  gtk_widget_set_can_focus (pub_help_button, TRUE);
+  gtk_widget_set_name (pub_help_button, "pub help button");
+  g_signal_connect (G_OBJECT (pub_help_button), "clicked",
+                    G_CALLBACK (gtt_help_popup), NULL);
+  gtk_widget_show (pub_help_button);
+
+  gtk_box_pack_start_defaults (GTK_BOX (hbuttonbox1), pub_help_button);
+
+  GtkWidget *pub_cancel_button = gtk_button_new_from_stock (GTK_STOCK_CANCEL);
+  gtk_button_set_relief (GTK_BUTTON (pub_cancel_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (pub_cancel_button, TRUE);
+  gtk_widget_set_can_focus (pub_cancel_button, TRUE);
+  gtk_widget_set_name (pub_cancel_button, "pub cancel button");
+  g_signal_connect (G_OBJECT (pub_cancel_button), "clicked",
+                    G_CALLBACK (on_pub_cancel_clicked_cb), wig);
+  gtk_widget_show (pub_cancel_button);
+
+  gtk_box_pack_start_defaults (GTK_BOX (hbuttonbox1), pub_cancel_button);
+
+  GtkWidget *pub_ok_button = gtk_button_new_from_stock (GTK_STOCK_OK);
+  gtk_button_set_relief (GTK_BUTTON (pub_ok_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (pub_ok_button, TRUE);
+  gtk_widget_set_can_focus (pub_ok_button, TRUE);
+  gtk_widget_set_name (pub_ok_button, "pub ok button");
+  g_signal_connect (G_OBJECT (pub_ok_button), "clicked",
+                    G_CALLBACK (on_pub_ok_clicked_cb), wig);
+  gtk_widget_show (pub_ok_button);
+
+  gtk_box_pack_start_defaults (GTK_BOX (hbuttonbox1), pub_ok_button);
+
+  gtk_widget_show (hbuttonbox1);
+
+  gtk_box_pack_start (GTK_BOX (vbox1), hbuttonbox1, FALSE, TRUE, 4);
+
+  gtk_widget_show (vbox1);
+
+  gtk_container_add (GTK_CONTAINER (publish_dialog), vbox1);
 
   /* ---------------------------------------------------- */
   /* This is the popup menu that says 'edit/delete/merge' */

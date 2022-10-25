@@ -19,7 +19,6 @@
 
 #include "config.h"
 
-#include <glade/glade.h>
 #include <gnome.h>
 #include <string.h>
 
@@ -30,7 +29,6 @@
 
 typedef struct PropTaskDlg_s
 {
-  GladeXML *gtxml;
   GtkDialog *dlg;
   GtkEntry *memo;
   GtkTextView *notes;
@@ -232,27 +230,63 @@ static PropTaskDlg *
 prop_task_dialog_new (void)
 {
   PropTaskDlg *dlg = NULL;
-  GladeXML *gtxml;
 
   dlg = g_new0 (PropTaskDlg, 1);
 
-  gtxml = gtt_glade_xml_new ("glade/task_properties.glade", "Task Properties");
-  dlg->gtxml = gtxml;
+  GtkWidget *task_properties = gtk_dialog_new ();
+  dlg->dlg = GTK_DIALOG (task_properties);
+  gtk_dialog_set_has_separator (GTK_DIALOG (task_properties), TRUE);
+  gtk_widget_set_name (task_properties, "Task Properties");
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (task_properties), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (task_properties), FALSE);
+  gtk_window_set_position (GTK_WINDOW (task_properties), GTK_WIN_POS_NONE);
+  gtk_window_set_resizable (GTK_WINDOW (task_properties), TRUE);
+  gtk_window_set_title (GTK_WINDOW (task_properties), _ ("Diary Notes"));
 
-  dlg->dlg = GTK_DIALOG (glade_xml_get_widget (gtxml, "Task Properties"));
-
-  glade_xml_signal_connect_data (gtxml, "on_help_button_clicked",
-                                 GTK_SIGNAL_FUNC (gtt_help_popup),
-                                 "properties");
-
-  glade_xml_signal_connect_data (gtxml, "on_ok_button_clicked",
-                                 GTK_SIGNAL_FUNC (close_cb), dlg);
-
-  g_signal_connect (G_OBJECT (dlg->dlg), "close", G_CALLBACK (close_cb), dlg);
-  g_signal_connect (G_OBJECT (dlg->dlg), "destroy", G_CALLBACK (destroy_cb),
+  g_signal_connect (G_OBJECT (task_properties), "close", G_CALLBACK (close_cb),
                     dlg);
+  g_signal_connect (G_OBJECT (task_properties), "destroy",
+                    G_CALLBACK (destroy_cb), dlg);
 
-  GtkWidget *const notebook = glade_xml_get_widget (gtxml, "notebook");
+  GtkWidget *const action_area
+      = gtk_dialog_get_action_area (GTK_DIALOG (task_properties));
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (action_area), GTK_BUTTONBOX_END);
+
+  GtkWidget *const help_button = gtk_button_new_from_stock (GTK_STOCK_HELP);
+  gtk_button_set_relief (GTK_BUTTON (help_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (help_button, TRUE);
+  gtk_widget_set_can_focus (help_button, TRUE);
+  gtk_widget_set_name (help_button, "help button");
+  g_signal_connect (G_OBJECT (help_button), "clicked",
+                    G_CALLBACK (gtt_help_popup), "properties");
+  gtk_widget_show (help_button);
+
+  gtk_box_pack_start_defaults (GTK_BOX (action_area), help_button);
+
+  GtkWidget *const okbutton1 = gtk_button_new_from_stock (GTK_STOCK_OK);
+  gtk_button_set_relief (GTK_BUTTON (okbutton1), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (okbutton1, TRUE);
+  gtk_widget_set_can_focus (okbutton1, TRUE);
+  gtk_widget_set_name (okbutton1, "okbutton1");
+  g_signal_connect (G_OBJECT (okbutton1), "clicked", G_CALLBACK (close_cb),
+                    dlg);
+  gtk_widget_show (okbutton1);
+
+  gtk_box_pack_start_defaults (GTK_BOX (action_area), okbutton1);
+
+  gtk_widget_show (action_area);
+
+  GtkWidget *const content_area
+      = gtk_dialog_get_content_area (GTK_DIALOG (task_properties));
+
+  GtkWidget *const notebook = gtk_notebook_new ();
+  gtk_notebook_popup_disable (GTK_NOTEBOOK (notebook));
+  gtk_notebook_set_scrollable (GTK_NOTEBOOK (notebook), FALSE);
+  gtk_notebook_set_show_border (GTK_NOTEBOOK (notebook), TRUE);
+  gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook), TRUE);
+  gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook), GTK_POS_TOP);
+  gtk_widget_set_can_focus (notebook, TRUE);
+  gtk_widget_set_name (notebook, "notebook");
 
   GtkWidget *label5 = gtk_label_new (_ ("Diary Notes"));
   gtk_label_set_justify (GTK_LABEL (label5), GTK_JUSTIFY_CENTER);
@@ -615,6 +649,14 @@ prop_task_dialog_new (void)
   gtk_widget_show (label9);
 
   gtk_notebook_insert_page (GTK_NOTEBOOK (notebook), table1, label9, 1);
+
+  gtk_box_pack_start (GTK_BOX (content_area), notebook, TRUE, TRUE, 0);
+
+  gtk_widget_show (notebook);
+
+  gtk_widget_show (content_area);
+
+  gtk_widget_show (task_properties);
 
   /* ------------------------------------------------------ */
   /* associate values with the three option menus */

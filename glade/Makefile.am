@@ -2,8 +2,7 @@
 gttgladedir = $(datadir)/gnotime/glade
 
 gttglade_DATA =              \
-  prefs.glade                \
-  task_properties.glade
+  prefs.glade
 
 EXTRA_DIST =          \
    $(gttglade_DATA)

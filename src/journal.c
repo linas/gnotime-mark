@@ -21,7 +21,6 @@
 
 #include "config.h"
 
-#include <glade/glade.h>
 #include <gnome.h>
 #include <gtkhtml/gtkhtml.h>
 #include <sched.h>
@@ -1197,16 +1196,95 @@ static void
 do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
                 GttProject *prj, gboolean did_query, GList *prjlist)
 {
-  GtkWidget *jnl_top, *jnl_viewport;
-  GladeXML *glxml;
   Wiggy *wig;
 
-  glxml = gtt_glade_xml_new ("glade/journal.glade", "Journal Window");
-
-  jnl_top = glade_xml_get_widget (glxml, "Journal Window");
-  jnl_viewport = glade_xml_get_widget (glxml, "Journal ScrollWin");
-
   wig = g_new0 (Wiggy, 1);
+
+  GtkWidget *jnl_top = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_widget_set_name (jnl_top, "Journal Window");
+  gtk_window_set_default_size (GTK_WINDOW (jnl_top), 550, 550);
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (jnl_top), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (jnl_top), FALSE);
+  gtk_window_set_position (GTK_WINDOW (jnl_top), GTK_WIN_POS_NONE);
+  gtk_window_set_resizable (GTK_WINDOW (jnl_top), TRUE);
+  gtk_window_set_title (GTK_WINDOW (jnl_top), _ ("GnoTime: Journal"));
+  g_signal_connect (G_OBJECT (jnl_top), "destroy",
+                    G_CALLBACK (on_close_clicked_cb), wig);
+
+  GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
+
+  GtkWidget *toolbar2 = gtk_toolbar_new ();
+  gtk_container_set_border_width (GTK_CONTAINER (toolbar2), 1);
+  gtk_toolbar_set_orientation (GTK_TOOLBAR (toolbar2),
+                               GTK_ORIENTATION_HORIZONTAL);
+  gtk_toolbar_set_style (GTK_TOOLBAR (toolbar2), GTK_TOOLBAR_BOTH);
+  gtk_toolbar_set_tooltips (GTK_TOOLBAR (toolbar2), TRUE);
+  gtk_widget_set_name (toolbar2, "toolbar2");
+
+  GtkToolItem *publish = gtk_tool_button_new_from_stock (GTK_STOCK_PRINT);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (publish), _ ("Publish"));
+  gtk_tool_button_set_use_underline (GTK_TOOL_BUTTON (publish), TRUE);
+  gtk_widget_set_name (GTK_WIDGET (publish), "publish");
+  gtk_widget_set_tooltip_text (GTK_WIDGET (publish), _ ("Publish"));
+  g_signal_connect (G_OBJECT (publish), "clicked",
+                    G_CALLBACK (on_publish_clicked_cb), wig);
+  gtk_widget_show (GTK_WIDGET (publish));
+
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar2), publish, -1);
+
+  GtkToolItem *save = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (save), _ ("Save"));
+  gtk_tool_button_set_use_underline (GTK_TOOL_BUTTON (save), TRUE);
+  gtk_widget_set_name (GTK_WIDGET (save), "save");
+  gtk_widget_set_tooltip_text (GTK_WIDGET (save), _ ("Save"));
+  g_signal_connect (G_OBJECT (save), "clicked",
+                    G_CALLBACK (on_save_clicked_cb), wig);
+  gtk_widget_show (GTK_WIDGET (save));
+
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar2), save, -1);
+
+  GtkToolItem *refresh = gtk_tool_button_new_from_stock (GTK_STOCK_REFRESH);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (refresh), _ ("Refresh"));
+  gtk_tool_button_set_use_underline (GTK_TOOL_BUTTON (refresh), TRUE);
+  gtk_widget_set_name (GTK_WIDGET (refresh), "refresh");
+  g_signal_connect (G_OBJECT (refresh), "clicked",
+                    G_CALLBACK (on_refresh_clicked_cb), wig);
+  gtk_widget_show (GTK_WIDGET (refresh));
+
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar2), refresh, -1);
+
+  GtkToolItem *quit = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (quit), _ ("Close"));
+  gtk_tool_button_set_use_underline (GTK_TOOL_BUTTON (quit), TRUE);
+  gtk_widget_set_name (GTK_WIDGET (quit), "quit");
+  gtk_widget_set_tooltip_text (GTK_WIDGET (quit), _ ("Close"));
+  g_signal_connect (G_OBJECT (quit), "clicked",
+                    G_CALLBACK (on_close_clicked_cb), wig);
+  gtk_widget_show (GTK_WIDGET (quit));
+
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar2), quit, -1);
+
+  gtk_widget_show (toolbar2);
+
+  gtk_box_pack_start (GTK_BOX (vbox), toolbar2, FALSE, FALSE, 0);
+
+  GtkWidget *jnl_viewport = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_placement (GTK_SCROLLED_WINDOW (jnl_viewport),
+                                     GTK_CORNER_TOP_LEFT);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (jnl_viewport),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (jnl_viewport),
+                                       GTK_SHADOW_NONE);
+  gtk_widget_set_name (jnl_viewport, "Journal ScrollWin");
+  gtk_widget_show (jnl_viewport);
+  gtk_widget_show (jnl_top);
+
+  gtk_box_pack_start (GTK_BOX (vbox), jnl_viewport, TRUE, TRUE, 0);
+
+  gtk_widget_show (vbox);
+
+  gtk_container_add (GTK_CONTAINER (jnl_top), vbox);
+
   wig->edit_ivl = NULL;
 
   wig->top = jnl_top;
@@ -1227,22 +1305,10 @@ do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
   /* ---------------------------------------------------- */
   /* Signals for the browser, and the Journal window */
 
-  glade_xml_signal_connect_data (glxml, "on_close_clicked",
-                                 GTK_SIGNAL_FUNC (on_close_clicked_cb), wig);
-
-  glade_xml_signal_connect_data (glxml, "on_save_clicked",
-                                 GTK_SIGNAL_FUNC (on_save_clicked_cb), wig);
-
 #if LATER
   glade_xml_signal_connect_data (glxml, "on_print_clicked",
                                  GTK_SIGNAL_FUNC (on_print_clicked_cb), wig);
 #endif
-
-  glade_xml_signal_connect_data (glxml, "on_publish_clicked",
-                                 GTK_SIGNAL_FUNC (on_publish_clicked_cb), wig);
-
-  glade_xml_signal_connect_data (glxml, "on_refresh_clicked",
-                                 GTK_SIGNAL_FUNC (on_refresh_clicked_cb), wig);
 
   g_signal_connect (G_OBJECT (wig->top), "destroy", G_CALLBACK (destroy_cb),
                     wig);

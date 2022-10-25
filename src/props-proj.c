@@ -20,7 +20,6 @@
 
 #include "config.h"
 
-#include <glade/glade.h>
 #include <gnome.h>
 #include <string.h>
 
@@ -31,7 +30,6 @@
 
 typedef struct _PropDlg
 {
-  GladeXML *gtxml;
   GnomePropertyBox *dlg;
   GtkEntry *title;
   GtkEntry *desc;
@@ -298,16 +296,16 @@ static PropDlg *
 prop_dialog_new (void)
 {
   PropDlg *dlg;
-  GladeXML *gtxml;
 
   dlg = g_new0 (PropDlg, 1);
 
-  gtxml = gtt_glade_xml_new ("glade/project_properties.glade",
-                             "Project Properties");
-  dlg->gtxml = gtxml;
-
-  dlg->dlg = GNOME_PROPERTY_BOX (
-      glade_xml_get_widget (gtxml, "Project Properties"));
+  GtkWidget *project_properties = gnome_property_box_new ();
+  dlg->dlg = GNOME_PROPERTY_BOX (project_properties);
+  gtk_widget_set_name (project_properties, "Project Properties");
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (project_properties), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (project_properties), FALSE);
+  gtk_window_set_position (GTK_WINDOW (project_properties), GTK_WIN_POS_NONE);
+  gtk_window_set_resizable (GTK_WINDOW (project_properties), FALSE);
 
   gtk_signal_connect (GTK_OBJECT (dlg->dlg), "help", GTK_SIGNAL_FUNC (help_cb),
                       "projects-editing");
@@ -318,7 +316,14 @@ prop_dialog_new (void)
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
 
-  GtkWidget *notebook1 = glade_xml_get_widget (gtxml, "notebook1");
+  GtkWidget *notebook1 = gtk_notebook_new ();
+  gtk_notebook_popup_disable (GTK_NOTEBOOK (notebook1));
+  gtk_notebook_set_scrollable (GTK_NOTEBOOK (notebook1), FALSE);
+  gtk_notebook_set_show_border (GTK_NOTEBOOK (notebook1), TRUE);
+  gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook1), TRUE);
+  gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook1), GTK_POS_TOP);
+  gtk_widget_set_can_focus (notebook1, TRUE);
+  gtk_widget_set_name (notebook1, "notebook1");
 
   GtkWidget *label15 = gtk_label_new (_ ("Project"));
   gtk_label_set_line_wrap (GTK_LABEL (label15), FALSE);
@@ -463,7 +468,21 @@ prop_dialog_new (void)
 
   gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), title_table, label15, 0);
 
-  GtkWidget *rate_table = glade_xml_get_widget (gtxml, "rate table");
+  GtkWidget *label16 = gtk_label_new (_ ("Rates"));
+  gtk_label_set_justify (GTK_LABEL (label16), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label16), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label16), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label16), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label16), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label16), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label16), 0, 0);
+  gtk_widget_set_name (label16, "label16");
+  gtk_widget_show (label16);
+
+  GtkWidget *rate_table = gtk_table_new (4, 3, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (rate_table), 3);
+  gtk_table_set_row_spacings (GTK_TABLE (rate_table), 3);
+  gtk_widget_set_name (rate_table, "rate table");
 
   GtkWidget *label22 = gtk_label_new (_ ("Regular Rate:"));
   gtk_label_set_justify (GTK_LABEL (label22), GTK_JUSTIFY_RIGHT);
@@ -674,7 +693,25 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (rate_table), label29, 2, 3, 3, 4, GTK_FILL, 0,
                     0, 0);
 
-  GtkWidget *interval_table = glade_xml_get_widget (gtxml, "interval table");
+  gtk_widget_show (rate_table);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), rate_table, label16, 1);
+
+  GtkWidget *label17 = gtk_label_new (_ ("Intervals"));
+  gtk_label_set_justify (GTK_LABEL (label17), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label17), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label17), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label17), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label17), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label17), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label17), 0, 0);
+  gtk_widget_set_name (label17, "label17");
+  gtk_widget_show (label17);
+
+  GtkWidget *interval_table = gtk_table_new (3, 3, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (interval_table), 3);
+  gtk_table_set_row_spacings (GTK_TABLE (interval_table), 3);
+  gtk_widget_set_name (interval_table, "interval table");
 
   GtkWidget *label31 = gtk_label_new (_ ("Minimum Interval: "));
   gtk_label_set_justify (GTK_LABEL (label31), GTK_JUSTIFY_CENTER);
@@ -831,7 +868,27 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (interval_table), label36, 2, 3, 2, 3, GTK_FILL,
                     0, 0, 0);
 
-  GtkWidget *sizing_table = glade_xml_get_widget (gtxml, "sizing table");
+  gtk_widget_show (interval_table);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), interval_table, label17,
+                            2);
+
+  GtkWidget *label37 = gtk_label_new (_ ("Planning"));
+  gtk_label_set_justify (GTK_LABEL (label37), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label37), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label37), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label37), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label37), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label37), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label37), 0, 0);
+  gtk_widget_set_name (label37, "label37");
+  gtk_widget_show (label37);
+
+  GtkWidget *sizing_table = gtk_table_new (8, 4, FALSE);
+  gtk_container_set_border_width (GTK_CONTAINER (sizing_table), 5);
+  gtk_table_set_col_spacings (GTK_TABLE (sizing_table), 7);
+  gtk_table_set_row_spacings (GTK_TABLE (sizing_table), 5);
+  gtk_widget_show (sizing_table);
 
   GtkWidget *label38 = gtk_label_new (_ ("Urgency:"));
   gtk_label_set_justify (GTK_LABEL (label38), GTK_JUSTIFY_CENTER);
@@ -1202,6 +1259,18 @@ prop_dialog_new (void)
 
   gtk_table_attach (GTK_TABLE (sizing_table), percent_box, 1, 2, 7, 8,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  gtk_widget_show (sizing_table);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), sizing_table, label37,
+                            3);
+
+  gtk_widget_show (notebook1);
+
+  gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (project_properties)->vbox),
+                      notebook1, TRUE, TRUE, 0);
+
+  gtk_widget_show (project_properties);
 
   /* ------------------------------------------------------ */
   /* initialize menu values */

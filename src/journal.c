@@ -1306,8 +1306,8 @@ do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
   /* Signals for the browser, and the Journal window */
 
 #if LATER
-  glade_xml_signal_connect_data (glxml, "on_print_clicked",
-                                 GTK_SIGNAL_FUNC (on_print_clicked_cb), wig);
+  g_signal_connect (G_OBJECT (wig->print), "clicked",
+                    G_CALLBACK (on_print_clicked_cb), wig);
 #endif
 
   g_signal_connect (G_OBJECT (wig->top), "destroy", G_CALLBACK (destroy_cb),

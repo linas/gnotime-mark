@@ -18,7 +18,6 @@
 
 #include "config.h"
 
-#include <glade/glade.h>
 #include <glib.h>
 #include <gnome.h>
 #include <qof.h>
@@ -60,28 +59,6 @@ xxxgtk_textview_get_text (GtkTextView *text)
   gtk_text_buffer_get_start_iter (buff, &start);
   gtk_text_buffer_get_end_iter (buff, &end);
   return gtk_text_buffer_get_text (buff, &start, &end, TRUE);
-}
-
-/* ============================================================== */
-
-/* Glade loader, it will look in the right directories */
-GladeXML *
-gtt_glade_xml_new (const char *filename, const char *widget)
-{
-  GladeXML *xml = NULL;
-
-  g_return_val_if_fail (filename != NULL, NULL);
-
-  if (g_file_test (filename, G_FILE_TEST_EXISTS))
-    xml = glade_xml_new (filename, widget, NULL);
-
-  if (xml == NULL)
-    {
-      char *file = g_concat_dir_and_file (GTTGLADEDIR, filename);
-      xml = glade_xml_new (file, widget, NULL);
-      g_free (file);
-    }
-  return xml;
 }
 
 /* ============================================================== */

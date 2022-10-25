@@ -252,15 +252,113 @@ prop_task_dialog_new (void)
   g_signal_connect (G_OBJECT (dlg->dlg), "destroy", G_CALLBACK (destroy_cb),
                     dlg);
 
-  /* ------------------------------------------------------ */
-  /* grab the various entry boxes and hook them up */
-
-  dlg->memo
-      = GTK_ENTRY (ntagged (glade_xml_get_widget (gtxml, "memo box"), dlg));
-  dlg->notes = GTK_TEXT_VIEW (
-      texted (glade_xml_get_widget (gtxml, "notes box"), dlg));
-
   GtkWidget *const notebook = glade_xml_get_widget (gtxml, "notebook");
+
+  GtkWidget *label5 = gtk_label_new (_ ("Diary Notes"));
+  gtk_label_set_justify (GTK_LABEL (label5), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label5), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label5), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label5), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label5), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label5), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label5), 0, 0);
+  gtk_widget_set_name (label5, "label5");
+  gtk_widget_show (label5);
+
+  GtkWidget *const task_table = gtk_table_new (2, 2, FALSE);
+  gtk_container_set_border_width (GTK_CONTAINER (task_table), 7);
+  gtk_table_set_col_spacings (GTK_TABLE (task_table), 7);
+  gtk_table_set_row_spacings (GTK_TABLE (task_table), 7);
+  gtk_widget_set_name (task_table, "task table");
+
+  GtkWidget *const label1 = gtk_label_new (_ ("Diary Entry:"));
+  gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label1), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label1), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label1), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label1), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label1), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label1), 0, 0);
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
+
+  gtk_table_attach (GTK_TABLE (task_table), label1, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const entry3 = gnome_entry_new ("task_memo");
+  gnome_entry_set_max_saved (GNOME_ENTRY (entry3), 10);
+  gtk_widget_set_name (entry3, "entry3");
+
+  GtkWidget *const memo_box = gnome_entry_gtk_entry (GNOME_ENTRY (entry3));
+  dlg->memo = GTK_ENTRY (ntagged (memo_box, dlg));
+  gtk_entry_set_activates_default (GTK_ENTRY (memo_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (memo_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (memo_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (memo_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (memo_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (memo_box), TRUE);
+  gtk_widget_set_can_focus (memo_box, TRUE);
+  gtk_widget_set_name (memo_box, "memo box");
+  gtk_widget_set_tooltip_text (
+      memo_box, _ ("A short description to attach to this block of time."));
+  gtk_widget_show (memo_box);
+
+  gtk_widget_show (entry3);
+
+  gtk_table_attach (GTK_TABLE (task_table), entry3, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label2 = gtk_label_new (_ ("Notes:"));
+  gtk_label_set_justify (GTK_LABEL (label2), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label2), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label2), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label2), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label2), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label2), 0, 0);
+  gtk_misc_set_padding (GTK_MISC (label2), 0, 0);
+  gtk_widget_set_name (label2, "label2");
+  gtk_widget_show (label2);
+
+  gtk_table_attach (GTK_TABLE (task_table), label2, 0, 1, 1, 2, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_placement (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                     GTK_CORNER_TOP_LEFT);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                       GTK_SHADOW_IN);
+  gtk_widget_set_name (scrolledwindow1, "scrolledwindow1");
+
+  GtkWidget *const notes_box = gtk_text_view_new ();
+  dlg->notes = GTK_TEXT_VIEW (texted (notes_box, dlg));
+  gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (notes_box), TRUE);
+  gtk_text_view_set_editable (GTK_TEXT_VIEW (notes_box), TRUE);
+  gtk_text_view_set_indent (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_justification (GTK_TEXT_VIEW (notes_box),
+                                   GTK_JUSTIFY_LEFT);
+  gtk_text_view_set_left_margin (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_inside_wrap (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_right_margin (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (notes_box), GTK_WRAP_WORD);
+  gtk_widget_set_can_focus (notes_box, TRUE);
+  gtk_widget_set_name (notes_box, "notes box");
+  gtk_widget_set_tooltip_text (notes_box,
+                               _ ("Type detailed diary entry notes here."));
+  gtk_widget_show (notes_box);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow1), notes_box);
+  gtk_widget_show (scrolledwindow1);
+
+  gtk_table_attach_defaults (GTK_TABLE (task_table), scrolledwindow1, 1, 2, 1,
+                             2);
+
+  gtk_widget_show (task_table);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook), task_table, label5, 0);
 
   GtkWidget *const table1 = gtk_table_new (4, 3, FALSE);
   gtk_container_set_border_width (GTK_CONTAINER (table1), 7);

@@ -154,11 +154,7 @@ typedef struct _PrefsDialog
 
 } PrefsDialog;
 
-static GtkCheckButton *dlgwid (GladeXML *gtxml, const gchar *strname,
-                               PrefsDialog *dlg);
 static void entry_to_char (GtkEntry *e, gchar **str);
-static GtkWidget *getchwid (GladeXML *gtxml, const gchar *name,
-                            PrefsDialog *dlg);
 static void set_active (GtkCheckButton *chk_btn, int option);
 static void set_val (int *to, int from, int *change);
 static void show_check (GtkCheckButton *chk_btn, int *option, int *change);
@@ -819,30 +815,300 @@ display_options (GtkWidget *notebook1, PrefsDialog *dlg)
 }
 
 static void
-field_options (PrefsDialog *dlg)
+field_options (GtkWidget *notebook1, PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const label9 = gtk_label_new (_ ("Fields"));
+  gtk_label_set_justify (GTK_LABEL (label9), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label9, "label9");
+  gtk_widget_show (label9);
 
-  dlg->show_title_importance = dlgwid (gtxml, "show importance", dlg);
-  dlg->show_title_urgency = dlgwid (gtxml, "show urgency", dlg);
-  dlg->show_title_status = dlgwid (gtxml, "show status", dlg);
-  dlg->show_title_ever = dlgwid (gtxml, "show ever", dlg);
-  dlg->show_title_year = dlgwid (gtxml, "show year", dlg);
-  dlg->show_title_month = dlgwid (gtxml, "show month", dlg);
-  dlg->show_title_week = dlgwid (gtxml, "show week", dlg);
-  dlg->show_title_lastweek = dlgwid (gtxml, "show lastweek", dlg);
-  dlg->show_title_day = dlgwid (gtxml, "show day", dlg);
-  dlg->show_title_yesterday = dlgwid (gtxml, "show yesterday", dlg);
-  dlg->show_title_current = dlgwid (gtxml, "show current", dlg);
-  dlg->show_title_desc = dlgwid (gtxml, "show desc", dlg);
-  dlg->show_title_task = dlgwid (gtxml, "show task", dlg);
-  dlg->show_title_estimated_start
-      = dlgwid (gtxml, "show estimated_start", dlg);
-  dlg->show_title_estimated_end = dlgwid (gtxml, "show estimated_end", dlg);
-  dlg->show_title_due_date = dlgwid (gtxml, "show due_date", dlg);
-  dlg->show_title_sizing = dlgwid (gtxml, "show sizing", dlg);
-  dlg->show_title_percent_complete
-      = dlgwid (gtxml, "show percent_complete", dlg);
+  GtkWidget *const frame7 = gtk_frame_new (_ ("View Project Fields"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame7), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame7), 0, 0.5);
+  gtk_widget_set_name (frame7, "frame7");
+
+  GtkWidget *const table5 = gtk_table_new (18, 1, FALSE);
+  gtk_widget_set_name (table5, "table5");
+
+  GtkWidget *const show_importance
+      = gtk_check_button_new_with_mnemonic (_ ("Show Project Importance"));
+  dlg->show_title_importance = GTK_CHECK_BUTTON (show_importance);
+  gtk_button_set_use_underline (GTK_BUTTON (show_importance), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_importance), TRUE);
+  gtk_widget_set_can_focus (show_importance, TRUE);
+  gtk_widget_set_name (show_importance, "show importance");
+  gtk_signal_connect_object (GTK_OBJECT (show_importance), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_importance);
+
+  gtk_table_attach (GTK_TABLE (table5), show_importance, 0, 1, 0, 1, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const show_urgency
+      = gtk_check_button_new_with_mnemonic (_ ("Show Project Urgency"));
+  dlg->show_title_urgency = GTK_CHECK_BUTTON (show_urgency);
+  gtk_button_set_use_underline (GTK_BUTTON (show_urgency), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_urgency), TRUE);
+  gtk_widget_set_can_focus (show_urgency, TRUE);
+  gtk_widget_set_name (show_urgency, "show urgency");
+  gtk_signal_connect_object (GTK_OBJECT (show_urgency), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_urgency);
+
+  gtk_table_attach (GTK_TABLE (table5), show_urgency, 0, 1, 1, 2, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const show_status
+      = gtk_check_button_new_with_mnemonic (_ ("Show Project Status"));
+  dlg->show_title_status = GTK_CHECK_BUTTON (show_status);
+  gtk_button_set_use_underline (GTK_BUTTON (show_status), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_status), TRUE);
+  gtk_widget_set_can_focus (show_status, TRUE);
+  gtk_widget_set_name (show_status, "show status");
+  gtk_signal_connect_object (GTK_OBJECT (show_status), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_status);
+
+  gtk_table_attach (GTK_TABLE (table5), show_status, 0, 1, 2, 3, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const show_ever
+      = gtk_check_button_new_with_mnemonic (_ ("Show Total Time Ever"));
+  dlg->show_title_ever = GTK_CHECK_BUTTON (show_ever);
+  gtk_button_set_use_underline (GTK_BUTTON (show_ever), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_ever), TRUE);
+  gtk_widget_set_can_focus (show_ever, TRUE);
+  gtk_widget_set_name (show_ever, "show ever");
+  gtk_signal_connect_object (GTK_OBJECT (show_ever), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_ever);
+
+  gtk_table_attach (GTK_TABLE (table5), show_ever, 0, 1, 3, 4, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const show_year
+      = gtk_check_button_new_with_mnemonic (_ ("Show Time This Year"));
+  dlg->show_title_year = GTK_CHECK_BUTTON (show_year);
+  gtk_button_set_use_underline (GTK_BUTTON (show_year), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_year), TRUE);
+  gtk_widget_set_can_focus (show_year, TRUE);
+  gtk_widget_set_name (show_year, "show year");
+  gtk_signal_connect_object (GTK_OBJECT (show_year), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_year);
+
+  gtk_table_attach (GTK_TABLE (table5), show_year, 0, 1, 4, 5, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const show_month
+      = gtk_check_button_new_with_mnemonic (_ ("Show Time This Month"));
+  dlg->show_title_month = GTK_CHECK_BUTTON (show_month);
+  gtk_button_set_use_underline (GTK_BUTTON (show_month), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_month), TRUE);
+  gtk_widget_set_can_focus (show_month, TRUE);
+  gtk_widget_set_name (show_month, "show month");
+  gtk_signal_connect_object (GTK_OBJECT (show_month), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_month);
+
+  gtk_table_attach (GTK_TABLE (table5), show_month, 0, 1, 5, 6, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const show_week
+      = gtk_check_button_new_with_mnemonic (_ ("Show Time This Week"));
+  dlg->show_title_week = GTK_CHECK_BUTTON (show_week);
+  gtk_button_set_use_underline (GTK_BUTTON (show_week), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_week), TRUE);
+  gtk_widget_set_can_focus (show_week, TRUE);
+  gtk_widget_set_name (show_week, "show week");
+  gtk_signal_connect_object (GTK_OBJECT (show_week), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_week);
+
+  gtk_table_attach (GTK_TABLE (table5), show_week, 0, 1, 6, 7, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const show_lastweek
+      = gtk_check_button_new_with_mnemonic (_ ("Show Time Last Week"));
+  dlg->show_title_lastweek = GTK_CHECK_BUTTON (show_lastweek);
+  gtk_button_set_use_underline (GTK_BUTTON (show_lastweek), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_lastweek), TRUE);
+  gtk_widget_set_can_focus (show_lastweek, TRUE);
+  gtk_widget_set_name (show_lastweek, "show lastweek");
+  gtk_signal_connect_object (GTK_OBJECT (show_lastweek), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_lastweek);
+
+  gtk_table_attach (GTK_TABLE (table5), show_lastweek, 0, 1, 7, 8, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const show_day
+      = gtk_check_button_new_with_mnemonic (_ ("Show Time Today"));
+  dlg->show_title_day = GTK_CHECK_BUTTON (show_day);
+  gtk_button_set_use_underline (GTK_BUTTON (show_day), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_day), TRUE);
+  gtk_widget_set_can_focus (show_day, TRUE);
+  gtk_widget_set_name (show_day, "show day");
+  gtk_signal_connect_object (GTK_OBJECT (show_day), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_day);
+
+  gtk_table_attach (GTK_TABLE (table5), show_day, 0, 1, 8, 9, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const show_yesterday
+      = gtk_check_button_new_with_mnemonic (_ ("Show Time Yesterday"));
+  dlg->show_title_yesterday = GTK_CHECK_BUTTON (show_yesterday);
+  gtk_button_set_use_underline (GTK_BUTTON (show_yesterday), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_yesterday), TRUE);
+  gtk_widget_set_can_focus (show_yesterday, TRUE);
+  gtk_widget_set_name (show_yesterday, "show yesterday");
+  gtk_signal_connect_object (GTK_OBJECT (show_yesterday), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_yesterday);
+
+  gtk_table_attach (GTK_TABLE (table5), show_yesterday, 0, 1, 9, 10, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const show_current = gtk_check_button_new_with_mnemonic (
+      _ ("Show Time For The Current Diary Entry"));
+  dlg->show_title_current = GTK_CHECK_BUTTON (show_current);
+  gtk_button_set_use_underline (GTK_BUTTON (show_current), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_current), TRUE);
+  gtk_widget_set_can_focus (show_current, TRUE);
+  gtk_widget_set_name (show_current, "show current");
+  gtk_signal_connect_object (GTK_OBJECT (show_current), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_current);
+
+  gtk_table_attach (GTK_TABLE (table5), show_current, 0, 1, 10, 11, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const show_desc
+      = gtk_check_button_new_with_mnemonic (_ ("Show Project Description"));
+  dlg->show_title_desc = GTK_CHECK_BUTTON (show_desc);
+  gtk_button_set_use_underline (GTK_BUTTON (show_desc), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_desc), TRUE);
+  gtk_widget_set_can_focus (show_desc, TRUE);
+  gtk_widget_set_name (show_desc, "show desc");
+  gtk_signal_connect_object (GTK_OBJECT (show_desc), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_desc);
+
+  gtk_table_attach (GTK_TABLE (table5), show_desc, 0, 1, 11, 12, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const show_task
+      = gtk_check_button_new_with_mnemonic (_ ("Show Current Diary Entry"));
+  dlg->show_title_task = GTK_CHECK_BUTTON (show_task);
+  gtk_button_set_use_underline (GTK_BUTTON (show_task), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_task), TRUE);
+  gtk_widget_set_can_focus (show_task, TRUE);
+  gtk_widget_set_name (show_task, "show task");
+  gtk_signal_connect_object (GTK_OBJECT (show_task), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_task);
+
+  gtk_table_attach (GTK_TABLE (table5), show_task, 0, 1, 12, 13, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const show_estimated_start = gtk_check_button_new_with_mnemonic (
+      _ ("Show Planned Project Start Date"));
+  dlg->show_title_estimated_start = GTK_CHECK_BUTTON (show_estimated_start);
+  gtk_button_set_use_underline (GTK_BUTTON (show_estimated_start), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_estimated_start), TRUE);
+  gtk_widget_set_can_focus (show_estimated_start, TRUE);
+  gtk_widget_set_name (show_estimated_start, "show estimated_start");
+  gtk_signal_connect_object (GTK_OBJECT (show_estimated_start), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_estimated_start);
+
+  gtk_table_attach (GTK_TABLE (table5), show_estimated_start, 0, 1, 13, 14,
+                    GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const show_estimated_end = gtk_check_button_new_with_mnemonic (
+      _ ("Show Planned Project End Date"));
+  dlg->show_title_estimated_end = GTK_CHECK_BUTTON (show_estimated_end);
+  gtk_button_set_use_underline (GTK_BUTTON (show_estimated_end), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_estimated_end), TRUE);
+  gtk_widget_set_can_focus (show_estimated_end, TRUE);
+  gtk_widget_set_name (show_estimated_end, "show estimated_end");
+  gtk_signal_connect_object (GTK_OBJECT (show_estimated_end), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_estimated_end);
+
+  gtk_table_attach (GTK_TABLE (table5), show_estimated_end, 0, 1, 14, 15,
+                    GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const show_due_date
+      = gtk_check_button_new_with_mnemonic (_ ("Show Project Due Date"));
+  dlg->show_title_due_date = GTK_CHECK_BUTTON (show_due_date);
+  gtk_button_set_use_underline (GTK_BUTTON (show_due_date), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_due_date), TRUE);
+  gtk_widget_set_can_focus (show_due_date, TRUE);
+  gtk_widget_set_name (show_due_date, "show due_date");
+  gtk_signal_connect_object (GTK_OBJECT (show_due_date), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_due_date);
+
+  gtk_table_attach (GTK_TABLE (table5), show_due_date, 0, 1, 15, 16, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const show_sizing
+      = gtk_check_button_new_with_mnemonic (_ ("Show Estimated Effort"));
+  dlg->show_title_sizing = GTK_CHECK_BUTTON (show_sizing);
+  gtk_button_set_use_underline (GTK_BUTTON (show_sizing), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_sizing), TRUE);
+  gtk_widget_set_can_focus (show_sizing, TRUE);
+  gtk_widget_set_name (show_sizing, "show sizing");
+  gtk_widget_set_tooltip_text (
+      show_sizing, _ ("Show the 'szing', that is, the estimated amount of "
+                      "work that it will take to perform this project."));
+  gtk_signal_connect_object (GTK_OBJECT (show_sizing), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_sizing);
+
+  gtk_table_attach (GTK_TABLE (table5), show_sizing, 0, 1, 16, 17, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const show_percent_complete
+      = gtk_check_button_new_with_mnemonic (_ ("Show Percent Complete"));
+  dlg->show_title_percent_complete = GTK_CHECK_BUTTON (show_percent_complete);
+  gtk_button_set_use_underline (GTK_BUTTON (show_percent_complete), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_percent_complete), TRUE);
+  gtk_widget_set_can_focus (show_percent_complete, TRUE);
+  gtk_widget_set_name (show_percent_complete, "show percent_complete");
+  gtk_signal_connect_object (GTK_OBJECT (show_percent_complete), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (show_percent_complete);
+
+  gtk_table_attach (GTK_TABLE (table5), show_percent_complete, 0, 1, 17, 18,
+                    GTK_FILL, 0, 0, 0);
+
+  gtk_widget_show (table5);
+
+  gtk_container_add (GTK_CONTAINER (frame7), table5);
+  gtk_widget_show (frame7);
+
+  gtk_notebook_insert_page (GTK_NOTEBOOK (notebook1), frame7, label9, 0);
 }
 
 static void
@@ -1627,7 +1893,7 @@ prefs_dialog_new (void)
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
   display_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
-  field_options (dlg);
+  field_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
   shell_command_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
   logfile_options (glade_xml_get_widget (gtxml, "notebook1"), dlg);
   toolbar_options (glade_xml_get_widget (gtxml, "vbox1"), dlg);
@@ -1653,13 +1919,6 @@ prefs_dialog_show (void)
   gtk_widget_show (GTK_WIDGET (dlog->dlg));
 }
 
-static GtkCheckButton *
-dlgwid (GladeXML *const gtxml, const gchar *const strname,
-        PrefsDialog *const dlg)
-{
-  return GTK_CHECK_BUTTON (getchwid (gtxml, strname, dlg));
-}
-
 static void
 entry_to_char (GtkEntry *const e, gchar **const str)
 {
@@ -1681,19 +1940,6 @@ entry_to_char (GtkEntry *const e, gchar **const str)
         }
       *str = NULL;
     }
-}
-
-static GtkWidget *
-getchwid (GladeXML *const gtxml, const gchar *const name,
-          PrefsDialog *const dlg)
-{
-  GtkWidget *const wdgt = glade_xml_get_widget (gtxml, name);
-
-  gtk_signal_connect_object (GTK_OBJECT (wdgt), "toggled",
-                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
-                             GTK_OBJECT (dlg->dlg));
-
-  return wdgt;
 }
 
 static void

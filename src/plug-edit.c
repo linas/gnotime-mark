@@ -682,7 +682,17 @@ edit_plugin_dialog_new (void)
 
   dlg->dialog = GTK_DIALOG (glade_xml_get_widget (gtxml, "Plugin Editor"));
 
-  GtkWidget *const hbox3 = glade_xml_get_widget (gtxml, "hbox3");
+  GtkWidget *const vbox2 = glade_xml_get_widget (gtxml, "vbox2");
+
+  GtkWidget *const frame1 = gtk_frame_new (_ ("Accelerator"));
+  gtk_frame_set_label_align (GTK_FRAME (frame1), 0, 0.5);
+  gtk_widget_set_name (frame1, "frame1");
+
+  GtkWidget *const vbox3 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox3, "vbox3");
+
+  GtkWidget *const hbox3 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox3, "hbox3");
 
   GtkWidget *const label7 = gtk_label_new (_ ("Modifiers:"));
   gtk_widget_set_name (label7, "label7");
@@ -719,6 +729,40 @@ edit_plugin_dialog_new (void)
   gtk_widget_show (checkbutton3);
 
   gtk_box_pack_start (GTK_BOX (hbox3), checkbutton3, FALSE, FALSE, 0);
+
+  gtk_widget_show (hbox3);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox3), hbox3);
+
+  GtkWidget *const hbox2 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox2, "hbox2");
+
+  GtkWidget *const label6 = gtk_label_new (_ ("Key:"));
+  gtk_widget_set_name (label6, "label6");
+  gtk_widget_show (label6);
+
+  gtk_box_pack_start (GTK_BOX (hbox2), label6, FALSE, FALSE, 4);
+
+  GtkWidget *const entry4 = gtk_entry_new ();
+  gtk_entry_set_invisible_char (GTK_ENTRY (entry4), '*');
+  gtk_widget_set_can_focus (entry4, TRUE);
+  gtk_widget_set_name (entry4, "entry4");
+  gtk_widget_set_tooltip_text (
+      entry4, _ ("Enter the keyboard shortcut for this menu item."));
+  gtk_widget_show (entry4);
+
+  gtk_box_pack_start_defaults (GTK_BOX (hbox2), entry4);
+
+  gtk_widget_show (hbox2);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox3), hbox2);
+
+  gtk_widget_show (vbox3);
+
+  gtk_container_add (GTK_CONTAINER (frame1), vbox3);
+  gtk_widget_show (frame1);
+
+  gtk_box_pack_start_defaults (GTK_BOX (vbox2), frame1);
 
   /* ------------------------------------------------------ */
   /* Dialog dismissal buttons */

@@ -22,7 +22,6 @@
 #include "config.h"
 
 #include <gnome.h>
-#include <gtkhtml/gtkhtml.h>
 #include <sched.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,6 +39,8 @@
 #include "props-task.h"
 #include "util.h"
 
+#include <webkit/webkit.h>
+
 #include <gio/gio.h>
 
 /* This struct is a mish-mash of stuff relating to the
@@ -49,8 +50,8 @@
 typedef struct wiggy_s
 {
   GttGhtml *gh;
-  GtkHTML *html;
-  GtkHTMLStream *html_stream;
+  WebKitWebView *web_view;
+  GString *html_cache;
   GtkWidget *top;
   GttProject *prj;
   char *filepath; /* file containing report template */
@@ -88,6 +89,14 @@ typedef struct wiggy_s
 
 static void do_show_report (const char *, GttPlugin *, KvpFrame *,
                             GttProject *, gboolean, GList *);
+static void html_hovering_over_link_cb (WebKitWebView *web_view,
+                                        const gchar *title, gchar *uri,
+                                        gpointer user_data);
+static gboolean html_navigation_policy_decision_requested_cb (
+    WebKitWebView *web_view, WebKitWebFrame *frame,
+    WebKitNetworkRequest *request,
+    WebKitWebNavigationAction *navigation_action,
+    WebKitWebPolicyDecision *policy_decision, gpointer user_data);
 
 /* ============================================================== */
 /* Routines that take html and mash it into browser. */
@@ -97,8 +106,13 @@ wiggy_open (GttGhtml *pl, gpointer ud)
 {
   Wiggy *wig = (Wiggy *)ud;
 
+  if (NULL != wig->html_cache)
+    {
+      g_warning ("There seems to be an unfinished HTML transaction");
+    }
+
   /* open the browser for writing */
-  wig->html_stream = gtk_html_begin (wig->html);
+  wig->html_cache = g_string_new (NULL);
 }
 
 static void
@@ -106,8 +120,18 @@ wiggy_close (GttGhtml *pl, gpointer ud)
 {
   Wiggy *wig = (Wiggy *)ud;
 
+  if (NULL == wig->html_cache)
+    {
+      g_warning ("There is no ongoing HTML transaction unexpectedly");
+    }
+
+  // Load the cached contents into the WebView
+  webkit_web_view_load_string (wig->web_view, wig->html_cache->str, NULL, NULL,
+                               NULL);
+
   /* close the browser stream */
-  gtk_html_end (wig->html, wig->html_stream, GTK_HTML_STREAM_OK);
+  g_string_free (wig->html_cache, TRUE);
+  wig->html_cache = NULL;
 }
 
 static void
@@ -116,41 +140,34 @@ wiggy_write (GttGhtml *pl, const char *str, size_t len, gpointer ud)
   Wiggy *wig = (Wiggy *)ud;
 
   /* write to the browser stream */
-  gtk_html_write (wig->html, wig->html_stream, str, len);
+  g_string_append_len (wig->html_cache, str, len);
 }
 
 static void
 wiggy_error (GttGhtml *pl, int err, const char *msg, gpointer ud)
 {
   Wiggy *wig = (Wiggy *)ud;
-  GtkHTML *html = wig->html;
-  GtkHTMLStream *stream;
-  char buff[1000], *p;
 
-  stream = gtk_html_begin (html);
-
+  GString *stream = g_string_new (NULL);
   if (404 == err)
     {
-      p = buff;
-      p = g_stpcpy (p, "<html><body><h1>");
-      p = g_stpcpy (p, _ ("Error 404 Not Found"));
-      p = g_stpcpy (p, "</h1>");
-      p += sprintf (p, _ ("The file %s was not found."),
-                    (msg ? (char *)msg : _ ("(null)")));
-
-      p = g_stpcpy (p, "</body></html>");
-      gtk_html_write (html, stream, buff, p - buff);
+      stream = g_string_append (stream, "<html><body><h1>");
+      stream = g_string_append (stream, _ ("Error 404 Not Found"));
+      stream = g_string_append (stream, "</h1>");
+      g_string_printf (stream, _ ("The file %s was not found."),
+                       (msg ? (char *)msg : _ ("(null)")));
+      stream = g_string_append (stream, "</body></html>");
     }
   else
     {
-      p = buff;
-      p = g_stpcpy (p, "<html><body><h1>");
-      p = g_stpcpy (p, _ ("Unkown Error"));
-      p = g_stpcpy (p, "</h1></body></html>");
-      gtk_html_write (html, stream, buff, p - buff);
+      stream = g_string_append (stream, "<html><body><h1>");
+      stream = g_string_append (stream, _ ("Unkown Error"));
+      stream = g_string_append (stream, "</h1></body></html>");
     }
+  webkit_web_view_load_string (wig->web_view, stream->str, NULL, NULL, NULL);
 
-  gtk_html_end (html, stream, GTK_HTML_STREAM_OK);
+  g_string_free (stream, TRUE);
+  stream = NULL;
 }
 
 /* ============================================================== */
@@ -783,7 +800,12 @@ on_close_clicked_cb (GtkWidget *w, gpointer data)
   g_free (wig->filepath);
 
   wig->gh = NULL;
-  wig->html = NULL;
+  if (NULL != wig->html_cache)
+    {
+      g_string_free (wig->html_cache, TRUE);
+      wig->html_cache = NULL;
+    }
+  wig->web_view = NULL;
   g_free (wig);
 }
 
@@ -802,10 +824,23 @@ on_refresh_clicked_cb (GtkWidget *w, gpointer data)
 /* ============================================================== */
 /* html events */
 
-static void
-html_link_clicked_cb (GtkHTML *doc, const gchar *url, gpointer data)
+static gboolean
+html_navigation_policy_decision_requested_cb (
+    WebKitWebView *const web_view, WebKitWebFrame *const frame,
+    WebKitNetworkRequest *const request,
+    WebKitWebNavigationAction *const navigation_action,
+    WebKitWebPolicyDecision *const policy_decision, gpointer const user_data)
 {
-  Wiggy *wig = (Wiggy *)data;
+
+  const gchar *const url = webkit_network_request_get_uri (request);
+
+  if (0 == g_strcmp0 ("about:blank", url))
+    {
+      webkit_web_policy_decision_use (policy_decision);
+      return TRUE;
+    }
+
+  Wiggy *const wig = (Wiggy *)user_data;
   gpointer addr = NULL;
   char *str;
 
@@ -848,12 +883,17 @@ html_link_clicked_cb (GtkHTML *doc, const gchar *url, gpointer data)
        * deal with them more or less appropriately.  */
       do_show_report (url, NULL, NULL, NULL, FALSE, NULL);
     }
+
+  webkit_web_policy_decision_ignore (policy_decision);
+
+  return TRUE;
 }
 
 /* ============================================================== */
 
+#ifdef UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 static void
-html_url_requested_cb (GtkHTML *doc, const gchar *url, GtkHTMLStream *handle,
+html_url_requested_cb (WebKitWebView *doc, const gchar *url, GString *stream,
                        gpointer data)
 {
   Wiggy *wig = data;
@@ -896,6 +936,7 @@ html_url_requested_cb (GtkHTML *doc, const gchar *url, GtkHTMLStream *handle,
   g_object_unref (ifile);
   ifile = NULL;
 }
+#endif //  UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 
 /* ============================================================== */
 /* Display a tool-tip type of message when the user pauses thier
@@ -1004,9 +1045,11 @@ hover_loose_focus (GtkWidget *w, GdkEventFocus *ev, gpointer data)
 }
 
 static void
-html_on_url_cb (GtkHTML *doc, const gchar *url, gpointer data)
+html_hovering_over_link_cb (WebKitWebView *const web_view,
+                            const gchar *const title, gchar *const uri,
+                            gpointer const user_data)
 {
-  Wiggy *wig = data;
+  Wiggy *const wig = user_data;
   if (NULL == wig->top)
     return;
 
@@ -1040,7 +1083,7 @@ html_on_url_cb (GtkHTML *doc, const gchar *url, gpointer data)
       gtk_widget_show (label);
 
       /* So that we can loose focus later */
-      gtk_window_set_focus (GTK_WINDOW (wig->top), GTK_WIDGET (wig->html));
+      gtk_window_set_focus (GTK_WINDOW (wig->top), GTK_WIDGET (wig->web_view));
 
       /* Set up in initial default, so later move works. */
       int px = 0, py = 0, rx = 0, ry = 0;
@@ -1049,9 +1092,9 @@ html_on_url_cb (GtkHTML *doc, const gchar *url, gpointer data)
       gtk_window_move (wino, rx + px, ry + py);
     }
 
-  if (url)
+  if (uri)
     {
-      char *msg = get_hover_msg (url);
+      char *msg = get_hover_msg (uri);
       gtk_label_set_markup (wig->hover_label, msg);
       gtk_container_resize_children (GTK_CONTAINER (wig->hover_help_window));
       gtk_container_check_resize (GTK_CONTAINER (wig->hover_help_window));
@@ -1059,7 +1102,7 @@ html_on_url_cb (GtkHTML *doc, const gchar *url, gpointer data)
     }
 
   /* If hovering over a URL, bring up the help popup after one second. */
-  if (url)
+  if (uri)
     {
       /* 600 milliseconds == 0.6 second */
       wig->hover_timeout_id = gtk_timeout_add (600, hover_timer_func, wig);
@@ -1148,6 +1191,7 @@ perform_form_query (KvpFrame *kvpf)
   return results;
 }
 
+#ifdef UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 static void
 submit_clicked_cb (GtkHTML *doc, const gchar *method, const gchar *url,
                    const gchar *encoding, gpointer data)
@@ -1189,6 +1233,7 @@ submit_clicked_cb (GtkHTML *doc, const gchar *method, const gchar *url,
 	gtt_ghtml_display (wig->gh, path, wig->prj);
 #endif
 }
+#endif // UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 
 /* ============================================================== */
 
@@ -1294,9 +1339,9 @@ do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
     gtk_window_set_title (GTK_WINDOW (jnl_top), plg->name);
 
   /* Create browser, plug it into the viewport */
-  wig->html = GTK_HTML (gtk_html_new ());
-  gtk_html_set_editable (wig->html, FALSE);
-  gtk_container_add (GTK_CONTAINER (jnl_viewport), GTK_WIDGET (wig->html));
+  wig->web_view = WEBKIT_WEB_VIEW (webkit_web_view_new ());
+  webkit_web_view_set_editable (wig->web_view, FALSE);
+  gtk_container_add (GTK_CONTAINER (jnl_viewport), GTK_WIDGET (wig->web_view));
 
   wig->gh = gtt_ghtml_new ();
   gtt_ghtml_set_stream (wig->gh, wig, wiggy_open, wiggy_write, wiggy_close,
@@ -1313,22 +1358,28 @@ do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
   g_signal_connect (G_OBJECT (wig->top), "destroy", G_CALLBACK (destroy_cb),
                     wig);
 
-  g_signal_connect (G_OBJECT (wig->html), "link_clicked",
-                    G_CALLBACK (html_link_clicked_cb), wig);
+  g_signal_connect (
+      G_OBJECT (wig->web_view), "navigation-policy-decision-requested",
+      G_CALLBACK (html_navigation_policy_decision_requested_cb), wig);
 
-  g_signal_connect (G_OBJECT (wig->html), "submit",
+#ifdef UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
+  g_signal_connect (G_OBJECT (wig->web_view), "submit",
                     G_CALLBACK (submit_clicked_cb), wig);
+#endif // UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 
-  g_signal_connect (G_OBJECT (wig->html), "url_requested",
-                    G_CALLBACK (html_url_requested_cb), wig);
+#ifdef UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
+  // This seems to be used to load external resources (e.g. icons)
+  // g_signal_connect (G_OBJECT (wig->web_view), "url_requested",
+  //                   G_CALLBACK (html_url_requested_cb), wig);
+#endif // UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 
-  g_signal_connect (G_OBJECT (wig->html), "on_url",
-                    G_CALLBACK (html_on_url_cb), wig);
+  g_signal_connect (G_OBJECT (wig->web_view), "hovering-over-link",
+                    G_CALLBACK (html_hovering_over_link_cb), wig);
 
-  g_signal_connect (G_OBJECT (wig->html), "focus_out_event",
+  g_signal_connect (G_OBJECT (wig->web_view), "focus_out_event",
                     G_CALLBACK (hover_loose_focus), wig);
 
-  gtk_widget_show (GTK_WIDGET (wig->html));
+  gtk_widget_show (GTK_WIDGET (wig->web_view));
   gtk_widget_show (jnl_top);
 
   /* ---------------------------------------------------- */

@@ -1,6 +1,7 @@
 /*   GTimeTracker - a time tracker
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2002,2003,2004 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -45,6 +46,8 @@
 #include "toolbar.h"
 #include "util.h"
 
+#include <sqlite3.h>
+
 /* XXX Most of the globals below should be placed into a single
  * application-wide top-level structure, rather than being allowed
  * to be globals. But, for now, its OK ...
@@ -67,6 +70,7 @@ gboolean geom_place_override = FALSE;
 gboolean geom_size_override = FALSE;
 
 extern GttActiveDialog *act;
+extern sqlite3 *db;
 
 static void
 projects_tree_row_activated (GtkTreeView *tree_view, GtkTreePath *path,
@@ -576,6 +580,12 @@ app_show (void)
 void
 app_quit (GtkWidget *w, gpointer data)
 {
+  if (SQLITE_OK != sqlite3_close (db))
+    {
+      g_warning ("Failed to close SQLite application database connection");
+    }
+  db = NULL;
+
   save_properties ();
   save_projects ();
   gtt_status_icon_destroy ();

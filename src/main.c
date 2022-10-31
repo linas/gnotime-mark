@@ -52,6 +52,8 @@
 #include "toolbar.h"
 #include "xml-gtt.h"
 
+#include <sqlite3.h>
+
 #if WITH_DBUS
 #include "dbus.h"
 #endif
@@ -61,6 +63,7 @@ char *first_proj_title = NULL; /* command line over-ride */
 static gboolean first_time_ever = FALSE; /* has gtt ever run before? */
 
 GttProjectList *master_list = NULL;
+sqlite3 *db = NULL;
 
 const char *
 gtt_gettext (const char *s)
@@ -870,6 +873,27 @@ main (int argc, char *argv[])
     }
   g_option_context_free (opt_ctx);
   opt_ctx = NULL;
+
+  // TODO: Replace by in-memory database as soon as available (a temporary file
+  // is used to emulate the behaviour for the time being)
+  GDateTime *timestamp_current = g_date_time_new_now_utc ();
+  gchar *sql_db_filename = g_strdup_printf (
+      "gnotime_%ld.db", g_date_time_to_unix (timestamp_current));
+  g_date_time_unref (timestamp_current);
+  timestamp_current = NULL;
+  gchar *sql_db_path
+      = g_build_filename (g_get_tmp_dir (), sql_db_filename, NULL);
+  g_free (sql_db_filename);
+  sql_db_filename = NULL;
+  if (SQLITE_OK != sqlite3_open (sql_db_path, &db))
+    {
+      g_warning ("Failed to open SQLite application database");
+
+      exit (1);
+    }
+
+  g_free (sql_db_path);
+  sql_db_path = NULL;
 
   gnome_program_init (PACKAGE, VERSION, LIBGNOMEUI_MODULE, argc, argv,
                       GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);

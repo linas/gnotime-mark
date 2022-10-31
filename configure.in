@@ -53,6 +53,7 @@ LIBXML2_REQUIRED=2.0.0
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
 LIBQOF_REQUIRED_MIN=0.6.0
 LIBDBUS_REQUIRED_MIN=0.74
+SQLITE3_REQUIRED_MIN=3.7.9
 WEBKITGTK_REQUIRED=1.8.1
 
 dnl *****************************************
@@ -106,6 +107,13 @@ dnl *****************************************
 PKG_CHECK_MODULES(X11, x11)
 AC_SUBST(X11_CFLAGS)
 AC_SUBST(X11_LIBS)
+
+dnl **************************************************************
+dnl Check for SQLite 3
+dnl **************************************************************
+PKG_CHECK_MODULES(SQLITE3, sqlite3 >= $SQLITE3_REQUIRED_MIN)
+AC_SUBST(SQLITE3_CFLAGS)
+AC_SUBST(SQLITE3_LIBS)
 
 dnl **************************************************************
 dnl If QOF is found on the build system, then use it.

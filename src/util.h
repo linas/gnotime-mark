@@ -32,15 +32,15 @@ char *xxxgtk_textview_get_text (GtkTextView *text);
 size_t gtt_print_hours_elapsed_buff (char *buff, size_t len, int secs,
                                      gboolean show_secs);
 
-size_t xxxqof_print_date_time_buff (char *buff, size_t len, time_t secs);
-size_t xxxqof_print_date_buff (char *buff, size_t len, time_t t);
-size_t xxxqof_print_time_buff (gchar *buff, size_t len, time_t secs);
+size_t gtt_print_date_time_buff (char *buff, size_t len, time_t secs);
+size_t gtt_print_date_buff (char *buff, size_t len, time_t t);
+size_t gtt_print_time_buff (gchar *buff, size_t len, time_t secs);
 gboolean gtt_is_same_day (time_t ta, time_t tb);
 
 size_t gtt_print_minutes_elapsed_buff (char *buff, size_t len, int secs,
                                        gboolean show_secs);
 
-size_t xxxqof_print_date_dmy_buff (char *buff, size_t len, int day, int month,
-                                   int year);
+size_t gtt_print_date_dmy_buff (char *buff, size_t len, int day, int month,
+                                int year);
 
 #endif /* __GTT_UTIL_H__ */

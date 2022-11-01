@@ -807,7 +807,7 @@ do_ret_daily_totals (GttGhtml *ghtml, GttProject *prj)
       /* XXX report date should be time_t in the middle of the interval */
       /* Print date */
       rptdate = mktime (&tday);
-      xxxqof_print_date_buff (buff, 100, rptdate);
+      gtt_print_date_buff (buff, 100, rptdate);
       node = scm_from_locale_string (buff);
       rpt = scm_cons (node, rpt);
 
@@ -1149,8 +1149,8 @@ task_get_earliest_str_scm (GttGhtml *ghtml, GttTask *tsk)
 
   if (task_date > 0)
     {
-      // len = xxxqof_print_date_time_buff (buff, 100, task_date);
-      xxxqof_print_date_time_buff (buff, 100, task_date);
+      // len = gtt_print_date_time_buff (buff, 100, task_date);
+      gtt_print_date_time_buff (buff, 100, task_date);
     }
   else
     {
@@ -1170,8 +1170,8 @@ task_get_latest_str_scm (GttGhtml *ghtml, GttTask *tsk)
 
   if (task_date > 0)
     {
-      // len = xxxqof_print_date_time_buff (buff, 100, task_date);
-      xxxqof_print_date_time_buff (buff, 100, task_date);
+      // len = gtt_print_date_time_buff (buff, 100, task_date);
+      gtt_print_date_time_buff (buff, 100, task_date);
     }
   else
     {
@@ -1337,7 +1337,7 @@ get_ivl_start_stop_common_str_scm (GttGhtml *ghtml, GttInterval *ivl,
 
   if (prt_date)
     {
-      xxxqof_print_date_buff (buff, 100, starp);
+      gtt_print_date_buff (buff, 100, starp);
     }
   else
     {
@@ -1355,7 +1355,7 @@ get_ivl_start_stop_common_str_scm (GttGhtml *ghtml, GttInterval *ivl,
           }
         case TIME_FORMAT_LOCALE:
           {
-            xxxqof_print_time_buff (buff, 100, starp);
+            gtt_print_time_buff (buff, 100, starp);
             break;
           }
         }

@@ -139,12 +139,12 @@ do_show_journal (GttGhtml *ghtml, GttProject *prj)
             }
           if (prt_date)
             {
-              xxxqof_print_date_time_buff (buff, 100, start);
+              gtt_print_date_time_buff (buff, 100, start);
               p = g_string_append (p, buff);
             }
           else
             {
-              xxxqof_print_time_buff (buff, 100, start);
+              gtt_print_time_buff (buff, 100, start);
               p = g_string_append (p, buff);
             }
 
@@ -161,12 +161,12 @@ do_show_journal (GttGhtml *ghtml, GttProject *prj)
             }
           if (prt_date)
             {
-              xxxqof_print_date_time_buff (buff, 100, stop);
+              gtt_print_date_time_buff (buff, 100, stop);
               p = g_string_append (p, buff);
             }
           else
             {
-              xxxqof_print_time_buff (buff, 100, stop);
+              gtt_print_time_buff (buff, 100, stop);
               p = g_string_append (p, buff);
             }
 
@@ -572,12 +572,12 @@ do_show_table (GttGhtml *ghtml, GttProject *prj, int invoice)
                       }
                     if (prt_start_date)
                       {
-                        xxxqof_print_date_time_buff (buff, 100, start);
+                        gtt_print_date_time_buff (buff, 100, start);
                         p = g_string_append (p, buff);
                       }
                     else
                       {
-                        xxxqof_print_time_buff (buff, 100, start);
+                        gtt_print_time_buff (buff, 100, start);
                         p = g_string_append (p, buff);
                       }
                     if (show_links)
@@ -596,12 +596,12 @@ do_show_table (GttGhtml *ghtml, GttProject *prj, int invoice)
                       }
                     if (prt_stop_date)
                       {
-                        xxxqof_print_date_time_buff (buff, 100, stop);
+                        gtt_print_date_time_buff (buff, 100, stop);
                         p = g_string_append (p, buff);
                       }
                     else
                       {
-                        xxxqof_print_time_buff (buff, 100, stop);
+                        gtt_print_time_buff (buff, 100, stop);
                         p = g_string_append (p, buff);
                       }
                     if (show_links)

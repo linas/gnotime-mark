@@ -21,7 +21,6 @@
 
 #include <glib.h>
 #include <gnome.h>
-#include <qof.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -30,16 +29,32 @@
 #include <langinfo.h>
 #endif
 #ifdef HAVE_LANGINFO_D_FMT
-#define QOF_D_FMT (nl_langinfo (D_FMT))
-#define QOF_D_T_FMT (nl_langinfo (D_T_FMT))
-#define QOF_T_FMT (nl_langinfo (T_FMT))
+#define GTT_D_FMT (nl_langinfo (D_FMT))
+#define GTT_D_T_FMT (nl_langinfo (D_T_FMT))
+#define GTT_T_FMT (nl_langinfo (T_FMT))
 #else
-#define QOF_D_FMT "%F"
-#define QOF_D_T_FMT "%F %r"
-#define QOF_T_FMT "%r"
+#define GTT_D_FMT "%F"
+#define GTT_D_T_FMT "%F %r"
+#define GTT_T_FMT "%r"
 #endif
 
 #include "util.h"
+
+#define GTT_UTC_DATE_FORMAT "%Y-%m-%dT%H:%M:%SZ"
+
+typedef enum
+{
+  GTT_DATE_FORMAT_US = 1,
+  GTT_DATE_FORMAT_UK,
+  GTT_DATE_FORMAT_CE,
+  GTT_DATE_FORMAT_ISO,
+  GTT_DATE_FORMAT_UTC,
+  GTT_DATE_FORMAT_ISO8601,
+  GTT_DATE_FORMAT_LOCALE,
+  GTT_DATE_FORMAT_CUSTOM
+} GttDateFormat;
+
+static int date_format_get_current (void);
 
 /* ============================================================== */
 
@@ -100,7 +115,7 @@ gtt_print_hours_elapsed_buff (char *buff, size_t len, int secs,
 }
 
 size_t
-xxxqof_print_date_time_buff (char *buff, size_t len, time_t secs)
+gtt_print_date_time_buff (char *buff, size_t len, time_t secs)
 {
   int flen;
   int day, month, year, hour, min;
@@ -115,33 +130,33 @@ xxxqof_print_date_time_buff (char *buff, size_t len, time_t secs)
   hour = ltm.tm_hour;
   min = ltm.tm_min;
   // sec = ltm.tm_sec;
-  switch (qof_date_format_get_current ())
+  switch (date_format_get_current ())
     {
-    case QOF_DATE_FORMAT_UK:
+    case GTT_DATE_FORMAT_UK:
       flen = g_snprintf (buff, len, "%2d/%2d/%-4d %2d:%02d", day, month, year,
                          hour, min);
       break;
-    case QOF_DATE_FORMAT_CE:
+    case GTT_DATE_FORMAT_CE:
       flen = g_snprintf (buff, len, "%2d.%2d.%-4d %2d:%02d", day, month, year,
                          hour, min);
       break;
-    case QOF_DATE_FORMAT_ISO:
+    case GTT_DATE_FORMAT_ISO:
       flen = g_snprintf (buff, len, "%04d-%02d-%02d %02d:%02d", year, month,
                          day, hour, min);
       break;
-    case QOF_DATE_FORMAT_UTC:
+    case GTT_DATE_FORMAT_UTC:
       {
         gtm = *gmtime (&secs);
-        flen = strftime (buff, len, QOF_UTC_DATE_FORMAT, &gtm);
+        flen = strftime (buff, len, GTT_UTC_DATE_FORMAT, &gtm);
         break;
       }
-    case QOF_DATE_FORMAT_LOCALE:
+    case GTT_DATE_FORMAT_LOCALE:
       {
-        flen = strftime (buff, len, QOF_D_T_FMT, &ltm);
+        flen = strftime (buff, len, GTT_D_T_FMT, &ltm);
       }
       break;
 
-    case QOF_DATE_FORMAT_US:
+    case GTT_DATE_FORMAT_US:
     default:
       flen = g_snprintf (buff, len, "%2d/%2d/%-4d %2d:%02d", month, day, year,
                          hour, min);
@@ -151,27 +166,27 @@ xxxqof_print_date_time_buff (char *buff, size_t len, time_t secs)
 }
 
 size_t
-xxxqof_print_time_buff (gchar *buff, size_t len, time_t secs)
+gtt_print_time_buff (gchar *buff, size_t len, time_t secs)
 {
   gint flen;
   struct tm ltm, gtm;
 
   if (!buff)
     return 0;
-  if (qof_date_format_get_current () == QOF_DATE_FORMAT_UTC)
+  if (date_format_get_current () == GTT_DATE_FORMAT_UTC)
     {
       gtm = *gmtime (&secs);
-      flen = strftime (buff, len, QOF_UTC_DATE_FORMAT, &gtm);
+      flen = strftime (buff, len, GTT_UTC_DATE_FORMAT, &gtm);
       return flen;
     }
   ltm = *localtime (&secs);
-  flen = strftime (buff, len, QOF_T_FMT, &ltm);
+  flen = strftime (buff, len, GTT_T_FMT, &ltm);
 
   return flen;
 }
 
 static void
-xxxgnc_tm_set_day_start (struct tm *tm)
+gtt_tm_set_day_start (struct tm *tm)
 {
   tm->tm_hour = 0;
   tm->tm_min = 0;
@@ -180,39 +195,38 @@ xxxgnc_tm_set_day_start (struct tm *tm)
 }
 
 size_t
-xxxqof_print_date_dmy_buff (char *buff, size_t len, int day, int month,
-                            int year)
+gtt_print_date_dmy_buff (char *buff, size_t len, int day, int month, int year)
 {
   int flen;
   if (!buff)
     return 0;
-  switch (qof_date_format_get_current ())
+  switch (date_format_get_current ())
     {
-    case QOF_DATE_FORMAT_UK:
+    case GTT_DATE_FORMAT_UK:
       flen = g_snprintf (buff, len, "%2d/%2d/%-4d", day, month, year);
       break;
-    case QOF_DATE_FORMAT_CE:
+    case GTT_DATE_FORMAT_CE:
       flen = g_snprintf (buff, len, "%2d.%2d.%-4d", day, month, year);
       break;
-    case QOF_DATE_FORMAT_LOCALE:
+    case GTT_DATE_FORMAT_LOCALE:
       {
         struct tm tm_str;
         time_t t;
         tm_str.tm_mday = day;
         tm_str.tm_mon = month - 1;
         tm_str.tm_year = year - 1900;
-        xxxgnc_tm_set_day_start (&tm_str);
+        gtt_tm_set_day_start (&tm_str);
         t = mktime (&tm_str);
         localtime_r (&t, &tm_str);
-        flen = strftime (buff, len, QOF_D_FMT, &tm_str);
+        flen = strftime (buff, len, GTT_D_FMT, &tm_str);
         if (flen != 0)
           break;
       }
-    case QOF_DATE_FORMAT_ISO:
-    case QOF_DATE_FORMAT_UTC:
+    case GTT_DATE_FORMAT_ISO:
+    case GTT_DATE_FORMAT_UTC:
       flen = g_snprintf (buff, len, "%04d-%02d-%02d", year, month, day);
       break;
-    case QOF_DATE_FORMAT_US:
+    case GTT_DATE_FORMAT_US:
     default:
       flen = g_snprintf (buff, len, "%2d/%2d/%-4d", month, day, year);
       break;
@@ -221,15 +235,15 @@ xxxqof_print_date_dmy_buff (char *buff, size_t len, int day, int month,
 }
 
 size_t
-xxxqof_print_date_buff (char *buff, size_t len, time_t t)
+gtt_print_date_buff (char *buff, size_t len, time_t t)
 {
   struct tm *theTime;
   if (!buff)
     return 0;
   theTime = localtime (&t);
-  return xxxqof_print_date_dmy_buff (buff, len, theTime->tm_mday,
-                                     theTime->tm_mon + 1,
-                                     theTime->tm_year + 1900);
+  return gtt_print_date_dmy_buff (buff, len, theTime->tm_mday,
+                                  theTime->tm_mon + 1,
+                                  theTime->tm_year + 1900);
 }
 
 size_t
@@ -275,6 +289,13 @@ gtt_is_same_day (time_t ta, time_t tb)
       return (ltb.tm_yday - lta.tm_yday);
     }
   return (ltb.tm_year - lta.tm_year) * 365; /* very approximate */
+}
+
+static int
+date_format_get_current (void)
+{
+  // TODO: Come up with a reasonable implementation
+  return GTT_DATE_FORMAT_ISO8601;
 }
 
 /* ===================== END OF FILE ============================ */

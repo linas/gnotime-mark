@@ -19,7 +19,6 @@
 #include "config.h"
 
 #include <libxml/tree.h>
-#include <qof.h>
 #include <stdio.h>
 
 #include "cur-proj.h"

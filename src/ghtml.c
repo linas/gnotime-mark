@@ -28,8 +28,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <qof.h>
-
 #include <locale.h>
 #include <monetary.h>
 
@@ -802,7 +800,7 @@ do_ret_daily_totals (GttGhtml *ghtml, GttProject *prj)
 
       /* XXX should use time_t, and srfi-19 to print, and have a type label */
       /* Print time spent on project this day */
-      xxxqof_print_hours_elapsed_buff (buff, 100, secs, TRUE);
+      gtt_print_hours_elapsed_buff (buff, 100, secs, TRUE);
       node = scm_from_locale_string (buff);
       rpt = scm_cons (node, rpt);
 
@@ -1119,7 +1117,7 @@ task_get_time_str_scm (GttGhtml *ghtml, GttTask *tsk)
   char buff[100];
 
   task_secs = gtt_task_get_secs_ever (tsk);
-  xxxqof_print_hours_elapsed_buff (buff, 100, task_secs, TRUE);
+  gtt_print_hours_elapsed_buff (buff, 100, task_secs, TRUE);
   return scm_from_locale_string (buff);
 }
 
@@ -1136,7 +1134,7 @@ task_get_blocktime_str_scm (GttGhtml *ghtml, GttTask *tsk)
 
   value = (time_t)(lround (((double)task_secs) / bill_unit) * bill_unit);
 
-  xxxqof_print_hours_elapsed_buff (buff, 100, value, TRUE);
+  gtt_print_hours_elapsed_buff (buff, 100, value, TRUE);
   // return scm_mem2string (buff, strlen (buff));
   return scm_from_locale_string (buff);
 }
@@ -1325,7 +1323,7 @@ get_ivl_elapsed_str_scm (GttGhtml *ghtml, GttInterval *ivl)
   time_t elapsed;
   elapsed = gtt_interval_get_stop (ivl);
   elapsed -= gtt_interval_get_start (ivl);
-  xxxqof_print_hours_elapsed_buff (buff, 100, elapsed, TRUE);
+  gtt_print_hours_elapsed_buff (buff, 100, elapsed, TRUE);
   return scm_from_locale_string (buff);
 }
 
@@ -1397,7 +1395,7 @@ get_ivl_same_day_start_scm (GttGhtml *ghtml, GttInterval *ivl)
 
   if (0 != prev_stop)
     {
-      prt_date = xxxqof_is_same_day (start, prev_stop);
+      prt_date = gtt_is_same_day (start, prev_stop);
     }
   return scm_from_bool (prt_date);
 }
@@ -1417,7 +1415,7 @@ get_ivl_same_day_stop_scm (GttGhtml *ghtml, GttInterval *ivl)
   ghtml->last_ivl_time = stop;
   if (0 != prev_start)
     {
-      prt_date = xxxqof_is_same_day (prev_start, stop);
+      prt_date = gtt_is_same_day (prev_start, stop);
     }
   return scm_from_bool (prt_date);
 }
@@ -1460,8 +1458,7 @@ get_ivl_fuzz_str_scm (GttGhtml *ghtml, GttInterval *ivl)
 {
   char buff[100];
 
-  xxxqof_print_hours_elapsed_buff (buff, 100, gtt_interval_get_fuzz (ivl),
-                                   TRUE);
+  gtt_print_hours_elapsed_buff (buff, 100, gtt_interval_get_fuzz (ivl), TRUE);
   return scm_from_locale_string (buff);
 }
 RET_IVL_SIMPLE (ret_ivl_fuzz_str, get_ivl_fuzz_str);

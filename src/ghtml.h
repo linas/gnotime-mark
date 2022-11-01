@@ -19,8 +19,6 @@
 #ifndef __GTT_GHTML_H__
 #define __GTT_GHTML_H__
 
-#include <qof.h>
-
 #include "proj.h"
 
 /* GHTML == guile-parsed html.  These routines will read in html

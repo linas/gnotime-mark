@@ -25,8 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <qof.h>
-
 #include "err-throw.h"
 #include "log.h"
 #include "prefs.h" /* XXX tmp hack for config_* */

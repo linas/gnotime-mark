@@ -28,8 +28,6 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/scrnsaver.h>
 
-#include <qof.h>
-
 #include "app.h"
 #include "cur-proj.h"
 #include "dialog.h"
@@ -240,12 +238,12 @@ display_value (GttIdleDialog *dlg, time_t credit)
   /* Set a value for the thingy under the slider */
   if (3600 > credit)
     {
-      xxxqof_print_minutes_elapsed_buff (tbuff, 30, credit, TRUE);
+      gtt_print_minutes_elapsed_buff (tbuff, 30, credit, TRUE);
       g_snprintf (mbuff, 130, _ ("%s minutes"), tbuff);
     }
   else
     {
-      xxxqof_print_hours_elapsed_buff (tbuff, 30, credit, FALSE);
+      gtt_print_hours_elapsed_buff (tbuff, 30, credit, FALSE);
       g_snprintf (mbuff, 130, _ ("%s hours"), tbuff);
     }
   gtk_label_set_text (dlg->time_label, mbuff);

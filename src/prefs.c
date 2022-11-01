@@ -21,7 +21,6 @@
 #include "config.h"
 
 #include <gnome.h>
-#include <qof.h>
 #include <string.h>
 
 #include "app.h"
@@ -660,7 +659,7 @@ options_dialog_set (PrefsDialog *odlg)
   if (0 > secs)
     secs += 24 * 3600;
   char buff[24];
-  xxxqof_print_hours_elapsed_buff (buff, 24, secs, config_show_secs);
+  gtt_print_hours_elapsed_buff (buff, 24, secs, config_show_secs);
   gtk_entry_set_text (odlg->daystart_secs, buff);
 
   /* Set the correct menu item based on current values */
@@ -722,7 +721,7 @@ daystart_menu_changed (gpointer data, GtkComboBox *w)
   if (0 > secs)
     secs += 24 * 3600;
   char buff[24];
-  xxxqof_print_hours_elapsed_buff (buff, 24, secs, config_show_secs);
+  gtt_print_hours_elapsed_buff (buff, 24, secs, config_show_secs);
   gtk_entry_set_text (dlg->daystart_secs, buff);
 }
 

@@ -1,5 +1,6 @@
 /*   Deprecated guile/scheme html output for GnoTime
  *   Copyright (C) 2001,2002 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,8 +24,6 @@
 #include <libguile.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <qof.h>
 
 #include "app.h"
 #include "ghtml-deprecated.h"
@@ -136,7 +135,7 @@ do_show_journal (GttGhtml *ghtml, GttProject *prj)
           /* print hour only or date too? */
           if (0 != prev_stop)
             {
-              prt_date = xxxqof_is_same_day (start, prev_stop);
+              prt_date = gtt_is_same_day (start, prev_stop);
             }
           if (prt_date)
             {
@@ -150,7 +149,7 @@ do_show_journal (GttGhtml *ghtml, GttProject *prj)
             }
 
           /* print hour only or date too? */
-          prt_date = xxxqof_is_same_day (start, stop);
+          prt_date = gtt_is_same_day (start, stop);
           if (show_links)
             p = g_string_append (p, "</a>");
           p = g_string_append (p, " &nbsp; &nbsp; </td>\n"
@@ -176,7 +175,7 @@ do_show_journal (GttGhtml *ghtml, GttProject *prj)
           if (show_links)
             p = g_string_append (p, "</a>");
           p = g_string_append (p, " &nbsp; &nbsp; </td>\n<td> &nbsp; &nbsp; ");
-          xxxqof_print_hours_elapsed_buff (buff, 100, elapsed, TRUE);
+          gtt_print_hours_elapsed_buff (buff, 100, elapsed, TRUE);
           p = g_string_append (p, buff);
           p = g_string_append (p, " &nbsp; &nbsp; </td></tr>\n");
           (ghtml->write_stream) (ghtml, p->str, p->len, ghtml->user_data);
@@ -441,7 +440,7 @@ do_show_table (GttGhtml *ghtml, GttProject *prj, int invoice)
             case TASK_TIME:
               if (output_html)
                 p = g_string_append (p, "<td align=right>");
-              xxxqof_print_hours_elapsed_buff (buff, 100, task_secs, TRUE);
+              gtt_print_hours_elapsed_buff (buff, 100, task_secs, TRUE);
               p = g_string_append (p, buff);
               break;
 
@@ -546,10 +545,10 @@ do_show_table (GttGhtml *ghtml, GttProject *prj, int invoice)
           elapsed = stop - start;
 
           /* print hour only or date too? */
-          prt_stop_date = xxxqof_is_same_day (start, stop);
+          prt_stop_date = gtt_is_same_day (start, stop);
           if (0 != prev_stop)
             {
-              prt_start_date = xxxqof_is_same_day (start, prev_stop);
+              prt_start_date = gtt_is_same_day (start, prev_stop);
             }
           prev_stop = stop;
 
@@ -615,7 +614,7 @@ do_show_table (GttGhtml *ghtml, GttProject *prj, int invoice)
                   {
                     if (output_html)
                       p = g_string_append (p, "<td>&nbsp;&nbsp;");
-                    xxxqof_print_hours_elapsed_buff (buff, 100, elapsed, TRUE);
+                    gtt_print_hours_elapsed_buff (buff, 100, elapsed, TRUE);
                     p = g_string_append (p, buff);
                     if (output_html)
                       p = g_string_append (p, "&nbsp;&nbsp;");
@@ -625,7 +624,7 @@ do_show_table (GttGhtml *ghtml, GttProject *prj, int invoice)
                   {
                     if (output_html)
                       p = g_string_append (p, "<td>&nbsp;&nbsp;");
-                    xxxqof_print_hours_elapsed_buff (
+                    gtt_print_hours_elapsed_buff (
                         buff, 100, gtt_interval_get_fuzz (ivl), TRUE);
                     p = g_string_append (p, buff);
                     if (output_html)

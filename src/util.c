@@ -1,5 +1,6 @@
 /*   Utilities for GTimeTracker - a time tracker
  *   Copyright (C) 2001 Linas Vepstas
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -65,8 +66,8 @@ xxxgtk_textview_get_text (GtkTextView *text)
 /* Used to be in qof, but is now deprecated there. */
 
 size_t
-xxxqof_print_hours_elapsed_buff (char *buff, size_t len, int secs,
-                                 gboolean show_secs)
+gtt_print_hours_elapsed_buff (char *buff, size_t len, int secs,
+                              gboolean show_secs)
 {
   size_t flen;
   if (0 <= secs)
@@ -232,8 +233,8 @@ xxxqof_print_date_buff (char *buff, size_t len, time_t t)
 }
 
 size_t
-xxxqof_print_minutes_elapsed_buff (char *buff, size_t len, int secs,
-                                   gboolean show_secs)
+gtt_print_minutes_elapsed_buff (char *buff, size_t len, int secs,
+                                gboolean show_secs)
 {
   size_t flen;
   if (0 <= secs)
@@ -264,7 +265,7 @@ xxxqof_print_minutes_elapsed_buff (char *buff, size_t len, int secs,
 }
 
 gboolean
-xxxqof_is_same_day (time_t ta, time_t tb)
+gtt_is_same_day (time_t ta, time_t tb)
 {
   struct tm lta, ltb;
   lta = *localtime (&ta);

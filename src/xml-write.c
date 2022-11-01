@@ -1,5 +1,6 @@
 /*   XML I/O routines for GTimeTracker
  *   Copyright (C) 2001,2002 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -81,10 +82,8 @@ static xmlNodePtr gtt_project_list_to_dom_tree (GList *list);
 
 #define PUT_GUID(TOK, VAL)                                                    \
   {                                                                           \
-    char buff[80];                                                            \
-    guid_to_string_buff ((VAL), buff);                                        \
     node = xmlNewNode (NULL, BAD_CAST TOK);                                   \
-    xmlNodeAddContent (node, BAD_CAST buff);                                  \
+    xmlNodeAddContent (node, BAD_CAST VAL);                                   \
     xmlAddChild (topnode, node);                                              \
   }
 

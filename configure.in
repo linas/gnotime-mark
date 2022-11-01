@@ -51,7 +51,6 @@ GLIB_REQUIRED=2.32
 GTK_REQUIRED=2.12
 LIBXML2_REQUIRED=2.0.0
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
-LIBQOF_REQUIRED_MIN=0.6.0
 LIBDBUS_REQUIRED_MIN=0.74
 SQLITE3_REQUIRED_MIN=3.7.9
 WEBKITGTK_REQUIRED=1.8.1
@@ -114,13 +113,6 @@ dnl **************************************************************
 PKG_CHECK_MODULES(SQLITE3, sqlite3 >= $SQLITE3_REQUIRED_MIN)
 AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
-
-dnl **************************************************************
-dnl If QOF is found on the build system, then use it.
-dnl **************************************************************
-PKG_CHECK_MODULES(LIBQOF, qof >= $LIBQOF_REQUIRED_MIN)
-AC_SUBST(LIBQOF_CFLAGS)
-AC_SUBST(LIBQOF_LIBS)
 
 dnl **************************************************************
 dnl pkgconfig looks for xscrnsaver.pc, however, this is 
@@ -281,8 +273,6 @@ echo "CFLAGS : $CFLAGS"
 echo "LDFLAGS : $LDFLAGS"
 echo "X_LIBS : $X_LIBS"
 echo "GUILE_LIBS : $GUILE_LDFLAGS"
-echo "LIBQOF_LIBS : $LIBQOF_LIBS"
-echo "LIBQOF_CFLAGS : $LIBQOF_CFLAGS"
 echo "LIBDBUS_LIBS : $LIBDBUS_LIBS"
 echo "LIBDBUS_CFLAGS : $LIBDBUS_CFLAGS"
 echo "XSS_EXTENSION_CFLAGS : $XSS_EXTENSION_CFLAGS"

@@ -1,6 +1,7 @@
 /*   Project data manipulation for GTimeTracker - a time tracker
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,7 +22,6 @@
 #define __GTT_PROJ_H__
 
 #include <glib.h>
-#include <qof.h>
 
 /* The data structures for GnoTime are written in a quasi-object-oriented
  * style.  All data is encapsulated in opaque structs, and can be accessed
@@ -111,10 +111,6 @@ typedef int (*GttProjectCB) (GttProject *, gpointer);
 typedef int (*GttIntervalCB) (GttInterval *, gpointer);
 
 /* -------------------------------------------------------- */
-/* system init */
-gboolean gtt_project_obj_register (void);
-
-/* -------------------------------------------------------- */
 /* project data */
 
 /* create, destroy a new project */
@@ -136,7 +132,7 @@ GttProject *gtt_project_dup (GttProject *);
  */
 void gtt_project_remove (GttProject *p);
 
-const GUID *gtt_project_get_guid (GttProject *);
+const gchar *gtt_project_get_guid (const GttProject *);
 
 void gtt_project_set_title (GttProject *, const char *);
 void gtt_project_set_desc (GttProject *, const char *);
@@ -497,7 +493,7 @@ GttTask *gtt_task_new (void);
 GttTask *gtt_task_copy (GttTask *);
 void gtt_task_destroy (GttTask *);
 
-const GUID *gtt_task_get_guid (GttTask *);
+const gchar *gtt_task_get_guid (const GttTask *);
 
 void gtt_task_set_memo (GttTask *, const char *);
 const char *gtt_task_get_memo (GttTask *);

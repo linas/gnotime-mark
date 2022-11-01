@@ -1,5 +1,6 @@
 /*   Generate guile-parsed html output for GTimeTracker - a time tracker
  *   Copyright (C) 2001 Linas Vepstas
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -49,9 +50,6 @@ struct gtt_ghtml_s
   /* open_count and ref_path used for recursive file includes */
   int open_count;
   const char *ref_path;
-
-  /* Key-Value Pair data; includes HTML form GET/POST results. */
-  KvpFrame *kvp;
 
   /* The 'linked' project */
   GttProject *prj;

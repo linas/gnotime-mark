@@ -38,9 +38,7 @@ BuildRequires:  guile-devel >= 0:1.6.0
 BuildRequires:  scrollkeeper
 BuildRequires:  gettext
 BuildRequires:  desktop-file-utils
-BuildConflicts: qof-devel
 
-Conflicts: qof
 Requires(post): scrollkeeper
 Requires(postun): scrollkeeper
 Requires(post): /sbin/ldconfig
@@ -106,7 +104,6 @@ scrollkeeper-update -q || :
 %{_datadir}/applications/%{name}.desktop
 %{_mandir}/man[^3]/*
 %{_includedir}/gnotime
-%{_libdir}/libqof*
 
 %changelog
 * Tue Feb 08 2005 Mike Traum <mtraum@yahoo.com> - 0:2.2.1-0.fdr.1

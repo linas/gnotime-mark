@@ -102,7 +102,6 @@ AM_CFLAGS = -g -Wall     \
 	${GUILE_CFLAGS} ${X11_CFLAGS}
 
 INCLUDES =                                   \
-	$(LIBQOF_CFLAGS)                          \
 	$(LIBDBUS_CFLAGS)                         \
 	$(XSS_EXTENSION_CFLAGS)                   \
 	-I$(includedir)                           \
@@ -124,7 +123,6 @@ gnotime_LDADD =          \
 	${GTK_LIBS}     \
 	${LIBGNOME_LIBS}     \
 	${LIBGNOMEUI_LIBS}     \
-	$(LIBQOF_LIBS)        \
 	$(LIBDBUS_LIBS)       \
 	$(XSS_EXTENSION_LIBS) \
 	$(WEBKITGTK_LIBS)    \

@@ -1,6 +1,7 @@
 /*   project structure handling for GTimeTracker - a time tracker
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +20,8 @@
 
 #include "config.h"
 
+#include "util.h"
+
 #include <glib.h>
 #include <libintl.h> /*conflicts with <libgnome/gnome-i18n.h> on some systems */
 #include <stdio.h>
@@ -32,6 +35,8 @@
 #include "proj_p.h"
 #include "query.h" /* temp hack for query */
 
+#include <sqlite3.h>
+
 #define _(X) gettext (X)
 
 /* XXX replace this notifier by GObject signals someday */
@@ -41,14 +46,14 @@ typedef struct notif_s
   gpointer user_data;
 } Notifier;
 
+extern sqlite3 *db;
+
 /* hack alert -- plist should be made to belong to a book
  * And its worse than that ... there code that explicitly assumes
  * there's only one global list, and tha is bad and broken. But
  * there it is.
  */
 GttProjectList *global_plist = NULL;
-
-QofBook *global_book = NULL;
 
 static void proj_refresh_time (GttProject *proj);
 static void proj_modified (GttProject *proj);
@@ -108,8 +113,19 @@ gtt_project_new (void)
 
   proj->id = next_free_id;
   next_free_id++;
+  proj->uuid = gtt_generate_uuid ();
 
-  qof_instance_init (&proj->inst, GTT_PROJECT_ID, global_book);
+  gchar *sql_query = g_strdup_printf (
+      "INSERT INTO Projects VALUES (%d,\"%s\", 0, 0)", proj->id, proj->uuid);
+
+  if (SQLITE_OK != sqlite3_exec (db, sql_query, NULL, NULL, NULL))
+    {
+      g_warning ("Failed to insert new project into \"Projects\" table");
+    }
+
+  g_free (sql_query);
+  sql_query = NULL;
+
   return proj;
 }
 
@@ -261,15 +277,32 @@ gtt_project_destroy (GttProject *proj)
 }
 
 void
-gtt_project_set_guid (GttProject *prj, const GUID *guid)
+gtt_project_set_guid (GttProject *prj, const gchar *guid)
 {
-  qof_entity_set_guid (&prj->inst.entity, guid);
+  gchar *sql_query = g_strdup_printf (
+      "UPDATE Projects SET Uuid = \"%s\" WHERE Id = %d", prj->uuid, prj->id);
+
+  if (SQLITE_OK == sqlite3_exec (db, sql_query, NULL, NULL, NULL))
+    {
+      if (prj->uuid)
+        {
+          g_free (prj->uuid);
+        }
+      prj->uuid = g_strdup (guid);
+    }
+  else
+    {
+      g_warning ("Failed to update UUID of project %d", prj->id);
+    }
+
+  g_free (sql_query);
+  sql_query = NULL;
 }
 
-const GUID *
-gtt_project_get_guid (GttProject *prj)
+const gchar *
+gtt_project_get_guid (const GttProject *const prj)
 {
-  return qof_entity_get_guid (&prj->inst.entity);
+  return prj->uuid;
 }
 
 /* ========================================================= */
@@ -2087,96 +2120,13 @@ gtt_project_timer_stop (GttProject *proj)
 
 /* =========================================================== */
 
-static void
-prj_obj_foreach_helper (GList *prjlist, QofEntityForeachCB cb, gpointer data)
-{
-  GList *node;
-
-  for (node = prjlist; node; node = node->next)
-    {
-      GttProject *prj = node->data;
-      cb ((QofEntity *)prj, data);
-      prj_obj_foreach_helper (prj->sub_projects, cb, data);
-    }
-}
-
-void
-gtt_project_obj_foreach (QofCollection *coll, QofEntityForeachCB cb,
-                         gpointer data)
-{
-  prj_obj_foreach_helper (global_plist->prj_list, cb, data);
-}
-
-static int
-prj_obj_order (GttProject *a, GttProject *b)
-{
-  return 0;
-}
-
-static QofObject prj_object_def = {
-  interface_version : QOF_OBJECT_VERSION,
-  e_type : GTT_PROJECT_ID,
-  type_label : GTT_PROJECT_ID,
-  create : NULL,
-  book_begin : NULL,
-  book_end : NULL,
-  is_dirty : NULL,
-  mark_clean : NULL,
-  foreach : gtt_project_obj_foreach,
-  printable : NULL,
-};
-
-/* =========================================================== */
-/* bogus wrappers */
-static QofTime *
-prj_obj_get_earliest (GttProject *prj, QofParam *qpm)
-{
-  // static time return, not thread safe, but a hack that will do for now.
-  static QofTime *qt = NULL;
-  if (NULL == qt)
-    qt = qof_time_new ();
-  time_t gt = gtt_project_get_earliest_start (prj, TRUE);
-  qof_time_set_secs (qt, gt);
-  return qt;
-}
-
-static QofTime *
-prj_obj_get_latest (GttProject *prj, QofParam *qpm)
-{
-  static QofTime *qt = NULL;
-  if (NULL == qt)
-    qt = qof_time_new ();
-  time_t gt = gtt_project_get_latest_stop (prj, TRUE);
-  qof_time_set_secs (qt, gt);
-  return qt;
-}
-
-gboolean
-gtt_project_obj_register (void)
-{
-  global_book = qof_book_new ();
-
-  /* Associate an ASCII name to each getter, as well as the return type */
-  static QofParam params[] = {
-    { GTT_PROJECT_EARLIEST, QOF_TYPE_TIME, (QofAccessFunc)prj_obj_get_earliest,
-      NULL },
-    { GTT_PROJECT_LATEST, QOF_TYPE_TIME, (QofAccessFunc)prj_obj_get_latest,
-      NULL },
-    { NULL },
-  };
-
-  qof_class_register (GTT_PROJECT_ID, (QofSortFunc)prj_obj_order, params);
-  return qof_object_register (&prj_object_def);
-}
-
-/* =========================================================== */
-
 GttTask *
 gtt_task_new (void)
 {
   GttTask *task;
 
   task = g_new0 (GttTask, 1);
+  task->uuid = gtt_generate_uuid ();
   task->parent = NULL;
   task->memo = g_strdup (_ ("New Diary Entry"));
   task->notes = g_strdup ("");
@@ -2185,7 +2135,17 @@ gtt_task_new (void)
   task->billstatus = GTT_BILL, task->bill_unit = 900;
   task->interval_list = NULL;
 
-  qof_instance_init (&task->inst, GTT_TASK_ID, global_book);
+  gchar *sql_query
+      = g_strdup_printf ("INSERT INTO Tasks VALUES (\"%s\")", task->uuid);
+
+  if (SQLITE_OK != sqlite3_exec (db, sql_query, NULL, NULL, NULL))
+    {
+      g_warning ("Failed to insert new task into \"Tasks\" table");
+    }
+
+  g_free (sql_query);
+  sql_query = NULL;
+
   return task;
 }
 
@@ -2198,6 +2158,7 @@ gtt_task_copy (GttTask *old)
     return gtt_task_new ();
 
   task = g_new0 (GttTask, 1);
+  task->uuid = gtt_generate_uuid ();
   task->parent = NULL;
   task->memo = g_strdup (old->memo);
   task->notes = g_strdup (old->notes);
@@ -2209,7 +2170,17 @@ gtt_task_copy (GttTask *old)
   task->bill_unit = old->bill_unit;
   task->interval_list = NULL;
 
-  qof_instance_init (&task->inst, GTT_TASK_ID, global_book);
+  gchar *sql_query
+      = g_strdup_printf ("INSERT INTO Tasks VALUES (\"%s\")", task->uuid);
+
+  if (SQLITE_OK != sqlite3_exec (db, sql_query, NULL, NULL, NULL))
+    {
+      g_warning ("Failed to insert new task into \"Tasks\" table");
+    }
+
+  g_free (sql_query);
+  sql_query = NULL;
+
   return task;
 }
 
@@ -2359,15 +2330,32 @@ gtt_task_new_insert (GttTask *old)
 }
 
 void
-gtt_task_set_guid (GttTask *tsk, const GUID *guid)
+gtt_task_set_guid (GttTask *tsk, const gchar *guid)
 {
-  qof_entity_set_guid (&tsk->inst.entity, guid);
+  gchar *sql_query = g_strdup_printf (
+      "UPDATE Tasks SET Uuid = \"%s\" WHERE Uuid = \"%s\"", guid, tsk->uuid);
+
+  if (SQLITE_OK == sqlite3_exec (db, sql_query, NULL, NULL, NULL))
+    {
+      if (tsk->uuid)
+        {
+          g_free (tsk->uuid);
+        }
+      tsk->uuid = g_strdup (guid);
+    }
+  else
+    {
+      g_warning ("Failed to update UUID of task \"%s\"", tsk->uuid);
+    }
+
+  g_free (sql_query);
+  sql_query = NULL;
 }
 
-const GUID *
-gtt_task_get_guid (GttTask *tsk)
+const gchar *
+gtt_task_get_guid (const GttTask *const tsk)
 {
-  return qof_entity_get_guid (&tsk->inst.entity);
+  return tsk->uuid;
 }
 
 void

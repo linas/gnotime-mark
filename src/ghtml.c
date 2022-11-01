@@ -275,6 +275,7 @@ do_apply_on_interval (GttGhtml *ghtml, SCM invl,
 
 /* ============================================================== */
 
+#if 0
 static SCM
 kvp_cb (GttGhtml *ghtml, const char *key)
 {
@@ -297,6 +298,7 @@ ret_kvp_str (SCM key)
   GttGhtml *ghtml = ghtml_guile_global_hack;
   return do_apply_on_string (ghtml, key, kvp_cb);
 }
+#endif
 
 /* ============================================================== */
 /* This routine accepts an SCM node, and 'prints' it out.
@@ -1812,7 +1814,7 @@ register_procs (void)
 {
   scm_c_define_gsubr ("gtt-show", 1, 0, 0, show_scm);
   scm_c_define_gsubr ("gtt-include", 1, 0, 0, include_file_scm);
-  scm_c_define_gsubr ("gtt-kvp-str", 1, 0, 0, ret_kvp_str);
+  // scm_c_define_gsubr ("gtt-kvp-str", 1, 0, 0, ret_kvp_str);
   scm_c_define_gsubr ("gtt-linked-project", 0, 0, 0, ret_linked_project);
   scm_c_define_gsubr ("gtt-selected-project", 0, 0, 0, ret_selected_project);
   scm_c_define_gsubr ("gtt-projects", 0, 0, 0, ret_projects);
@@ -1903,7 +1905,7 @@ gtt_ghtml_new (void)
   p = g_new0 (GttGhtml, 1);
 
   p->open_count = 0;
-  p->kvp = NULL;
+  // p->kvp = NULL;
   p->prj = NULL;
   p->query_result = NULL;
   p->did_query = FALSE;

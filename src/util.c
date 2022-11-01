@@ -56,6 +56,27 @@ typedef enum
 
 static int date_format_get_current (void);
 
+#define UUID_BUFF_SIZE 16
+
+gchar *
+gtt_generate_uuid (void)
+{
+
+  unsigned char buff[UUID_BUFF_SIZE] = { 0 };
+
+  guint i = 0;
+  for (; i < UUID_BUFF_SIZE; ++i)
+    {
+      buff[i] = (unsigned char)g_random_int_range (0, 255);
+    }
+
+  return g_strdup_printf ("%02hhx%02hhx%02hhx%02hhx-%02hhx%02hhx-%02hhx%02hhx-"
+                          "%02hhx%02hhx-%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
+                          buff[0], buff[1], buff[2], buff[3], buff[4], buff[5],
+                          buff[6], buff[7], buff[8], buff[9], buff[10],
+                          buff[11], buff[12], buff[13], buff[14], buff[15]);
+}
+
 /* ============================================================== */
 
 void

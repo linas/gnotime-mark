@@ -26,8 +26,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <qof.h>
-
 #include "app.h"
 #include "dialog.h"
 #include "ghtml.h"
@@ -87,8 +85,8 @@ typedef struct wiggy_s
   GtkEntry *publish_entry;
 } Wiggy;
 
-static void do_show_report (const char *, GttPlugin *, KvpFrame *,
-                            GttProject *, gboolean, GList *);
+static void do_show_report (const char *, GttPlugin *, gpointer, GttProject *,
+                            gboolean, GList *);
 static void html_hovering_over_link_cb (WebKitWebView *web_view,
                                         const gchar *title, gchar *uri,
                                         gpointer user_data);
@@ -1121,8 +1119,6 @@ html_hovering_over_link_cb (WebKitWebView *const web_view,
 /* ============================================================== */
 /* HTML form (method=GET, POST) events */
 
-static QofBook *book = NULL;
-
 /* Obtain an SQL query string from the HTML page, and submit
  * it to the query engnine, returning a list of projects.
  *
@@ -1133,6 +1129,7 @@ static QofBook *book = NULL;
  * lists of qof entities, and using that to figure out the returned
  * type.  Need to change GttProject to derive from QofEntity.
  */
+#ifdef UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 static GList *
 perform_form_query (KvpFrame *kvpf)
 {
@@ -1190,6 +1187,7 @@ perform_form_query (KvpFrame *kvpf)
 
   return results;
 }
+#endif // UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 
 #ifdef UP_TO_DATE_WEB_KIT_GTK_AVAILABLE
 static void
@@ -1238,7 +1236,7 @@ submit_clicked_cb (GtkHTML *doc, const gchar *method, const gchar *url,
 /* ============================================================== */
 
 static void
-do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
+do_show_report (const char *report, GttPlugin *plg, gpointer kvpf,
                 GttProject *prj, gboolean did_query, GList *prjlist)
 {
   Wiggy *wig;
@@ -1803,12 +1801,12 @@ do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
 
   wig->prj = prj;
   wig->filepath = g_strdup (report);
-  if (kvpf)
+  /* if (kvpf)
     {
       if (wig->gh->kvp)
         kvp_frame_delete (wig->gh->kvp);
       wig->gh->kvp = kvpf;
-    }
+    } */
   wig->gh->did_query = did_query;
   wig->gh->query_result = prjlist;
 

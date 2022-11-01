@@ -1,5 +1,6 @@
 /*   XML I/O routines for GTimeTracker
  *   Copyright (C) 2001,2002 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -108,9 +109,7 @@
   if (0 == strcmp (TOK, (char *)node->name))                                  \
     {                                                                         \
       const char *str = (const char *)GET_TEXT (node);                        \
-      GUID guid;                                                              \
-      string_to_guid (str, &guid);                                            \
-      FN (SELF, &guid);                                                       \
+      FN (SELF, str);                                                         \
     }                                                                         \
   else
 

@@ -22,6 +22,8 @@
 
 #include <gtk/gtk.h>
 
+gchar *gtt_generate_uuid (void);
+
 /* ------------------------------------------------------------------ */
 /* some gtk-like utilities */
 void xxxgtk_textview_set_text (GtkTextView *text, const char *str);

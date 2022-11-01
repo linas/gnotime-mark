@@ -1,5 +1,6 @@
 /*   gtt project private data structure file for GTimeTracker
  *   Copyright (C) 2001 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -28,14 +29,11 @@
 
 struct gtt_project_list_s
 {
-  // XXX this should belong to a QOF book
   GList *prj_list;
 };
 
 struct gtt_project_s
 {
-  QofInstance inst;
-
   /* State data, data that is saved/restored/transmitted */
   /* 'protected' data, accessible through setters & getters */
   /* This data defines the 'state' of the project. */
@@ -84,6 +82,7 @@ struct gtt_project_s
   gpointer *private_data;
 
   int id; /* simple id number */
+  gchar *uuid;
 
   int being_destroyed : 1; /* project is being destroyed */
   int frozen : 1;          /* defer recomputes of time totals */
@@ -104,7 +103,7 @@ struct gtt_project_s
  */
 struct gtt_task_s
 {
-  QofInstance inst;
+  gchar *uuid;
 
   GttProject *parent;       /* parent project */
   char *memo;               /* invoiceable memo (customer sees this) */
@@ -129,7 +128,7 @@ struct gtt_interval_s
 };
 
 /* Should not be used by outsiders; these are dangerous routines */
-void gtt_project_set_guid (GttProject *, const GUID *);
-void gtt_task_set_guid (GttTask *, const GUID *);
+void gtt_project_set_guid (GttProject *, const gchar *);
+void gtt_task_set_guid (GttTask *, const gchar *);
 
 #endif /* __GTT_PROJ_P_H__ */

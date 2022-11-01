@@ -36,8 +36,6 @@
 #include <sys/wait.h>
 #endif
 
-#include <qof.h>
-
 #include "app.h"
 #include "cur-proj.h"
 #include "err-throw.h"
@@ -154,10 +152,6 @@ unlock_gtt (void)
 /* Don't -- its currently buggy, recursive, will hang and whack data */
 	project_list_destroy ();
 #endif
-
-  /* Perform a clean shutdown of QOF subsystem. */
-  qof_close ();
-  // qof_log_shutdown();
 
   /* gnome shutdown */
 }
@@ -895,6 +889,25 @@ main (int argc, char *argv[])
   g_free (sql_db_path);
   sql_db_path = NULL;
 
+  if (SQLITE_OK
+      != sqlite3_exec (db,
+                       "CREATE TABLE IF NOT EXISTS Projects (Id INT PRIMARY "
+                       "KEY NOT NULL, Uuid STRING UNIQUE, EarliestStart INT, "
+                       "LatestStop INT);",
+                       NULL, NULL, NULL))
+    {
+      g_warning (
+          "Failed to create \"Projects\" table in application database");
+    }
+
+  if (SQLITE_OK
+      != sqlite3_exec (
+          db, "CREATE TABLE IF NOT EXISTS Tasks (Uuid STRING UNIQUE);", NULL,
+          NULL, NULL))
+    {
+      g_warning ("Failed to create \"Tasks\" table in application database");
+    }
+
   gnome_program_init (PACKAGE, VERSION, LIBGNOMEUI_MODULE, argc, argv,
                       GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
   gnome_window_icon_set_default_from_file (GNOME_ICONDIR
@@ -936,13 +949,6 @@ main (int argc, char *argv[])
   gnotime_dbus_setup ();
 #endif
 
-  /* Perform QOF-specific initialization, including dates, objects, query, etc.
-   */
-  qof_init ();
-  // Debugging/trace info for the qof query is written to /tmp/qof.trace
-  // qof_log_init();
-  // qof_log_set_level(QOF_MOD_QUERY, QOF_LOG_TRACE);
-  gtt_project_obj_register ();
   master_list = gtt_project_list_new ();
 
 #if DEVEL_VERSION_WARNING

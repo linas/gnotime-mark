@@ -19,6 +19,6 @@
 #define __DIALOG_H__
 
 /* Popup the appropriate help/documentaiton subsystem */
-void gtt_help_popup(GtkWidget *widget, gpointer data);
+void gtt_help_popup (GtkWidget *widget, gpointer data);
 
 #endif

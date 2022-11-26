@@ -26,8 +26,10 @@
  * Modified by:   Goedson Teixeira Paixao <goedson@debian.org>
  ********************************************************************/
 
-#include "status-icon.h"
-#include "timer.h"
+#include "gtt_status_icon.h"
+
+#include "gtt_timer.h"
+
 #include <gnome.h>
 #include <gtk/gtk.h>
 

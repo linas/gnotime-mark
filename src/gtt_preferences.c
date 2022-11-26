@@ -19,19 +19,20 @@
 
 #include "config.h"
 
+#include "gtt_preferences.h"
+
+#include "gtt.h"
+#include "gtt_application_window.h"
+#include "gtt_current_project.h"
+#include "gtt_help_popup.h"
+#include "gtt_timer.h"
+#include "gtt_toolbar.h"
+#include "gtt_util.h"
+
 #include <glade/glade.h>
 #include <gnome.h>
 #include <qof.h>
 #include <string.h>
-
-#include "app.h"
-#include "cur-proj.h"
-#include "dialog.h"
-#include "gtt.h"
-#include "prefs.h"
-#include "timer.h"
-#include "toolbar.h"
-#include "util.h"
 
 /* globals */
 int config_show_secs = 0;

@@ -18,6 +18,17 @@
 
 #include "config.h"
 
+#include "gtt_ghtml.h"
+
+#include "gtt.h"
+#include "gtt_application_window.h"
+#include "gtt_current_project.h"
+#include "gtt_ghtml_deprecated.h"
+#include "gtt_preferences.h"
+#include "gtt_project.h"
+#include "gtt_query.h"
+#include "gtt_util.h"
+
 #define _GNU_SOURCE
 #include <glib.h>
 #include <libgnomevfs/gnome-vfs.h>
@@ -32,16 +43,6 @@
 
 #include <locale.h>
 #include <monetary.h>
-
-#include "app.h"
-#include "cur-proj.h"
-#include "ghtml-deprecated.h"
-#include "ghtml.h"
-#include "gtt.h"
-#include "prefs.h"
-#include "proj.h"
-#include "query.h"
-#include "util.h"
 
 /* Design problems:
  * The way this is currently defined, there is no type safety, and

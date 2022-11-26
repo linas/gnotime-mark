@@ -18,14 +18,16 @@
  */
 
 #include <config.h>
+
+#include "gtt_export.h"
+
+#include "gtt_application_window.h"
+#include "gtt_ghtml.h"
+#include "gtt_project.h"
+
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <string.h>
-
-#include "app.h"
-#include "export.h"
-#include "ghtml.h"
-#include "proj.h"
 
 /* Project data export */
 

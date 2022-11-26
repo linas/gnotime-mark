@@ -18,21 +18,24 @@
  */
 
 #include <config.h>
+
+#include "gtt_timer.h"
+
+#include "gtt.h"
+#include "gtt_activation_dialog.h"
+#include "gtt_application_window.h"
+#include "gtt_current_project.h"
+#include "gtt_idle_dialog.h"
+#include "gtt_log.h"
+#include "gtt_notes_area.h"
+#include "gtt_preferences.h"
+#include "gtt_project.h"
+#include "gtt_projects_tree.h"
+#include "gtt_props_dlg_task.h"
+#include "gtt_timer.h"
+
 #include <gnome.h>
 #include <string.h>
-
-#include "active-dialog.h"
-#include "app.h"
-#include "cur-proj.h"
-#include "gtt.h"
-#include "idle-dialog.h"
-#include "log.h"
-#include "notes-area.h"
-#include "prefs.h"
-#include "proj.h"
-#include "projects-tree.h"
-#include "props-task.h"
-#include "timer.h"
 
 int config_autosave_period = 60;
 int config_autosave_props_period = (4 * 3600);

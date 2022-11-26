@@ -18,6 +18,23 @@
  */
 #include "config.h"
 
+#include "gtt_application_window.h"
+
+#include "gtt.h"
+#include "gtt_activation_dialog.h"
+#include "gtt_current_project.h"
+#include "gtt_log.h"
+#include "gtt_menu_commands.h"
+#include "gtt_menus.h"
+#include "gtt_notes_area.h"
+#include "gtt_preferences.h"
+#include "gtt_project.h"
+#include "gtt_projects_tree.h"
+#include "gtt_props_dlg_project.h"
+#include "gtt_timer.h"
+#include "gtt_toolbar.h"
+#include "gtt_util.h"
+
 #include <gnome.h>
 #include <sched.h>
 #include <stdio.h>
@@ -28,22 +45,6 @@
 #include <unistd.h>
 
 #include <qof.h>
-
-#include "active-dialog.h"
-#include "app.h"
-#include "cur-proj.h"
-#include "gtt.h"
-#include "log.h"
-#include "menucmd.h"
-#include "menus.h"
-#include "notes-area.h"
-#include "prefs.h"
-#include "proj.h"
-#include "projects-tree.h"
-#include "props-proj.h"
-#include "timer.h"
-#include "toolbar.h"
-#include "util.h"
 
 /* XXX Most of the globals below should be placed into a single
  * application-wide top-level structure, rather than being allowed

@@ -19,6 +19,14 @@
 
 #include "config.h"
 
+#include "gtt_project.h"
+
+#include "gtt_err_throw.h"
+#include "gtt_log.h"
+#include "gtt_preferences.h" // XXX Temporary hack for config
+#include "gtt_project_p.h"
+#include "gtt_query.h" // XXX Temporary hack for query
+
 #include <glib.h>
 #include <libintl.h> /*conflicts with <libgnome/gnome-i18n.h> on some systems */
 #include <stdio.h>
@@ -26,13 +34,6 @@
 #include <string.h>
 
 #include <qof.h>
-
-#include "err-throw.h"
-#include "log.h"
-#include "prefs.h" /* XXX tmp hack for config_* */
-#include "proj.h"
-#include "proj_p.h"
-#include "query.h" /* temp hack for query */
 
 #define _(X) gettext (X)
 

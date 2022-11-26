@@ -19,6 +19,15 @@
 
 #include "config.h"
 
+#include "gtt_idle_dialog.h"
+
+#include "gtt_application_window.h"
+#include "gtt_current_project.h"
+#include "gtt_help_popup.h"
+#include "gtt_idle_dialog.h"
+#include "gtt_project.h"
+#include "gtt_util.h"
+
 #include <gdk/gdkx.h>
 #include <glade/glade.h>
 #include <glib.h>
@@ -29,13 +38,6 @@
 #include <X11/extensions/scrnsaver.h>
 
 #include <qof.h>
-
-#include "app.h"
-#include "cur-proj.h"
-#include "dialog.h"
-#include "idle-dialog.h"
-#include "proj.h"
-#include "util.h"
 
 int config_idle_timeout = -1;
 

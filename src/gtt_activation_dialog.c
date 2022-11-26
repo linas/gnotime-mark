@@ -18,18 +18,19 @@
 
 #include "config.h"
 
+#include "gtt_activation_dialog.h"
+
+#include "gtt_current_project.h"
+#include "gtt_help_popup.h"
+#include "gtt_project.h"
+#include "gtt_project_queries.h"
+#include "gtt_util.h"
+
 #include <glade/glade.h>
 #include <gnome.h>
 #include <string.h>
 
 #include <qof.h>
-
-#include "active-dialog.h"
-#include "cur-proj.h"
-#include "dialog.h"
-#include "proj-query.h"
-#include "proj.h"
-#include "util.h"
 
 int config_no_project_timeout;
 

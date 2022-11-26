@@ -18,11 +18,12 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include "gtt_project_queries.h"
 
-#include "cur-proj.h"
-#include "proj-query.h"
-#include "proj.h"
+#include "gtt_current_project.h"
+#include "gtt_project.h"
+
+#include <glib.h>
 
 /* =========================================================== */
 

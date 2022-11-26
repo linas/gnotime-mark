@@ -18,17 +18,19 @@
  */
 
 #include <config.h>
+
+#include "gtt_menus.h"
+
+#include "gtt.h"
+#include "gtt_application_window.h"
+#include "gtt_export.h"
+#include "gtt_journal.h"
+#include "gtt_menu_commands.h"
+#include "gtt_plug_in.h"
+#include "gtt_timer.h"
+
 #include <gnome.h>
 #include <string.h>
-
-#include "app.h"
-#include "export.h"
-#include "gtt.h"
-#include "journal.h"
-#include "menucmd.h"
-#include "menus.h"
-#include "plug-in.h"
-#include "timer.h"
 
 static GnomeUIInfo menu_main_file[]
     = { { GNOME_APP_UI_ITEM, N_ ("_Export Tasks"), NULL, export_file_picker,

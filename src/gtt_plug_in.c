@@ -17,17 +17,19 @@
  */
 
 #include "config.h"
+
+#include "gtt_plug_in.h"
+
+#include "gtt_application_window.h"
+#include "gtt_gsettings_io.h"
+#include "gtt_journal.h"
+#include "gtt_menus.h"
+#include "gtt_util.h"
+
 #include <glade/glade.h>
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
-
-#include "app.h"
-#include "gconf-io.h"
-#include "journal.h"
-#include "menus.h"
-#include "plug-in.h"
-#include "util.h"
 
 struct NewPluginDialog_s
 {

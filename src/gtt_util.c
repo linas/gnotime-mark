@@ -18,6 +18,8 @@
 
 #include "config.h"
 
+#include "gtt_util.h"
+
 #include <glade/glade.h>
 #include <glib.h>
 #include <gnome.h>
@@ -38,8 +40,6 @@
 #define QOF_D_T_FMT "%F %r"
 #define QOF_T_FMT "%r"
 #endif
-
-#include "util.h"
 
 /* ============================================================== */
 

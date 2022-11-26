@@ -18,6 +18,14 @@
 
 #include "config.h"
 
+#include "gtt_ghtml_deprecated.h"
+
+#include "gtt_application_window.h"
+#include "gtt_ghtml.h"
+#include "gtt_ghtml_deprecated.h"
+#include "gtt_project.h"
+#include "gtt_util.h"
+
 #define _GNU_SOURCE
 #include <glib.h>
 #include <libguile.h>
@@ -25,13 +33,6 @@
 #include <string.h>
 
 #include <qof.h>
-
-#include "app.h"
-#include "ghtml-deprecated.h"
-#include "ghtml.h"
-#include "gtt.h"
-#include "proj.h"
-#include "util.h"
 
 /* This file contains deprecated routines, which should go away
  * sometime in 2004 or 2005, around gnotime version 3.0 or so

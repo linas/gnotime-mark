@@ -18,23 +18,25 @@
  */
 
 #include <config.h>
+
+#include "gtt_menu_commands.h"
+
+#include "gtt.h"
+#include "gtt_application_window.h"
+#include "gtt_current_project.h"
+#include "gtt_err_throw.h"
+#include "gtt_file_io.h"
+#include "gtt_journal.h"
+#include "gtt_menus.h"
+#include "gtt_preferences.h"
+#include "gtt_project.h"
+#include "gtt_props_dlg_project.h"
+#include "gtt_timer.h"
+#include "gtt_toolbar.h"
+#include "gtt_xml.h"
+
 #include <gnome.h>
 #include <string.h>
-
-#include "app.h"
-#include "cur-proj.h"
-#include "err-throw.h"
-#include "file-io.h"
-#include "gtt.h"
-#include "journal.h"
-#include "menucmd.h"
-#include "menus.h"
-#include "prefs.h"
-#include "proj.h"
-#include "props-proj.h"
-#include "timer.h"
-#include "toolbar.h"
-#include "xml-gtt.h"
 
 void
 about_box (GtkWindow *w, gpointer data)

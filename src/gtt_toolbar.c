@@ -18,19 +18,21 @@
  */
 
 #include <config.h>
+
+#include "gtt_toolbar.h"
+
+#include "gtt.h"
+#include "gtt_application_window.h"
+#include "gtt_help_popup.h"
+#include "gtt_journal.h"
+#include "gtt_menu_commands.h"
+#include "gtt_menus.h"
+#include "gtt_myoaf.h"
+#include "gtt_preferences.h"
+#include "gtt_timer.h"
+
 #include <gnome.h>
 #include <string.h>
-
-#include "app.h"
-#include "dialog.h"
-#include "gtt.h"
-#include "journal.h"
-#include "menucmd.h"
-#include "menus.h"
-#include "myoaf.h"
-#include "prefs.h"
-#include "timer.h"
-#include "toolbar.h"
 
 typedef struct _MyToolbar MyToolbar;
 

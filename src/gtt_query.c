@@ -18,13 +18,14 @@
 
 #include "config.h"
 
+#include "gtt_query.h"
+
+#include "gtt_preferences.h" // XXX Temporary hack for global config_daystart
+#include "gtt_project.h"
+#include "gtt_project_p.h"
+
 #include <glib.h>
 #include <limits.h>
-
-#include "prefs.h" /* XXX tmp hack for global config_daystart */
-#include "proj.h"
-#include "proj_p.h"
-#include "query.h"
 
 /* ========================================================== */
 

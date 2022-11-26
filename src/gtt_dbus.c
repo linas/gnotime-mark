@@ -30,14 +30,15 @@
  */
 #if WITH_DBUS
 
-#include "dbus.h"
+#include "gtt_dbus.h"
+
+#include "gtt.h"
+#include "gtt_timer.h"
+
 #include <stdio.h>
 #include <string.h>
 
 #include <dbus/dbus-glib.h>
-
-#include "gtt.h"
-#include "timer.h"
 
 typedef struct GnotimeDbus GnotimeDbus;
 typedef struct GnotimeDbusClass GnotimeDbusClass;

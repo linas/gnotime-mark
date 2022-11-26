@@ -20,6 +20,23 @@
 
 #include "config.h"
 
+#include "gtt_application_window.h"
+#include "gtt_current_project.h"
+#if WITH_DBUS
+#include "gtt_dbus.h"
+#endif // WITH_DBUS
+#include "gtt.h"
+#include "gtt_err_throw.h"
+#include "gtt_file_io.h"
+#include "gtt_log.h"
+#include "gtt_menu_commands.h"
+#include "gtt_menus.h"
+#include "gtt_preferences.h"
+#include "gtt_project.h"
+#include "gtt_timer.h"
+#include "gtt_toolbar.h"
+#include "gtt_xml.h"
+
 #include <errno.h>
 #include <gconf/gconf.h>
 #include <gio/gio.h>
@@ -39,24 +56,6 @@
 #endif
 
 #include <qof.h>
-
-#include "app.h"
-#include "cur-proj.h"
-#include "err-throw.h"
-#include "file-io.h"
-#include "gtt.h"
-#include "log.h"
-#include "menucmd.h"
-#include "menus.h"
-#include "prefs.h"
-#include "proj.h"
-#include "timer.h"
-#include "toolbar.h"
-#include "xml-gtt.h"
-
-#if WITH_DBUS
-#include "dbus.h"
-#endif
 
 char *first_proj_title = NULL; /* command line over-ride */
 

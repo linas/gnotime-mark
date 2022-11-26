@@ -19,14 +19,15 @@
 
 #include "config.h"
 
+#include "gtt_props_dlg_project.h"
+
+#include "gtt_help_popup.h"
+#include "gtt_project.h"
+#include "gtt_util.h"
+
 #include <glade/glade.h>
 #include <gnome.h>
 #include <string.h>
-
-#include "dialog.h"
-#include "proj.h"
-#include "props-proj.h"
-#include "util.h"
 
 typedef struct _PropDlg
 {

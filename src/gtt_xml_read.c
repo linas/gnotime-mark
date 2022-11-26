@@ -18,18 +18,19 @@
 
 #include "config.h"
 
+#include "gtt_xml.h"
+
+#include "gtt.h"
+#include "gtt_current_project.h"
+#include "gtt_err_throw.h"
+#include "gtt_project.h"
+#include "gtt_project_p.h"
+
 #include <glib.h>
 #include <libxml/parser.h>
 #include <qof.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "cur-proj.h"
-#include "err-throw.h"
-#include "gtt.h"
-#include "proj.h"
-#include "proj_p.h"
-#include "xml-gtt.h"
 
 /* Note: most of this code is a tediously boring cut-n-paste
  * of the same thing over & over again, and could//should be

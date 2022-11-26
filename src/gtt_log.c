@@ -17,16 +17,18 @@
  */
 
 #include <config.h>
+
+#include "gtt_log.h"
+
+#include "gtt_current_project.h"
+#include "gtt_preferences.h"
+#include "gtt_project.h"
+
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "cur-proj.h"
-#include "log.h"
-#include "prefs.h"
-#include "proj.h"
 
 #define CAN_LOG ((config_logfile_name != NULL) && (config_logfile_use))
 

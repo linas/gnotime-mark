@@ -1,3 +1,20 @@
+/* GnoTime - a to-do list organizer, diary and billing system
+ * Copyright (C) 2022      Markus Prasser
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place, Suite 330, Boston, MA 02111-1307 USA
+ */
 
 /* NOTE: hack alert XXX FIXME  this code is junk, some attempted
    fun and games to conect to the evolution calendear server.
@@ -5,13 +22,13 @@
    eliminated.
 */
 
+#include "gtt_myoaf.h"
+
 #include <gtk/gtk.h>
 #if 0
 #include <liboaf/liboaf.h>
 #include <orb/orbit.h>
 #endif
-
-#include "myoaf.h"
 
 void
 edit_calendar (GtkWidget *w, gpointer data)

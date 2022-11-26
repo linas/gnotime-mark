@@ -18,22 +18,24 @@
 
 #include "config.h"
 
+#include "gtt_gsettings_io.h"
+
+#include "gtt.h"
+#include "gtt_application_window.h"
+#include "gtt_current_project.h"
+#include "gtt_gsettings_gnomeui.h"
+#include "gtt_gsettings_io.h"
+#include "gtt_gsettings_io_p.h"
+#include "gtt_menus.h"
+#include "gtt_plug_in.h"
+#include "gtt_preferences.h"
+#include "gtt_timer.h"
+#include "gtt_toolbar.h"
+
 #include <gconf/gconf-client.h>
 #include <gconf/gconf.h>
 #include <glib.h>
 #include <gnome.h>
-
-#include "app.h"
-#include "cur-proj.h"
-#include "gconf-gnomeui.h"
-#include "gconf-io-p.h"
-#include "gconf-io.h"
-#include "gtt.h"
-#include "menus.h"
-#include "plug-in.h"
-#include "prefs.h"
-#include "timer.h"
-#include "toolbar.h"
 
 /* XXX these should not be externs, they should be part of
  * some app-global structure.

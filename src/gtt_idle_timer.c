@@ -48,6 +48,8 @@
 
 #include "config.h"
 
+#include "gtt_idle_timer.h"
+
 /* #define DEBUG_TIMERS */
 
 /* Its OK to define this for all OS's,  even those that don't have one */
@@ -80,8 +82,6 @@
 #ifdef HAVE_XIDLE_EXTENSION
 #include <X11/extensions/xidle.h>
 #endif /* HAVE_XIDLE_EXTENSION */
-
-#include "idle-timer.h"
 
 typedef struct IdleTimeoutScreen_s IdleTimeoutScreen;
 

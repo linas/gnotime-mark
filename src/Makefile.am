@@ -47,43 +47,44 @@ gnotime_SOURCES =                \
 	gtt_xml_write.c          \
 	main.c
 
-noinst_HEADERS =      \
-	active-dialog.h    \
-	app.h              \
-	projects-tree.h    \
-	dbus.h             \
-	cur-proj.h         \
-	dialog.h           \
-	err-throw.h        \
-	export.h           \
-	file-io.h          \
-	gconf-gnomeui.h    \
-	gconf-io.h         \
-	gconf-io-p.h       \
-	ghtml.h            \
-	ghtml-deprecated.h \
-	gtt.h              \
-	idle-dialog.h      \
-	journal.h          \
-	log.h              \
-	menucmd.h          \
-	menus.h            \
-	myoaf.h            \
-	notes-area.h       \
-	plug-in.h          \
-	prefs.h            \
-	proj.h             \
-	proj_p.h           \
-	proj-query.h       \
-	props-invl.h       \
-	props-proj.h       \
-	props-task.h       \
-	query.h            \
-	status-icon.h      \
-	timer.h            \
-	toolbar.h          \
-	util.h             \
-	xml-gtt.h
+noinst_HEADERS =                 \
+	gtt_activation_dialog.h  \
+	gtt_application_window.h \
+	gtt_current_project.h    \
+	gtt_dbus.h               \
+	gtt_err_throw.h          \
+	gtt_export.h             \
+	gtt_file_io.h            \
+	gtt_ghtml_deprecated.h   \
+	gtt_ghtml.h              \
+	gtt_gsettings_gnomeui.h  \
+	gtt_gsettings_io.h       \
+	gtt_gsettings_io_p.h     \
+	gtt.h                    \
+	gtt_help_popup.h         \
+	gtt_idle_dialog.h        \
+	gtt_idle_timer.h         \
+	gtt_journal.h            \
+	gtt_log.h                \
+	gtt_menu_commands.h      \
+	gtt_menus.h              \
+	gtt_myoaf.h              \
+	gtt_notes_area.h         \
+	gtt_plug_in.h            \
+	gtt_preferences.h        \
+	gtt_project.h            \
+	gtt_project_p.h          \
+	gtt_project_queries.h    \
+	gtt_projects_tree.h      \
+	gtt_props_dlg_interval.h \
+	gtt_props_dlg_project.h  \
+	gtt_props_dlg_task.h     \
+	gtt_query.h              \
+	gtt_status_icon.h        \
+	gtt_timer.h              \
+	gtt_toolbar.h            \
+	gtt_util.h               \
+	gtt_xml.h
 
 # disable depricated when we find work-around for ctree, property box.
 #

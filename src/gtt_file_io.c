@@ -19,26 +19,27 @@
 
 #include "config.h"
 
+#include "gtt_file_io.h"
+
+#include "gtt.h"
+#include "gtt_application_window.h"
+#include "gtt_current_project.h"
+#include "gtt_err_throw.h"
+#include "gtt_gsettings_io.h"
+#include "gtt_menus.h"
+#include "gtt_plug_in.h"
+#include "gtt_preferences.h"
+#include "gtt_project.h"
+#include "gtt_project_p.h"
+#include "gtt_timer.h"
+#include "gtt_toolbar.h"
+
 #include <errno.h>
 #include <glib.h>
 #include <gnome.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "app.h"
-#include "cur-proj.h"
-#include "err-throw.h"
-#include "file-io.h"
-#include "gconf-io.h"
-#include "gtt.h"
-#include "menus.h"
-#include "plug-in.h"
-#include "prefs.h"
-#include "proj.h"
-#include "proj_p.h"
-#include "timer.h"
-#include "toolbar.h"
 
 #ifdef USE_GTT_DEBUG_FILE
 #define GTT_CONF "/gtt-DEBUG"

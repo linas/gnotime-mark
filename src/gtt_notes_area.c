@@ -17,16 +17,18 @@
  */
 
 #include "config.h"
+
+#include "gtt_notes_area.h"
+
+#include "gtt_menus.h"
+#include "gtt_project.h"
+#include "gtt_props_dlg_task.h"
+#include "gtt_util.h"
+
 #include <glib-object.h>
 
 #include <glade/glade.h>
 #include <gnome.h>
-
-#include "menus.h"
-#include "notes-area.h"
-#include "proj.h"
-#include "props-task.h"
-#include "util.h"
 
 struct NotesArea_s
 {

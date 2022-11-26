@@ -20,6 +20,18 @@
 
 #include "config.h"
 
+#include "gtt_journal.h"
+
+#include "gtt_application_window.h"
+#include "gtt_ghtml.h"
+#include "gtt_help_popup.h"
+#include "gtt_menus.h"
+#include "gtt_plug_in.h"
+#include "gtt_project.h"
+#include "gtt_props_dlg_interval.h"
+#include "gtt_props_dlg_task.h"
+#include "gtt_util.h"
+
 #include <glade/glade.h>
 #include <gnome.h>
 #include <gtkhtml/gtkhtml.h>
@@ -29,17 +41,6 @@
 #include <string.h>
 
 #include <qof.h>
-
-#include "app.h"
-#include "dialog.h"
-#include "ghtml.h"
-#include "journal.h"
-#include "menus.h"
-#include "plug-in.h"
-#include "proj.h"
-#include "props-invl.h"
-#include "props-task.h"
-#include "util.h"
 
 /* This struct is a mish-mash of stuff relating to the
  * HTML display window, and the various actions and etc.

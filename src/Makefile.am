@@ -19,6 +19,7 @@ gnotime_SOURCES =                \
 	gtt_ghtml_deprecated.c   \
 	gtt_gsettings_gnomeui.c  \
 	gtt_gsettings_io.c       \
+	gtt_gsettings_io_p.c     \
 	gtt_help_popup.c         \
 	gtt_idle_dialog.c        \
 	gtt_idle_timer.c         \

@@ -23,6 +23,8 @@
 #define GTT_GSETTINGS_IO_P_H
 
 #include <gconf/gconf-client.h>
+
+#include <gio/gio.h>
 #include <glib.h>
 
 /* ======================================================= */
@@ -165,5 +167,7 @@
       }                                                                       \
     l;                                                                        \
   })
+
+void gtt_gsettings_set_int (GSettings *settings, const gchar *key, gint value);
 
 #endif // GTT_GSETTINGS_IO_P_H

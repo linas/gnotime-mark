@@ -19,6 +19,35 @@
 #include "gtt_gsettings_io_p.h"
 
 void
+gtt_gsettings_get_maybe_str (GSettings *const settings, const gchar *const key,
+                             gchar **const value)
+{
+  if (NULL != *value)
+    {
+      g_free (*value);
+      *value = NULL;
+    }
+
+  gchar *final_val = NULL;
+  GVariant *outer = g_settings_get_value (settings, key);
+
+  GVariant *inner = g_variant_get_maybe (outer);
+  if (NULL != inner)
+    {
+      gsize length;
+      final_val = g_strdup (g_variant_get_string (inner, &length));
+
+      g_variant_unref (inner);
+      inner = NULL;
+    }
+
+  g_variant_unref (outer);
+  outer = NULL;
+
+  *value = final_val;
+}
+
+void
 gtt_gsettings_get_str (GSettings *const settings, const gchar *const key,
                        gchar **const value)
 {
@@ -51,6 +80,29 @@ gtt_gsettings_set_int (GSettings *const settings, const gchar *const key,
       g_warning ("Failed to set GSettings integer option \"%s\" to value: %d",
                  key, value);
     }
+}
+
+void
+gtt_gsettings_set_maybe_str (GSettings *const settings, const gchar *const key,
+                             const gchar *const value)
+{
+  GVariant *inner = NULL;
+
+  if (NULL != value)
+    {
+      inner = g_variant_new_string (value);
+    }
+
+  GVariant *outer = g_variant_new_maybe (G_VARIANT_TYPE_STRING, inner);
+  inner = NULL;
+
+  if (G_UNLIKELY (FALSE == g_settings_set_value (settings, key, outer)))
+    {
+      g_warning ("Failed to set GSettings maybe string option \"%s\" to "
+                 "value: \"%s\"",
+                 key, value ? value : "<nothing>");
+    }
+  outer = NULL;
 }
 
 void

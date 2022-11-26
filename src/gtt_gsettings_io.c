@@ -186,24 +186,16 @@ gtt_gconf_save (void)
     toolbar = NULL;
   }
 
-  /* ------------- */
-  if (config_shell_start)
-    {
-      SETSTR ("/Actions/StartCommand", config_shell_start);
-    }
-  else
-    {
-      UNSET ("/Actions/StartCommand");
-    }
+  // Actions ------------------------------------------------------------------
+  {
+    GSettings *actions = g_settings_get_child (settings, "actions");
 
-  if (config_shell_stop)
-    {
-      SETSTR ("/Actions/StopCommand", config_shell_stop);
-    }
-  else
-    {
-      UNSET ("/Actions/StopCommand");
-    }
+    gtt_gsettings_set_maybe_str (actions, "start-command", config_shell_start);
+    gtt_gsettings_set_maybe_str (actions, "stop-command", config_shell_stop);
+
+    g_object_unref (actions);
+    actions = NULL;
+  }
 
   /* ------------- */
   SETBOOL ("/LogFile/Use", config_logfile_use);
@@ -515,13 +507,17 @@ gtt_gconf_load (void)
     toolbar = NULL;
   }
 
-  /* ------------ */
-  config_shell_start = GETSTR ("/Actions/StartCommand",
-                               "echo start id=%D \\\"%t\\\"-\\\"%d\\\" %T  "
-                               "%H-%M-%S hours=%h min=%m secs=%s");
-  config_shell_stop = GETSTR ("/Actions/StopCommand",
-                              "echo stop id=%D \\\"%t\\\"-\\\"%d\\\" %T  "
-                              "%H-%M-%S hours=%h min=%m secs=%s");
+  // Actions ------------------------------------------------------------------
+  {
+    GSettings *actions = g_settings_get_child (settings, "actions");
+
+    gtt_gsettings_get_maybe_str (actions, "start-command",
+                                 &config_shell_start);
+    gtt_gsettings_get_maybe_str (actions, "stop-command", &config_shell_stop);
+
+    g_object_unref (actions);
+    actions = NULL;
+  }
 
   /* ------------ */
   config_logfile_use = GETBOOL ("/LogFile/Use", FALSE);

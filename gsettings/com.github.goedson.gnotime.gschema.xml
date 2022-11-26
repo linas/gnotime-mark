@@ -1,0 +1,4 @@
+<schemalist gettext-domain="gnotime">
+  <schema id="com.github.goedson.gnotime" path="/com/github/goedson/gnotime/">
+  </schema>
+</schemalist>

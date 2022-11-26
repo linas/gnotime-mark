@@ -1,5 +1,6 @@
 /*   GConf2 input/output handling for GTimeTracker - a time tracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -34,7 +35,10 @@
 
 #include <gconf/gconf-client.h>
 #include <gconf/gconf.h>
+
+#include <gio/gio.h>
 #include <glib.h>
+
 #include <gnome.h>
 
 /* XXX these should not be externs, they should be part of
@@ -46,13 +50,19 @@ extern time_t last_timer;      /* XXX */
 extern int cur_proj_id;
 extern int run_timer;
 
+static GSettings *settings = NULL;
+
 #define GTT_GCONF "/apps/gnotime"
+
+static void gtt_settings_init (void);
 
 /* ======================================================= */
 
 void
 gtt_save_reports_menu (void)
 {
+  gtt_settings_init ();
+
   int i;
   char s[120], *p;
   GnomeUIInfo *reports_menu;
@@ -92,6 +102,8 @@ gtt_save_reports_menu (void)
 void
 gtt_gconf_save (void)
 {
+  gtt_settings_init ();
+
   char s[120];
   int x, y, w, h;
   const char *xpn;
@@ -269,6 +281,8 @@ gtt_gconf_save (void)
 gboolean
 gtt_gconf_exists (void)
 {
+  gtt_settings_init ();
+
   GError *err_ret = NULL;
   GConfClient *client;
   GConfValue *gcv;
@@ -299,6 +313,8 @@ gtt_gconf_exists (void)
 void
 gtt_restore_reports_menu (GnomeApp *app)
 {
+  gtt_settings_init ();
+
   int i, num;
   char s[120], *p;
   GnomeUIInfo *reports_menu;
@@ -350,6 +366,8 @@ gtt_restore_reports_menu (GnomeApp *app)
 void
 gtt_gconf_load (void)
 {
+  gtt_settings_init ();
+
   int i, num;
   int _n, _c, _j, _p, _t, _o, _h, _e;
   GConfClient *client;
@@ -526,8 +544,19 @@ gtt_gconf_load (void)
 gchar *
 gtt_gconf_get_expander (void)
 {
+  gtt_settings_init ();
+
   GConfClient *client = gconf_client_get_default ();
   return GETSTR ("/Display/ExpanderState", NULL);
+}
+
+static void
+gtt_settings_init (void)
+{
+  if (G_UNLIKELY (NULL == settings))
+    {
+      settings = g_settings_new ("com.github.goedson.gnotime");
+    }
 }
 
 /* =========================== END OF FILE ========================= */

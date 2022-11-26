@@ -265,8 +265,17 @@ gtt_gconf_save (void)
 
   SETINT ("/time_format", config_time_format);
 
-  SETSTR ("/Report/CurrencySymbol", config_currency_symbol);
-  SETBOOL ("/Report/CurrencyUseLocale", config_currency_use_locale);
+  // Report -------------------------------------------------------------------
+  {
+    GSettings *report = g_settings_get_child (settings, "report");
+
+    gtt_gsettings_set_str (report, "currency-symbol", config_currency_symbol);
+    gtt_gsettings_set_bool (report, "currency-use-locale",
+                            config_currency_use_locale);
+
+    g_object_unref (report);
+    report = NULL;
+  }
 
   /* Write out the user's report menu structure */
   gtt_save_reports_menu ();
@@ -512,8 +521,18 @@ gtt_gconf_load (void)
   /* ------------ */
   config_time_format = GETINT ("/time_format", 3);
 
-  config_currency_symbol = GETSTR ("/Report/CurrencySymbol", "$");
-  config_currency_use_locale = GETBOOL ("/Report/CurrencyUseLocale", TRUE);
+  // Report -------------------------------------------------------------------
+  {
+    GSettings *report = g_settings_get_child (settings, "report");
+
+    gtt_gsettings_get_str (report, "currency-symbol", &config_currency_symbol);
+    config_currency_use_locale
+        = g_settings_get_boolean (report, "currency-use-locale");
+
+    g_object_unref (report);
+    report = NULL;
+  }
+
   /* ------------ */
   save_count = GETINT ("/Data/SaveCount", 0);
   config_data_url = GETSTR ("/Data/URL", XML_DATA_FILENAME);

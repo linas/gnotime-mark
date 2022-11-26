@@ -19,6 +19,30 @@
 #include "gtt_gsettings_io_p.h"
 
 void
+gtt_gsettings_get_str (GSettings *const settings, const gchar *const key,
+                       gchar **const value)
+{
+  if (NULL != *value)
+    {
+      g_free (*value);
+      *value = NULL;
+    }
+
+  *value = g_settings_get_string (settings, key);
+}
+
+void
+gtt_gsettings_set_bool (GSettings *const settings, const gchar *const key,
+                        const gboolean value)
+{
+  if (G_UNLIKELY (FALSE == g_settings_set_boolean (settings, key, value)))
+    {
+      g_warning ("Failed to set GSettings boolean option \"%s\" to value: %s",
+                 key, value ? "true" : "false");
+    }
+}
+
+void
 gtt_gsettings_set_int (GSettings *const settings, const gchar *const key,
                        const gint value)
 {
@@ -26,5 +50,17 @@ gtt_gsettings_set_int (GSettings *const settings, const gchar *const key,
     {
       g_warning ("Failed to set GSettings integer option \"%s\" to value: %d",
                  key, value);
+    }
+}
+
+void
+gtt_gsettings_set_str (GSettings *const settings, const gchar *const key,
+                       const gchar *const value)
+{
+  if (G_UNLIKELY (FALSE == g_settings_set_string (settings, key, value)))
+    {
+      g_warning (
+          "Failed to set GSettings string option \"%s\" to value: \"%s\"", key,
+          value);
     }
 }

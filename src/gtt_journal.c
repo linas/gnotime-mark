@@ -1,5 +1,6 @@
 /*   Display & Edit Journal of Timestamps for GnoTime - a time tracker
  *   Copyright (C) 2001,2002,2003,2004 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -35,7 +36,9 @@
 #include <glade/glade.h>
 #include <gnome.h>
 #include <gtkhtml/gtkhtml.h>
-#include <libgnomevfs/gnome-vfs.h>
+
+#include <gio/gio.h>
+
 #include <sched.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,8 +80,9 @@ typedef struct wiggy_s
   guint hover_timeout_id;
   guint hover_kill_id;
 
-  GnomeVFSHandle *handle; /* file handle to save to */
-  GttPlugin *plg;         /* file path save history */
+  GFile *ofile;               // File to save to
+  GFileOutputStream *ostream; // Stream to write to the save file
+  GttPlugin *plg;             /* file path save history */
 
   /* Publish-to-URL dialog */
   GtkWidget *publish_popup;
@@ -159,20 +163,27 @@ static void
 file_write_helper (GttGhtml *pl, const char *str, size_t len, gpointer data)
 {
   Wiggy *wig = (Wiggy *)data;
-  GnomeVFSFileSize buflen = len;
-  GnomeVFSFileSize bytes_written = 0;
+
+  gsize buflen = len;
   size_t off = 0;
-  while (1)
+
+  while (0 < buflen)
     {
-      GnomeVFSResult result;
-      result
-          = gnome_vfs_write (wig->handle, &str[off], buflen, &bytes_written);
+      GError *error = NULL;
+      const gssize bytes_written = g_output_stream_write (
+          G_OUTPUT_STREAM (wig->ostream), &str[off], buflen, NULL, &error);
+      if (0 > bytes_written)
+        {
+          g_warning ("Failed to write to file: %s", error->message);
+
+          g_error_free (error);
+          error = NULL;
+
+          break;
+        }
+
       off += bytes_written;
       buflen -= bytes_written;
-      if (0 >= buflen)
-        break;
-      if (GNOME_VFS_OK != result)
-        break;
     }
 }
 
@@ -193,24 +204,30 @@ remember_uri (Wiggy *wig, const char *filename)
 }
 
 static void
-save_to_gnomevfs (Wiggy *wig, const char *filename)
+save_to_gio (Wiggy *wig, const char *filename)
 {
   /* Try to open the file for writing */
-  GnomeVFSResult result;
-  result = gnome_vfs_create (&wig->handle, filename, GNOME_VFS_OPEN_WRITE,
-                             FALSE, 0644);
+  wig->ofile = g_file_new_for_path (filename);
 
-  if (GNOME_VFS_OK != result)
+  GError *error = NULL;
+  wig->ostream = g_file_replace (wig->ofile, NULL, FALSE, G_FILE_CREATE_NONE,
+                                 NULL, &error);
+  if (NULL == wig->ostream)
     {
       GtkWidget *mb;
       mb = gtk_message_dialog_new (
           GTK_WINDOW (wig->top),
           GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,
           GTK_BUTTONS_CLOSE, _ ("Unable to open the file %s\n%s"), filename,
-          gnome_vfs_result_to_string (result));
+          error->message);
       g_signal_connect (G_OBJECT (mb), "response",
                         G_CALLBACK (gtk_widget_destroy), mb);
       gtk_widget_show (mb);
+
+      g_error_free (error);
+      error = NULL;
+
+      g_clear_object (&wig->ofile);
     }
   else
     {
@@ -222,8 +239,18 @@ save_to_gnomevfs (Wiggy *wig, const char *filename)
       gtt_ghtml_display (wig->gh, wig->filepath, wig->prj);
       gtt_ghtml_show_links (wig->gh, TRUE);
 
-      gnome_vfs_close (wig->handle);
-      wig->handle = NULL;
+      if (FALSE
+          == g_output_stream_close (G_OUTPUT_STREAM (wig->ostream), NULL,
+                                    &error))
+        {
+          g_warning ("Failed to close a file: %s", error->message);
+
+          g_error_free (error);
+          error = NULL;
+        }
+
+      g_clear_object (&wig->ostream);
+      g_clear_object (&wig->ofile);
 
       /* Reset the html out handlers back to the browser */
       gtt_ghtml_set_stream (wig->gh, wig, wiggy_open, wiggy_write, wiggy_close,
@@ -237,7 +264,7 @@ save_to_file (Wiggy *wig, const char *uri)
 
 #if BORKEN_STILL_GET_X11_TRAFFIC_WHICH_HOSES_THINGS
   /* If its an remote system URI, we fork/exec, because
-   * gnomevfs can take a looooong time to respond ...
+   * GIO can take a looooong time to respond ...
    */
   if (0 == strncmp (uri, "ssh://", 6))
     {
@@ -245,7 +272,7 @@ save_to_file (Wiggy *wig, const char *uri)
       pid = fork ();
       if (0 == pid)
         {
-          save_to_gnomevfs (wig, uri);
+          save_to_gio (wig, uri);
 
           /* exit the child as cleanly as we can ... do NOT
            * generate any socket/X11/graphics/gtk traffic.  */
@@ -255,7 +282,7 @@ save_to_file (Wiggy *wig, const char *uri)
       else if (0 > pid)
         {
           g_warning ("unable to fork\n");
-          save_to_gnomevfs (wig, uri);
+          save_to_gio (wig, uri);
         }
       else
         {
@@ -265,7 +292,7 @@ save_to_file (Wiggy *wig, const char *uri)
     }
 #endif
 
-  save_to_gnomevfs (wig, uri);
+  save_to_gio (wig, uri);
 }
 
 /* ============================================================== */
@@ -812,7 +839,7 @@ html_link_clicked_cb (GtkHTML *doc, const gchar *url, gpointer data)
     }
   else
     {
-      /* All other URL's are handed off to GnomeVFS, which will
+      /* All other URL's are handed off to GIO, which will
        * deal with them more or less appropriately.  */
       do_show_report (url, NULL, NULL, NULL, FALSE, NULL);
     }
@@ -829,23 +856,49 @@ html_url_requested_cb (GtkHTML *doc, const gchar *url, GtkHTMLStream *handle,
   if (!path)
     return;
 
-  GnomeVFSResult result;
-  GnomeVFSHandle *vfs;
-  result = gnome_vfs_open (&vfs, path, GNOME_VFS_OPEN_READ);
+  GFile *ifile = g_file_new_for_path (path);
 
-  if (GNOME_VFS_OK != result)
-    return;
+  GError *error = NULL;
+  GFileInputStream *istream = g_file_read (ifile, NULL, &error);
+  if (NULL == istream)
+    {
+      g_warning ("Failed to open file \"%s\" for reading: %s", path,
+                 error->message);
+
+      g_error_free (error);
+      error = NULL;
+
+      g_object_unref (ifile);
+      ifile = NULL;
+
+      return;
+    }
 
 #define BSZ 16000
   char buff[BSZ];
-  GnomeVFSFileSize bytes_read;
-  result = gnome_vfs_read (vfs, buff, BSZ, &bytes_read);
-  while (GNOME_VFS_OK == result)
+  gssize bytes_read = g_input_stream_read (G_INPUT_STREAM (istream), buff, BSZ,
+                                           NULL, &error);
+  while (0 < bytes_read)
     {
       gtk_html_write (doc, handle, buff, bytes_read);
-      result = gnome_vfs_read (vfs, buff, BSZ, &bytes_read);
+      bytes_read = g_input_stream_read (G_INPUT_STREAM (istream), buff, BSZ,
+                                        NULL, &error);
     }
-  gnome_vfs_close (vfs);
+
+  if (FALSE == g_input_stream_close (G_INPUT_STREAM (istream), NULL, &error))
+    {
+      g_warning ("Failed to close file \"%s\" after reading: %s", path,
+                 error->message);
+
+      g_error_free (error);
+      error = NULL;
+    }
+
+  g_object_unref (istream);
+  istream = NULL;
+
+  g_object_unref (ifile);
+  ifile = NULL;
 }
 
 /* ============================================================== */

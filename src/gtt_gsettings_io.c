@@ -197,36 +197,21 @@ gtt_gconf_save (void)
     actions = NULL;
   }
 
-  /* ------------- */
-  SETBOOL ("/LogFile/Use", config_logfile_use);
-  if (config_logfile_name)
-    {
-      SETSTR ("/LogFile/Filename", config_logfile_name);
-    }
-  else
-    {
-      UNSET ("/LogFile/Filename");
-    }
+  // Log File -----------------------------------------------------------------
+  {
+    GSettings *log_file = g_settings_get_child (settings, "log-file");
 
-  if (config_logfile_start)
-    {
-      SETSTR ("/LogFile/EntryStart", config_logfile_start);
-    }
-  else
-    {
-      SETSTR ("/LogFile/EntryStart", "");
-    }
+    gtt_gsettings_set_bool (log_file, "use", config_logfile_use);
+    gtt_gsettings_set_maybe_str (log_file, "filename", config_logfile_name);
+    gtt_gsettings_set_str (log_file, "entry-start",
+                           config_logfile_start ? config_logfile_start : "");
+    gtt_gsettings_set_str (log_file, "entry-stop",
+                           config_logfile_stop ? config_logfile_stop : "");
+    gtt_gsettings_set_int (log_file, "min-secs", config_logfile_min_secs);
 
-  if (config_logfile_stop)
-    {
-      SETSTR ("/LogFile/EntryStop", config_logfile_stop);
-    }
-  else
-    {
-      SETSTR ("/LogFile/EntryStop", "");
-    }
-
-  SETINT ("/LogFile/MinSecs", config_logfile_min_secs);
+    g_object_unref (log_file);
+    log_file = NULL;
+  }
 
   /* ------------- */
   SETSTR ("/Data/URL", config_data_url);
@@ -519,14 +504,19 @@ gtt_gconf_load (void)
     actions = NULL;
   }
 
-  /* ------------ */
-  config_logfile_use = GETBOOL ("/LogFile/Use", FALSE);
-  config_logfile_name = GETSTR ("/LogFile/Filename", NULL);
-  config_logfile_start
-      = GETSTR ("/LogFile/EntryStart", _ ("project %t started"));
-  config_logfile_stop
-      = GETSTR ("/LogFile/EntryStop", _ ("stopped project %t"));
-  config_logfile_min_secs = GETINT ("/LogFile/MinSecs", 3);
+  // Log File -----------------------------------------------------------------
+  {
+    GSettings *log_file = g_settings_get_child (settings, "log-file");
+
+    config_logfile_use = g_settings_get_boolean (log_file, "use");
+    gtt_gsettings_get_maybe_str (log_file, "filename", &config_logfile_name);
+    gtt_gsettings_get_str (log_file, "entry-start", &config_logfile_start);
+    gtt_gsettings_get_str (log_file, "entry-stop", &config_logfile_stop);
+    config_logfile_min_secs = g_settings_get_int (log_file, "min-secs");
+
+    g_object_unref (log_file);
+    log_file = NULL;
+  }
 
   /* ------------ */
   config_time_format = GETINT ("/time_format", 3);

@@ -1,6 +1,7 @@
 <schemalist gettext-domain="gnotime">
   <schema id="com.github.goedson.gnotime" path="/com/github/goedson/gnotime/">
     <child name="actions" schema="com.github.goedson.gnotime.actions"/>
+    <child name="data" schema="com.github.goedson.gnotime.data"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
     <child name="log-file" schema="com.github.goedson.gnotime.log-file"/>
     <child name="report" schema="com.github.goedson.gnotime.report"/>
@@ -15,6 +16,19 @@
     </key>
     <key name="stop-command" type="ms">
       <default>'echo stop id=%D \&quot;%t\&quot;-\&quot;%d\&quot; %T  %H-%M-%S hours=%h min=%m secs=%s'</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.data" path="/com/github/goedson/gnotime/data/">
+    <key name="save-count" type="i">
+      <default>0</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+    <key name="url" type="s">
+      <default>'gnotime.d/gnotime-data.xml'</default>
       <summary>TODO</summary>
       <description>TODO</description>
     </key>

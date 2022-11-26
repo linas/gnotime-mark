@@ -114,7 +114,7 @@ gtt_gconf_save (void)
 
   gengine = gconf_engine_get_default ();
   client = gconf_client_get_for_engine (gengine);
-  SETINT ("/dir_exists", 1);
+  gtt_gsettings_set_int (settings, "dir-exists", 1);
 
   // Geometry -----------------------------------------------------------------
   {
@@ -288,7 +288,7 @@ gtt_gconf_save (void)
     misc = NULL;
   }
 
-  SETINT ("/time_format", config_time_format);
+  gtt_gsettings_set_int (settings, "time-format", config_time_format);
 
   // Report -------------------------------------------------------------------
   {
@@ -603,7 +603,7 @@ gtt_gconf_load (void)
   }
 
   /* ------------ */
-  config_time_format = GETINT ("/time_format", 3);
+  config_time_format = g_settings_get_int (settings, "time-format");
 
   // Report -------------------------------------------------------------------
   {

@@ -1,6 +1,7 @@
 <schemalist gettext-domain="gnotime">
   <schema id="com.github.goedson.gnotime" path="/com/github/goedson/gnotime/">
     <child name="actions" schema="com.github.goedson.gnotime.actions"/>
+    <child name="clist" schema="com.github.goedson.gnotime.clist"/>
     <child name="data" schema="com.github.goedson.gnotime.data"/>
     <child name="display" schema="com.github.goedson.gnotime.display"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
@@ -32,6 +33,14 @@
     </key>
     <key name="url" type="s">
       <default>'gnotime.d/gnotime-data.xml'</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.clist" path="/com/github/goedson/gnotime/clist/">
+    <key name="column-widths" type="ai">
+      <default>[]</default>
       <summary>TODO</summary>
       <description>TODO</description>
     </key>

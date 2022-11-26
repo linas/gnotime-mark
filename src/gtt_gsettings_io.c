@@ -244,8 +244,10 @@ gtt_gconf_save (void)
     data = NULL;
   }
 
-  /* ------------- */
+  // CList --------------------------------------------------------------------
   {
+    GSettings *clist = g_settings_get_child (settings, "clist");
+
     long i, w;
     GSList *list = NULL;
     for (i = 0, w = 0; - 1 < w; i++)
@@ -256,8 +258,11 @@ gtt_gconf_save (void)
         list = g_slist_prepend (list, (gpointer)w);
       }
     list = g_slist_reverse (list);
-    SETLIST ("/CList/ColumnWidths", GCONF_VALUE_INT, list);
+    gtt_gsettings_set_array_int (clist, "column-widths", list);
     g_slist_free (list);
+
+    g_object_unref (clist);
+    clist = NULL;
   }
 
   // Misc ---------------------------------------------------------------------
@@ -623,17 +628,28 @@ gtt_gconf_load (void)
     data = NULL;
   }
 
-  /* ------------ */
+  // CList --------------------------------------------------------------------
   {
-    GSList *node, *list = GETINTLIST ("/CList/ColumnWidths");
+    GSettings *clist = g_settings_get_child (settings, "clist");
+
+    GSList *node = NULL;
+    GSList *list = gtt_gsettings_get_array_int (clist, "column-widths");
     for (i = 0, node = list; node != NULL; node = node->next, i++)
       {
-        num = (long)(node->data);
+        num = GPOINTER_TO_INT (node->data);
         if (-1 < num)
           {
             gtt_projects_tree_set_col_width (projects_tree, i, num);
           }
       }
+    if (NULL != list)
+      {
+        g_slist_free (list);
+        list = NULL;
+      }
+
+    g_object_unref (clist);
+    clist = NULL;
   }
 
   /* Read in the user-defined report locations */

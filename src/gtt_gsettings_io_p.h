@@ -168,10 +168,13 @@
     l;                                                                        \
   })
 
+GSList *gtt_gsettings_get_array_int (GSettings *settings, const gchar *key);
 void gtt_gsettings_get_maybe_str (GSettings *settings, const gchar *key,
                                   gchar **value);
 void gtt_gsettings_get_str (GSettings *settings, const gchar *key,
                             gchar **value);
+void gtt_gsettings_set_array_int (GSettings *settings, const gchar *key,
+                                  GSList *value);
 void gtt_gsettings_set_bool (GSettings *settings, const gchar *key,
                              gboolean value);
 void gtt_gsettings_set_int (GSettings *settings, const gchar *key, gint value);

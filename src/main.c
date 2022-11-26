@@ -39,7 +39,7 @@
 #include "gtt_xml.h"
 
 #include <errno.h>
-#include <gconf/gconf.h>
+
 #include <gio/gio.h>
 #include <glade/glade.h>
 #include <gnome.h>
@@ -869,9 +869,6 @@ main (int argc, char *argv[])
   g_signal_connect (G_OBJECT (client), "die", G_CALLBACK (session_die), NULL);
 
   glade_init ();
-
-  /* gconf init is needed by gtkhtml */
-  gconf_init (argc, argv, NULL);
 
 #ifdef HAVE_DECL_WNOHANG
   /* Create a signal handler to reap zombie processes.  Most portable */

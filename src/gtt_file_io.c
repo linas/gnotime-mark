@@ -1,6 +1,7 @@
 /*   Config file input/output handling for GnoTime
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2002,2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -61,13 +62,13 @@ int save_count = 0;
  * config file formats taht GTT has used over the years.  We support
  * these reads so that users do not get left out in the cold when
  * upgrading from old versions of GTT.  All 'saves' are in the new
- * file format (currently, GConf-2).
+ * file format (currently, GSettings).
  *
  * 1) Oldest format is data stuck into a ~/.gtimetrackerrc file
  *    and is handled by the project_list_load_old() routine.
  * 2) Next is Gnome-1 Gnome-Config files in ~/.gnome/gtt
  * 3) Next is Gnome-2 Gnome-Config files in ~/.gnome2/GnoTime
- * 4) Current is GConf2 system.
+ * 4) Current is GSettings system.
  *
  * Note that some of the older config files also contained project
  * data in them.  The newer versions stored project data seperately
@@ -576,13 +577,9 @@ gtt_load_config (void)
   const char *h;
   char *s;
 
-  /* Check for gconf2, and use that if it exists */
-  if (gtt_gconf_exists ())
-    {
-      gtt_gconf_load ();
-      gtt_config_filepath = NULL;
-      return;
-    }
+  gtt_gsettings_load ();
+  gtt_config_filepath = NULL;
+  return;
 
   /* gnotime breifly used the gnome2 gnome_config file */
   if (gnome_config_has_section (GTT_CONF "/Misc"))
@@ -683,14 +680,7 @@ gtt_post_ctree_config (void)
    */
 
   /* Restore the expander state */
-  if (gtt_gconf_exists ())
-    {
-      xpn = gtt_gconf_get_expander ();
-    }
-  else
-    {
-      xpn = gnome_config_get_string (GTT_CONF "/Display/ExpanderState");
-    }
+  xpn = gtt_gsettings_get_expander ();
   if (xpn)
     {
       gtt_projects_tree_set_expander_state (projects_tree, xpn);
@@ -703,7 +693,7 @@ gtt_post_ctree_config (void)
 void
 gtt_save_config (void)
 {
-  gtt_gconf_save ();
+  gtt_gsettings_save ();
 }
 
 /* ======================================================= */

@@ -27,10 +27,10 @@
  */
 
 /* The routine gtt_save_config() will save configuration/user-preference
- *    data using gconf2. If an error occurs, a GttErrCode is set.
+ *    data using GSettings. If an error occurs, a GttErrCode is set.
  *
  * The routine gtt_load_config() will load GTT configuration data
- *    from either gconf2 or from gnome_config.  It will attempt to
+ *    from either GSettings or from gnome_config.  It will attempt to
  *    load data from the latest storage mechanism first, and then
  *    fallig back to older file formats.  This routine is 'backwards
  *    compatible', in that it will load old config files formats if

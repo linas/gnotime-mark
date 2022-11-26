@@ -1,4 +1,4 @@
-/*   GConf2 input/output handling for GTimeTracker - a time tracker
+/*   GSettings input/output handling for GnoTime
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
  * Copyright (C) 2022      Markus Prasser
  *
@@ -33,9 +33,6 @@
 #include "gtt_timer.h"
 #include "gtt_toolbar.h"
 
-#include <gconf/gconf-client.h>
-#include <gconf/gconf.h>
-
 #include <gio/gio.h>
 #include <glib.h>
 
@@ -51,8 +48,6 @@ extern int cur_proj_id;
 extern int run_timer;
 
 static GSettings *settings = NULL;
-
-#define GTT_GCONF "/apps/gnotime"
 
 static void gtt_settings_init (void);
 
@@ -98,10 +93,8 @@ gtt_save_reports_menu (void)
 
 /* ======================================================= */
 /* Save only the GUI configuration info, not the actual data */
-/* XXX fixme -- this should really use GConfChangeSet */
-
 void
-gtt_gconf_save (void)
+gtt_gsettings_save (void)
 {
   gtt_settings_init ();
 
@@ -109,11 +102,6 @@ gtt_gconf_save (void)
   int x, y, w, h;
   const char *xpn;
 
-  GConfEngine *gengine;
-  GConfClient *client;
-
-  gengine = gconf_engine_get_default ();
-  client = gconf_client_get_for_engine (gengine);
   gtt_gsettings_set_int (settings, "dir-exists", 1);
 
   // Geometry -----------------------------------------------------------------
@@ -304,51 +292,6 @@ gtt_gconf_save (void)
 
   /* Write out the user's report menu structure */
   gtt_save_reports_menu ();
-
-  /* Sync to file.
-   * XXX if this fails, the error is serious, and there should be a
-   * graphical popup.
-   */
-  {
-    GError *err_ret = NULL;
-    gconf_client_suggest_sync (client, &err_ret);
-    if (NULL != err_ret)
-      {
-        printf ("GTT: GConf: Sync Failed\n");
-      }
-  }
-}
-
-/* ======================================================= */
-
-gboolean
-gtt_gconf_exists (void)
-{
-  gtt_settings_init ();
-
-  GError *err_ret = NULL;
-  GConfClient *client;
-  GConfValue *gcv;
-
-  /* Calling gconf_engine_dir_exists() on a non-existant directory
-   * completely hoses that directory for future use. Its Badddd.
-   * rc = gconf_engine_dir_exists (gengine, GTT_GCONF, &err_ret);
-   * gconf_client_dir_exists() is no better.
-   * Actually, the bug is that the dirs are unusable only while
-   * gconf is still running. Upon reboot, its starts working OK.
-   * Hack around it by trying to fetch a key.
-   */
-
-  client = gconf_client_get_default ();
-  gcv = gconf_client_get (client, GTT_GCONF "/dir_exists", &err_ret);
-  if ((NULL == gcv) || (FALSE == GCONF_VALUE_TYPE_VALID (gcv->type)))
-    {
-      if (err_ret)
-        printf ("GTT: Error: gconf_exists XXX err %s\n", err_ret->message);
-      return FALSE;
-    }
-
-  return TRUE;
 }
 
 /* ======================================================= */
@@ -421,17 +364,12 @@ gtt_restore_reports_menu (GnomeApp *app)
 /* ======================================================= */
 
 void
-gtt_gconf_load (void)
+gtt_gsettings_load (void)
 {
   gtt_settings_init ();
 
   int i, num;
   int _n, _c, _j, _p, _t, _o, _h, _e;
-  GConfClient *client;
-
-  client = gconf_client_get_default ();
-  gconf_client_add_dir (client, GTT_GCONF, GCONF_CLIENT_PRELOAD_RECURSIVE,
-                        NULL);
 
   /* If already running, and we are over-loading a new file,
    * then save the currently running project, and try to set it
@@ -692,7 +630,7 @@ gtt_gconf_load (void)
 }
 
 gchar *
-gtt_gconf_get_expander (void)
+gtt_gsettings_get_expander (void)
 {
   gtt_settings_init ();
 

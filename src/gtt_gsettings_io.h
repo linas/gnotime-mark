@@ -1,4 +1,4 @@
-/*   GConf2 input/output handling for GTimeTracker - a time tracker
+/*   GSettings input/output handling for GnoTime
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
  * Copyright (C) 2022      Markus Prasser
  *
@@ -23,32 +23,24 @@
 #include <glib.h>
 
 /**
- * The gtt_gconf_save() routine will save all of the GTT attributes
- * into the Gnome2 Gconf attribute system.
+ * The gtt_gsettings_save() routine will save all of the GTT attributes into
+ * the GSettings system.
  */
-void gtt_gconf_save (void);
+void gtt_gsettings_save (void);
 
 /**
- * The gtt_gconf_load() routine will fetch all of the GTT attributes
- * from the Gnome2 Gconf attribute system.
+ * The gtt_gsettings_load() routine will fetch all of the GTT attributes from
+ * the GSettings system.
  */
-void gtt_gconf_load (void);
-
-/**
- * The gtt_gconf_exists() routine returns TRUE if the Gnome2 GConf system
- * is being used.  Typically, this routine will return FALSE only once,
- * the very first time this version of GTT is run.  This gives the code
- * a chance to pull attributes out of the older gnome_config system.
- */
-gboolean gtt_gconf_exists (void);
+void gtt_gsettings_load (void);
 
 /**
  * The gtt_save_reports_menu() routine saves only the reports menu
- * attributes to the gconf system.
+ * attributes to the GSettings system.
  */
 void gtt_save_reports_menu (void);
 
 /* quick hack */
-char *gtt_gconf_get_expander (void);
+char *gtt_gsettings_get_expander (void);
 
 #endif // GTT_GSETTINGS_IO_H

@@ -1,5 +1,6 @@
 /*   Utilities for GTimeTracker - a time tracker
  *   Copyright (C) 2001 Linas Vepstas
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,7 +23,7 @@
 
 #include <glade/glade.h>
 #include <glib.h>
-#include <gnome.h>
+
 #include <qof.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,7 +78,7 @@ gtt_glade_xml_new (const char *filename, const char *widget)
 
   if (xml == NULL)
     {
-      char *file = g_concat_dir_and_file (GTTGLADEDIR, filename);
+      char *file = g_build_filename (GTTGLADEDIR, filename, NULL);
       xml = glade_xml_new (file, widget, NULL);
       g_free (file);
     }

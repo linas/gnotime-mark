@@ -22,20 +22,14 @@
 
 #include <glib.h>
 
-/* file-io.c and file-io.h is mostly involved in saving and restoring
- * user preference data to the default user config file (in .gnome2/gnotime)
- */
+// gtt_file_io.c and gtt_file_io.h are mostly involved in saving and restoring
+// user preference data utilizing GSettings as the current backend.
 
 /* The routine gtt_save_config() will save configuration/user-preference
  *    data using GSettings. If an error occurs, a GttErrCode is set.
  *
- * The routine gtt_load_config() will load GTT configuration data
- *    from either GSettings or from gnome_config.  It will attempt to
- *    load data from the latest storage mechanism first, and then
- *    fallig back to older file formats.  This routine is 'backwards
- *    compatible', in that it will load old config files formats if
- *    it can't find the newer ones first.
- *    If an error occurs, a GttErrCode is set.
+ * The routine gtt_load_config() will load GTT configuration data from
+ * GSettings.
  */
 void gtt_save_config (void);
 void gtt_load_config (void);
@@ -52,8 +46,5 @@ void gtt_load_config (void);
 
 void gtt_post_data_config (void);
 void gtt_post_ctree_config (void);
-
-/* Returns the 'real path' to the config file that was/would be used */
-const char *gtt_get_config_filepath (void);
 
 #endif // GTT_FILE_IO_H

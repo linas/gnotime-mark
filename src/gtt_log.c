@@ -25,10 +25,8 @@
 #include "gtt_preferences.h"
 #include "gtt_project.h"
 
-#include <glib.h>
-#include <gnome.h>
-
 #include <gio/gio.h>
+#include <glib/gi18n.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +48,8 @@ log_write (time_t t, const char *logstr)
   if ((config_logfile_name[0] == '~') && (config_logfile_name[1] == '/')
       && (config_logfile_name[2] != 0))
     {
-      filename = gnome_util_prepend_user_home (&config_logfile_name[2]);
+      filename = g_build_filename (g_get_home_dir (), &config_logfile_name[2],
+                                   NULL);
 
       log_file = g_file_new_for_path (filename);
 

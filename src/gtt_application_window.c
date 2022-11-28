@@ -1,6 +1,7 @@
 /*   GTimeTracker - a time tracker
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2002,2003,2004 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2022      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -512,7 +513,7 @@ app_new (int argc, char *argv[], const char *geometry_string)
 
   /* put timer icon into statusbar */
   status_timer
-      = gtk_image_new_from_stock (GNOME_STOCK_TIMER, GTK_ICON_SIZE_MENU);
+      = gtk_image_new_from_stock (GTK_STOCK_MEDIA_RECORD, GTK_ICON_SIZE_MENU);
   gtk_widget_show (status_timer);
   gtk_box_pack_end (GTK_BOX (status_bar), GTK_WIDGET (status_timer), FALSE,
                     FALSE, 1);

@@ -28,7 +28,6 @@
 #include <glib-object.h>
 
 #include <glade/glade.h>
-#include <gnome.h>
 
 struct NotesArea_s
 {

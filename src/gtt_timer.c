@@ -34,7 +34,6 @@
 #include "gtt_props_dlg_task.h"
 #include "gtt_timer.h"
 
-#include <gnome.h>
 #include <string.h>
 
 int config_autosave_period = 60;

@@ -26,8 +26,6 @@
 #include "gtt_ghtml.h"
 #include "gtt_project.h"
 
-#include <gnome.h>
-
 #include <gio/gio.h>
 
 #include <string.h>

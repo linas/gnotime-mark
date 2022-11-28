@@ -27,7 +27,9 @@
 #include "gtt_util.h"
 
 #include <glade/glade.h>
-#include <gnome.h>
+
+#include <glib/gi18n.h>
+
 #include <string.h>
 
 #include <qof.h>

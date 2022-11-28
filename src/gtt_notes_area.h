@@ -22,8 +22,6 @@
 
 #include "gtt_projects_tree.h"
 
-#include <gnome.h>
-
 typedef struct NotesArea_s NotesArea;
 
 NotesArea *notes_area_new (void);

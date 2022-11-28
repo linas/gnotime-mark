@@ -31,7 +31,7 @@
 #include <gdk/gdkx.h>
 #include <glade/glade.h>
 #include <glib.h>
-#include <gnome.h>
+
 #include <string.h>
 
 #include <X11/Xlib.h>

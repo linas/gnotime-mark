@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.13.4)
 add_executable(${PROJECT_NAME}
     gtt_activation_dialog.c
     gtt_application_window.c
+    gtt_date_edit.c
     gtt_dbus.c
     gtt_err_throw.c
     gtt_export.c

@@ -11,6 +11,7 @@ bin_PROGRAMS = gnotime
 gnotime_SOURCES =                \
 	gtt_activation_dialog.c  \
 	gtt_application_window.c \
+	gtt_date_edit.c          \
 	gtt_dbus.c               \
 	gtt_err_throw.c          \
 	gtt_export.c             \
@@ -52,6 +53,7 @@ noinst_HEADERS =                 \
 	gtt_activation_dialog.h  \
 	gtt_application_window.h \
 	gtt_current_project.h    \
+	gtt_date_edit.h          \
 	gtt_dbus.h               \
 	gtt_err_throw.h          \
 	gtt_export.h             \

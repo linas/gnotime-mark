@@ -163,17 +163,24 @@ gtt_gconf_save (void)
   xpn = gtt_projects_tree_get_expander_state (projects_tree);
   SETSTR ("/Display/ExpanderState", xpn);
 
-  /* ------------- */
-  SETBOOL ("/Toolbar/ShowToolbar", config_show_toolbar);
-  SETBOOL ("/Toolbar/ShowTips", config_show_tb_tips);
-  SETBOOL ("/Toolbar/ShowNew", config_show_tb_new);
-  SETBOOL ("/Toolbar/ShowCCP", config_show_tb_ccp);
-  SETBOOL ("/Toolbar/ShowJournal", config_show_tb_journal);
-  SETBOOL ("/Toolbar/ShowProp", config_show_tb_prop);
-  SETBOOL ("/Toolbar/ShowTimer", config_show_tb_timer);
-  SETBOOL ("/Toolbar/ShowPref", config_show_tb_pref);
-  SETBOOL ("/Toolbar/ShowHelp", config_show_tb_help);
-  SETBOOL ("/Toolbar/ShowExit", config_show_tb_exit);
+  {
+    // Toolbar ----------------------------------------------------------------
+    GSettings *toolbar = g_settings_get_child (settings, "toolbar");
+
+    gtt_settings_set_bool (toolbar, "show-toolbar", config_show_toolbar);
+    gtt_settings_set_bool (toolbar, "show-tips", config_show_tb_tips);
+    gtt_settings_set_bool (toolbar, "show-new", config_show_tb_new);
+    gtt_settings_set_bool (toolbar, "show-ccp", config_show_tb_ccp);
+    gtt_settings_set_bool (toolbar, "show-journal", config_show_tb_journal);
+    gtt_settings_set_bool (toolbar, "show-prop", config_show_tb_prop);
+    gtt_settings_set_bool (toolbar, "show-timer", config_show_tb_timer);
+    gtt_settings_set_bool (toolbar, "show-pref", config_show_tb_pref);
+    gtt_settings_set_bool (toolbar, "show-help", config_show_tb_help);
+    gtt_settings_set_bool (toolbar, "show-exit", config_show_tb_exit);
+
+    g_object_unref (toolbar);
+    toolbar = NULL;
+  }
 
   /* ------------- */
   if (config_shell_start)
@@ -474,17 +481,24 @@ gtt_gconf_load (void)
 
   prefs_update_projects_view ();
 
-  /* ------------ */
-  config_show_toolbar = GETBOOL ("/Toolbar/ShowToolbar", TRUE);
-  config_show_tb_tips = GETBOOL ("/Toolbar/ShowTips", TRUE);
-  config_show_tb_new = GETBOOL ("/Toolbar/ShowNew", TRUE);
-  config_show_tb_ccp = GETBOOL ("/Toolbar/ShowCCP", FALSE);
-  config_show_tb_journal = GETBOOL ("/Toolbar/ShowJournal", TRUE);
-  config_show_tb_prop = GETBOOL ("/Toolbar/ShowProp", TRUE);
-  config_show_tb_timer = GETBOOL ("/Toolbar/ShowTimer", TRUE);
-  config_show_tb_pref = GETBOOL ("/Toolbar/ShowPref", FALSE);
-  config_show_tb_help = GETBOOL ("/Toolbar/ShowHelp", TRUE);
-  config_show_tb_exit = GETBOOL ("/Toolbar/ShowExit", TRUE);
+  {
+    // Toolbar ----------------------------------------------------------------
+    GSettings *toolbar = g_settings_get_child (settings, "toolbar");
+
+    config_show_toolbar = g_settings_get_boolean (toolbar, "show-toolbar");
+    config_show_tb_tips = g_settings_get_boolean (toolbar, "show-tips");
+    config_show_tb_new = g_settings_get_boolean (toolbar, "show-new");
+    config_show_tb_ccp = g_settings_get_boolean (toolbar, "show-ccp");
+    config_show_tb_journal = g_settings_get_boolean (toolbar, "show-journal");
+    config_show_tb_prop = g_settings_get_boolean (toolbar, "show-prop");
+    config_show_tb_timer = g_settings_get_boolean (toolbar, "show-timer");
+    config_show_tb_pref = g_settings_get_boolean (toolbar, "show-pref");
+    config_show_tb_help = g_settings_get_boolean (toolbar, "show-help");
+    config_show_tb_exit = g_settings_get_boolean (toolbar, "show-exit");
+
+    g_object_unref (toolbar);
+    toolbar = NULL;
+  }
 
   /* ------------ */
   config_shell_start = GETSTR ("/Actions/StartCommand",

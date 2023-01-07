@@ -19,6 +19,17 @@
 #include "gtt_gsettings_io_p.h"
 
 void
+gtt_settings_set_bool (GSettings *const settings, const gchar *const key,
+                       const gboolean value)
+{
+  if (G_UNLIKELY (FALSE == g_settings_set_boolean (settings, key, value)))
+    {
+      g_warning ("Failed to set boolean option \"%s\" to: %s", key,
+                 FALSE == value ? "false" : "true");
+    }
+}
+
+void
 gtt_settings_set_int (GSettings *const settings, const gchar *const key,
                       const gint value)
 {

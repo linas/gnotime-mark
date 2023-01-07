@@ -168,6 +168,8 @@
     l;                                                                        \
   })
 
+void gtt_settings_set_bool (GSettings *settings, const gchar *key,
+                            gboolean value);
 void gtt_settings_set_int (GSettings *settings, const gchar *key, gint value);
 
 #endif // GTT_GSETTINGS_IO_P_H

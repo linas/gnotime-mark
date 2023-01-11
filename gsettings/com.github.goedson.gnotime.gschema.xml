@@ -2,6 +2,7 @@
   <schema id="com.github.goedson.gnotime" path="/com/github/goedson/gnotime/">
     <child name="data" schema="com.github.goedson.gnotime.data"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
+    <child name="log-file" schema="com.github.goedson.gnotime.log-file"/>
     <child name="report" schema="com.github.goedson.gnotime.report"/>
     <child name="toolbar" schema="com.github.goedson.gnotime.toolbar"/>
   </schema>
@@ -47,6 +48,34 @@
     </key>
     <key name="y" type="i">
       <default>10</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.log-file" path="/com/github/goedson/gnotime/log-file/">
+    <key name="entry-start" type="s">
+      <default l10n="messages">'project %t started'</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+    <key name="entry-stop" type="s">
+      <default l10n="messages">'stopped project %t'</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+    <key name="filename" type="ms">
+      <default>nothing</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+    <key name="min-secs" type="i">
+      <default>3</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+    <key name="use" type="b">
+      <default>false</default>
       <summary>TODO</summary>
       <description>TODO</description>
     </key>

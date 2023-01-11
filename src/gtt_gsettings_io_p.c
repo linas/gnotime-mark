@@ -19,6 +19,32 @@
 #include "gtt_gsettings_io_p.h"
 
 void
+gtt_settings_get_maybe_str (GSettings *const settings, const gchar *const key,
+                            gchar **const value)
+{
+  if (NULL != *value)
+    {
+      g_free (*value);
+      *value = NULL;
+    }
+
+  GVariant *val = g_settings_get_value (settings, key);
+
+  GVariant *maybe = g_variant_get_maybe (val);
+  if (NULL != maybe)
+    {
+      gsize len;
+      *value = g_strdup (g_variant_get_string (maybe, &len));
+
+      g_variant_unref (maybe);
+      maybe = NULL;
+    }
+
+  g_variant_unref (val);
+  val = NULL;
+}
+
+void
 gtt_settings_get_str (GSettings *const settings, const gchar *const key,
                       gchar **const value)
 {
@@ -49,6 +75,19 @@ gtt_settings_set_int (GSettings *const settings, const gchar *const key,
   if (G_UNLIKELY (FALSE == g_settings_set_int (settings, key, value)))
     {
       g_warning ("Failed to set integer option \"%s\" to: %d", key, value);
+    }
+}
+
+void
+gtt_settings_set_maybe_str (GSettings *const settings, const gchar *const key,
+                            const gchar *const value)
+{
+  GVariant *maybe = g_variant_new ("ms", value);
+
+  if (G_UNLIKELY (FALSE == g_settings_set_value (settings, key, maybe)))
+    {
+      g_warning ("Failed to set maybe string option \"%s\" to: \"%s\"", key,
+                 value ? value : "<nothing>");
     }
 }
 

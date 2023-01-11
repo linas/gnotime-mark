@@ -232,9 +232,16 @@ gtt_gconf_save (void)
 
   SETINT ("/LogFile/MinSecs", config_logfile_min_secs);
 
-  /* ------------- */
-  SETSTR ("/Data/URL", config_data_url);
-  SETINT ("/Data/SaveCount", save_count);
+  {
+    // Data -------------------------------------------------------------------
+    GSettings *data = g_settings_get_child (settings, "data");
+
+    gtt_settings_set_str (data, "url", config_data_url);
+    gtt_settings_set_int (data, "save-count", save_count);
+
+    g_object_unref (data);
+    data = NULL;
+  }
 
   /* ------------- */
   {
@@ -541,9 +548,16 @@ gtt_gconf_load (void)
     report = NULL;
   }
 
-  /* ------------ */
-  save_count = GETINT ("/Data/SaveCount", 0);
-  config_data_url = GETSTR ("/Data/URL", XML_DATA_FILENAME);
+  {
+    // Data -------------------------------------------------------------------
+    GSettings *data = g_settings_get_child (settings, "data");
+
+    save_count = g_settings_get_int (data, "save-count");
+    gtt_settings_get_str (data, "url", &config_data_url);
+
+    g_object_unref (data);
+    data = NULL;
+  }
 
   /* ------------ */
   {

@@ -18,6 +18,30 @@
 
 #include "gtt_gsettings_io_p.h"
 
+GSList *
+gtt_settings_get_array_int (GSettings *const settings, const gchar *const key)
+{
+  GSList *ret = NULL;
+
+  GVariant *var = g_settings_get_value (settings, key);
+
+  const gsize n_items = g_variant_n_children (var);
+  gsize i;
+  for (i = 0; i < n_items; ++i)
+    {
+      gint val;
+      g_variant_get_child (var, i, "i", &val);
+      ret = g_slist_prepend (ret, GINT_TO_POINTER (val));
+    }
+
+  g_variant_unref (var);
+  var = NULL;
+
+  ret = g_slist_reverse (ret);
+
+  return ret;
+}
+
 void
 gtt_settings_get_maybe_str (GSettings *const settings, const gchar *const key,
                             gchar **const value)
@@ -55,6 +79,31 @@ gtt_settings_get_str (GSettings *const settings, const gchar *const key,
     }
 
   *value = g_settings_get_string (settings, key);
+}
+
+void
+gtt_settings_set_array_int (GSettings *const settings, const gchar *const key,
+                            GSList *const value)
+{
+  GVariantType *variant_type = g_variant_type_new ("ai");
+
+  GVariantBuilder bldr;
+  g_variant_builder_init (&bldr, variant_type);
+
+  GSList *node;
+  for (node = value; node != NULL; node = node->next)
+    {
+      g_variant_builder_add (&bldr, "i", GPOINTER_TO_INT (node->data));
+    }
+
+  GVariant *val = g_variant_builder_end (&bldr);
+  if (G_UNLIKELY (FALSE == g_settings_set_value (settings, key, val)))
+    {
+      g_warning ("Failed to set integer array option \"%s\"", key);
+    }
+
+  g_variant_type_free (variant_type);
+  variant_type = NULL;
 }
 
 void

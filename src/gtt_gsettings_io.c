@@ -62,33 +62,32 @@ gtt_save_reports_menu (void)
   gtt_init_settings ();
 
   int i;
-  char s[120], *p;
   GnomeUIInfo *reports_menu;
-  GConfClient *client;
 
-  client = gconf_client_get_default ();
   reports_menu = gtt_get_reports_menu ();
 
   /* Write out the customer report info */
   for (i = 0; GNOME_APP_UI_ENDOFINFO != reports_menu[i].type; i++)
     {
       GttPlugin *plg = reports_menu[i].user_data;
-      g_snprintf (s, sizeof (s), GTT_GCONF "/Reports/%d/", i);
-      p = s + strlen (s);
-      strcpy (p, "Name");
-      F_SETSTR (s, plg->name);
 
-      strcpy (p, "Path");
-      F_SETSTR (s, plg->path);
+      gchar *path = g_strdup_printf (
+          "/com/github/goedson/gnotime/reports/report-%d/", i);
+      GSettings *report = g_settings_new_with_path (
+          "com.github.goedson.gnotime.reports", path);
 
-      strcpy (p, "Tooltip");
-      F_SETSTR (s, plg->tooltip);
+      gtt_settings_set_str (report, "name", plg->name);
+      gtt_settings_set_str (report, "path", plg->path);
+      gtt_settings_set_str (report, "tooltip", plg->tooltip);
+      gtt_settings_set_maybe_str (report, "last-save-url", plg->last_url);
 
-      strcpy (p, "LastSaveURL");
-      F_SETSTR (s, plg->last_url);
+      gtt_save_gnomeui_to_gconf (report, &reports_menu[i]);
 
-      *p = 0;
-      gtt_save_gnomeui_to_gconf (client, s, &reports_menu[i]);
+      g_object_unref (report);
+      report = NULL;
+
+      g_free (path);
+      path = NULL;
     }
 
   {
@@ -361,11 +360,7 @@ void
 gtt_restore_reports_menu (GnomeApp *app)
 {
   int i, num;
-  char s[120], *p;
   GnomeUIInfo *reports_menu;
-  GConfClient *client;
-
-  client = gconf_client_get_default ();
 
   /* Read in the user-defined report locations */
   {
@@ -383,32 +378,42 @@ gtt_restore_reports_menu (GnomeApp *app)
   for (i = 0; i < num; i++)
     {
       GttPlugin *plg;
-      const char *name, *path, *tip, *url;
 
-      g_snprintf (s, sizeof (s), GTT_GCONF "/Reports/%d/", i);
-      p = s + strlen (s);
+      gchar *pth = g_strdup_printf (
+          "/com/github/goedson/gnotime/reports/report-%d/", i);
+      GSettings *report = g_settings_new_with_path (
+          "com.github.goedson.gnotime.reports", pth);
 
-      strcpy (p, "Name");
-      name = F_GETSTR (s, "");
+      gchar *name = NULL;
+      gtt_settings_get_str (report, "name", &name);
 
-      strcpy (p, "Path");
-      path = F_GETSTR (s, "");
+      gchar *path = NULL;
+      gtt_settings_get_str (report, "path", &path);
 
-      strcpy (p, "Tooltip");
-      tip = F_GETSTR (s, "");
+      gchar *tooltip = NULL;
+      gtt_settings_get_str (report, "tooltip", &tooltip);
 
-      strcpy (p, "LastSaveURL");
-      url = F_GETSTR (s, "");
+      gchar *last_save_url = NULL;
+      gtt_settings_get_maybe_str (report, "last-save-url", &last_save_url);
 
       plg = gtt_plugin_new (name, path);
-      plg->tooltip = g_strdup (tip);
-      plg->last_url = g_strdup (url);
+      g_free (name);
+      name = NULL;
+      g_free (path);
+      path = NULL;
+      plg->tooltip = tooltip;
+      plg->last_url = last_save_url;
 
-      *p = 0;
-      gtt_restore_gnomeui_from_gconf (client, s, &reports_menu[i]);
+      gtt_restore_gnomeui_from_gconf (report, &reports_menu[i]);
 
       /* fixup */
       reports_menu[i].user_data = plg;
+
+      g_object_unref (report);
+      report = NULL;
+
+      g_free (pth);
+      pth = NULL;
     }
   reports_menu[i].type = GNOME_APP_UI_ENDOFINFO;
 

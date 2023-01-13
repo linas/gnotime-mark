@@ -577,7 +577,7 @@ gtt_load_config (void)
   char *s;
 
   /* Check for gconf2, and use that if it exists */
-  if (gtt_gconf_exists ())
+  if (TRUE)
     {
       gtt_gconf_load ();
       gtt_config_filepath = NULL;
@@ -683,14 +683,7 @@ gtt_post_ctree_config (void)
    */
 
   /* Restore the expander state */
-  if (gtt_gconf_exists ())
-    {
-      xpn = gtt_gconf_get_expander ();
-    }
-  else
-    {
-      xpn = gnome_config_get_string (GTT_CONF "/Display/ExpanderState");
-    }
+  xpn = gtt_gconf_get_expander ();
   if (xpn)
     {
       gtt_projects_tree_set_expander_state (projects_tree, xpn);

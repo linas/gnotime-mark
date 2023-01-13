@@ -1,4 +1,4 @@
-/*   GConf2 input/output handling for GTimeTracker - a time tracker
+/*   GSettings input/output handling for GTimeTracker - a time tracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
  * Copyright (C) 2023      Markus Prasser
  *
@@ -77,7 +77,7 @@ gtt_save_reports_menu (void)
       gtt_settings_set_str (report, "tooltip", plg->tooltip);
       gtt_settings_set_maybe_str (report, "last-save-url", plg->last_url);
 
-      gtt_save_gnomeui_to_gconf (report, &reports_menu[i]);
+      gtt_save_gnomeui_to_gsettings (report, &reports_menu[i]);
 
       g_object_unref (report);
       report = NULL;
@@ -102,7 +102,7 @@ gtt_save_reports_menu (void)
 /* XXX fixme -- this should really use GConfChangeSet */
 
 void
-gtt_gconf_save (void)
+gtt_gsettings_save (void)
 {
   gtt_init_settings ();
 
@@ -348,7 +348,7 @@ gtt_restore_reports_menu (GnomeApp *app)
       plg->tooltip = tooltip;
       plg->last_url = last_save_url;
 
-      gtt_restore_gnomeui_from_gconf (report, &reports_menu[i]);
+      gtt_restore_gnomeui_from_gsettings (report, &reports_menu[i]);
 
       /* fixup */
       reports_menu[i].user_data = plg;
@@ -367,7 +367,7 @@ gtt_restore_reports_menu (GnomeApp *app)
 /* ======================================================= */
 
 void
-gtt_gconf_load (void)
+gtt_gsettings_load (void)
 {
   gtt_init_settings ();
 
@@ -628,7 +628,7 @@ gtt_gconf_load (void)
 }
 
 gchar *
-gtt_gconf_get_expander (void)
+gtt_gsettings_get_expander (void)
 {
   gtt_init_settings ();
 

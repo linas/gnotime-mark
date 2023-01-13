@@ -1,4 +1,4 @@
-/* GConf2 input/output handling for GTimeTracker - a time tracker
+/* GSettings input/output handling for GTimeTracker - a time tracker
  * Copyright (C) 2023      Markus Prasser
  *
  * This program is free software; you can redistribute it and/or modify it

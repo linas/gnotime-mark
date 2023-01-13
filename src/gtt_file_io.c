@@ -61,13 +61,13 @@ int save_count = 0;
  * config file formats taht GTT has used over the years.  We support
  * these reads so that users do not get left out in the cold when
  * upgrading from old versions of GTT.  All 'saves' are in the new
- * file format (currently, GConf-2).
+ * format (currently, GSettings).
  *
  * 1) Oldest format is data stuck into a ~/.gtimetrackerrc file
  *    and is handled by the project_list_load_old() routine.
  * 2) Next is Gnome-1 Gnome-Config files in ~/.gnome/gtt
  * 3) Next is Gnome-2 Gnome-Config files in ~/.gnome2/GnoTime
- * 4) Current is GConf2 system.
+ * 4) Current is GSettings.
  *
  * Note that some of the older config files also contained project
  * data in them.  The newer versions stored project data seperately
@@ -579,7 +579,7 @@ gtt_load_config (void)
   /* Check for gconf2, and use that if it exists */
   if (TRUE)
     {
-      gtt_gconf_load ();
+      gtt_gsettings_load ();
       gtt_config_filepath = NULL;
       return;
     }
@@ -683,7 +683,7 @@ gtt_post_ctree_config (void)
    */
 
   /* Restore the expander state */
-  xpn = gtt_gconf_get_expander ();
+  xpn = gtt_gsettings_get_expander ();
   if (xpn)
     {
       gtt_projects_tree_set_expander_state (projects_tree, xpn);
@@ -696,7 +696,7 @@ gtt_post_ctree_config (void)
 void
 gtt_save_config (void)
 {
-  gtt_gconf_save ();
+  gtt_gsettings_save ();
 }
 
 /* ======================================================= */

@@ -1,4 +1,4 @@
-/*   GConf2 input/output handling for GTimeTracker - a time tracker
+/*   GSettings input/output handling for GTimeTracker - a time tracker
  *   Copyright (C) 2003 Linas Vepstas <linas@linas.org>
  * Copyright (C) 2023      Markus Prasser
  *
@@ -17,7 +17,7 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* This is a PRIVATE header file for GConf users only! Do not use! */
+/* This is a PRIVATE header file for GSettings users only! Do not use! */
 
 #ifndef GTT_GSETTINGS_IO_P_H
 #define GTT_GSETTINGS_IO_P_H

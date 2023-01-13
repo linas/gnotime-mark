@@ -23,7 +23,7 @@
 
 #include <errno.h>
 #include <glib.h>
-#include <gnome.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,14 +40,6 @@
 #include "gtt_project_p.h"
 #include "gtt_timer.h"
 #include "gtt_toolbar.h"
-
-#ifdef USE_GTT_DEBUG_FILE
-#define GTT_CONF "/gtt-DEBUG"
-#else /* not DEBUG */
-#define GTT_CONF "/" GTT_APP_NAME
-#endif /* not DEBUG */
-
-static const char *gtt_config_filepath = NULL;
 
 int cur_proj_id = -1;
 int run_timer = FALSE;
@@ -76,7 +68,6 @@ void
 gtt_load_config (void)
 {
   gtt_gsettings_load ();
-  gtt_config_filepath = NULL;
 }
 
 /* ======================================================= */
@@ -151,14 +142,6 @@ void
 gtt_save_config (void)
 {
   gtt_gsettings_save ();
-}
-
-/* ======================================================= */
-
-const char *
-gtt_get_config_filepath (void)
-{
-  return gtt_config_filepath;
 }
 
 /* =========================== END OF FILE ========================= */

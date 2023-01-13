@@ -239,21 +239,12 @@ static char *
 resolve_old_path (const char *pathfrag)
 {
   char *fullpath;
-  const char *confpath;
 
   if (('~' != pathfrag[0]) && ('/' != pathfrag[0]))
     {
       /* If not an absolute filepath, look for the file in the same dir
        * where the gtt config file was found. */
-      confpath = gtt_get_config_filepath ();
-      if (NULL == confpath || 0 == confpath[0])
-        {
-          fullpath = gnome_config_get_real_path (pathfrag);
-        }
-      else
-        {
-          fullpath = g_strconcat (confpath, "/", pathfrag, NULL);
-        }
+      fullpath = gnome_config_get_real_path (pathfrag);
     }
   else
     {
@@ -504,53 +495,10 @@ post_read_config (void)
 }
 
 static void
-read_config_err_run_or_abort (GtkDialog *w, gint response_id)
-{
-  if ((GTK_RESPONSE_OK == response_id) || (GTK_RESPONSE_YES == response_id))
-    {
-      gtk_widget_destroy (GTK_WIDGET (w));
-      first_time_ever = TRUE;
-      post_read_config ();
-    }
-  else
-    {
-      gtk_main_quit ();
-    }
-}
-
-static void
 read_config (void)
 {
-  GttErrCode conf_errcode;
-
-  /* Try ... */
-  gtt_err_set_code (GTT_NO_ERR);
   gtt_load_config ();
-
-  /* Catch ... */
-  conf_errcode = gtt_err_get_code ();
-  if (GTT_NO_ERR != conf_errcode)
-    {
-      const char *fp;
-      char *errmsg, *qmsg;
-      fp = gtt_get_config_filepath ();
-      errmsg = gtt_err_to_string (conf_errcode, fp);
-      qmsg = g_strconcat (errmsg, _ ("Shall I setup a new configuration?"),
-                          NULL);
-
-      GtkWidget *mb;
-      mb = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
-                                   GTK_BUTTONS_YES_NO, "%s", qmsg);
-      g_signal_connect (G_OBJECT (mb), "response",
-                        G_CALLBACK (read_config_err_run_or_abort), NULL);
-      gtk_widget_show (mb);
-      g_free (qmsg);
-      g_free (errmsg);
-    }
-  else
-    {
-      post_read_config ();
-    }
+  post_read_config ();
 }
 
 #if DEVEL_VERSION_WARNING

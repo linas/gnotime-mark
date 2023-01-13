@@ -1,5 +1,6 @@
 /*   file io routines for GTimeTracker - a time tracker
  *   Copyright (C) 1997,98 Eckehard Berns
+ * Copyright (C) 2023      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -51,8 +52,5 @@ void gtt_load_config (void);
 
 void gtt_post_data_config (void);
 void gtt_post_ctree_config (void);
-
-/* Returns the 'real path' to the config file that was/would be used */
-const char *gtt_get_config_filepath (void);
 
 #endif // GTT_FILE_IO_H

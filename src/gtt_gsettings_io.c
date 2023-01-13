@@ -291,7 +291,7 @@ gtt_gconf_save (void)
     misc = NULL;
   }
 
-  SETINT ("/time_format", config_time_format);
+  gtt_settings_set_int (settings, "time-format", config_time_format);
 
   {
     // Report -----------------------------------------------------------------
@@ -603,8 +603,7 @@ gtt_gconf_load (void)
     logfile = NULL;
   }
 
-  /* ------------ */
-  config_time_format = GETINT ("/time_format", 3);
+  config_time_format = g_settings_get_int (settings, "time-format");
 
   {
     // Report -----------------------------------------------------------------

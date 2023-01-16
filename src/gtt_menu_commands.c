@@ -1,6 +1,7 @@
 /*   Main menu callbacks for app main menubar for GTimeTracker
  *   Copyright (C) 1997,98 Eckehard Berns
  *   Copyright (C) 2001,2002,2003 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2023      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,12 +22,12 @@
 
 #include "gtt_menu_commands.h"
 
-#include <gnome.h>
 #include <string.h>
 
 #include "gtt.h"
 #include "gtt_application_window.h"
 #include "gtt_current_project.h"
+#include "gtt_entry.h"
 #include "gtt_err_throw.h"
 #include "gtt_file_io.h"
 #include "gtt_journal.h"
@@ -170,10 +171,10 @@ new_project (GtkWidget *widget, gpointer data)
   GtkWidget **entries = g_new0 (GtkWidget *, 2);
   GtkWidget *table;
 
-  title = gnome_entry_new ("project_title");
-  desc = gnome_entry_new ("project_description");
-  entries[0] = gnome_entry_gtk_entry (GNOME_ENTRY (title));
-  entries[1] = gnome_entry_gtk_entry (GNOME_ENTRY (desc));
+  title = gtt_entry_new ("project-title");
+  desc = gtt_entry_new ("project-description");
+  entries[0] = gtt_entry_gtk_entry (GTT_ENTRY (title));
+  entries[1] = gtt_entry_gtk_entry (GTT_ENTRY (desc));
 
   /* Create new dialog box */
   w = gtk_dialog_new_with_buttons (_ ("New Project..."),

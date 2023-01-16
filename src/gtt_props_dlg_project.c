@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "gtt_date_edit.h"
+#include "gtt_entry.h"
 #include "gtt_help_popup.h"
 #include "gtt_project.h"
 #include "gtt_util.h"
@@ -281,14 +282,12 @@ do_set_project (GttProject *proj, PropDlg *dlg)
 
 /* ============================================================== */
 
-#define TAGGED(NAME)                                                          \
+#define TAGGED(WDGT)                                                          \
   ({                                                                          \
-    GtkWidget *widget;                                                        \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    gtk_signal_connect_object (GTK_OBJECT (widget), "changed",                \
+    gtk_signal_connect_object (GTK_OBJECT (WDGT), "changed",                  \
                                GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
                                GTK_OBJECT (dlg->dlg));                        \
-    widget;                                                                   \
+    WDGT;                                                                     \
   })
 
 #define DATED(WDGT)                                                           \
@@ -362,6 +361,229 @@ prop_dialog_new (void)
   dlg->dlg = GNOME_PROPERTY_BOX (
       glade_xml_get_widget (gtxml, "Project Properties"));
 
+  GtkWidget *title_table = glade_xml_get_widget (gtxml, "title table");
+
+  GtkWidget *const entry7 = gtt_entry_new ("project-title");
+  gtt_entry_set_max_saved (GTT_ENTRY (entry7), 10);
+  gtk_widget_set_name (entry7, "entry7");
+
+  GtkWidget *const title_box = gtt_entry_gtk_entry (GTT_ENTRY (entry7));
+  dlg->title = GTK_ENTRY (TAGGED (title_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (title_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (title_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (title_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (title_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (title_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (title_box), TRUE);
+  gtk_widget_set_can_default (title_box, TRUE);
+  gtk_widget_set_name (title_box, "title box");
+  gtk_widget_set_tooltip_text (title_box,
+                               _ ("A title to assign to this project"));
+  gtk_widget_show (title_box);
+
+  gtk_widget_show (entry7);
+
+  gtk_table_attach (GTK_TABLE (title_table), entry7, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const entry9 = gtt_entry_new ("project-description");
+  gtt_entry_set_max_saved (GTT_ENTRY (entry9), 10);
+  gtk_widget_set_name (entry9, "entry9");
+
+  GtkWidget *const desc_box = gtt_entry_gtk_entry (GTT_ENTRY (entry9));
+  dlg->desc = GTK_ENTRY (TAGGED (desc_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (desc_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (desc_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (desc_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (desc_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (desc_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (desc_box), TRUE);
+  gtk_widget_set_can_default (desc_box, TRUE);
+  gtk_widget_set_name (desc_box, "desc box");
+  gtk_widget_set_tooltip_text (
+      desc_box,
+      _ ("a short description that will be printed on the invoice."));
+  gtk_widget_show (desc_box);
+
+  gtk_widget_show (entry9);
+
+  gtk_table_attach (GTK_TABLE (title_table), entry9, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *rate_table = glade_xml_get_widget (gtxml, "rate table");
+
+  GtkWidget *const combo_regular = gtt_entry_new ("regular-rate");
+  gtt_entry_set_max_saved (GTT_ENTRY (combo_regular), 10);
+  gtk_widget_set_name (combo_regular, "combo regular");
+
+  GtkWidget *const regular_box
+      = gtt_entry_gtk_entry (GTT_ENTRY (combo_regular));
+  dlg->regular = GTK_ENTRY (TAGGED (regular_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (regular_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (regular_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (regular_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (regular_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (regular_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (regular_box), TRUE);
+  gtk_widget_set_can_default (regular_box, TRUE);
+  gtk_widget_set_name (regular_box, "regular box");
+  gtk_widget_set_tooltip_text (
+      regular_box,
+      _ ("The dollars per hour normally charged for this project."));
+  gtk_widget_show (regular_box);
+
+  gtk_widget_show (combo_regular);
+
+  gtk_table_attach (GTK_TABLE (rate_table), combo_regular, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const overtime_combo = gtt_entry_new ("overtime-rate");
+  gtt_entry_set_max_saved (GTT_ENTRY (overtime_combo), 10);
+  gtk_widget_set_name (overtime_combo, "overtime combo");
+
+  GtkWidget *const overtime_box
+      = gtt_entry_gtk_entry (GTT_ENTRY (overtime_combo));
+  dlg->overtime = GTK_ENTRY (TAGGED (overtime_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (overtime_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (overtime_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (overtime_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (overtime_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (overtime_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (overtime_box), TRUE);
+  gtk_widget_set_can_default (overtime_box, TRUE);
+  gtk_widget_set_name (overtime_box, "overtime box");
+  gtk_widget_set_tooltip_text (
+      overtime_box,
+      _ ("The dollars per hour charged for overtime work on this project."));
+  gtk_widget_show (overtime_box);
+
+  gtk_widget_show (overtime_combo);
+
+  gtk_table_attach (GTK_TABLE (rate_table), overtime_combo, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const overover_combo = gtt_entry_new ("overover-rate");
+  gtt_entry_set_max_saved (GTT_ENTRY (overover_combo), 10);
+  gtk_widget_set_name (overover_combo, "overover combo");
+
+  GtkWidget *const overover_box
+      = gtt_entry_gtk_entry (GTT_ENTRY (overover_combo));
+  dlg->overover = GTK_ENTRY (TAGGED (overover_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (overover_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (overover_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (overover_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (overover_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (overover_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (overover_box), TRUE);
+  gtk_widget_set_can_default (overover_box, TRUE);
+  gtk_widget_set_name (overover_box, "overover box");
+  gtk_widget_set_tooltip_text (
+      overover_box, _ ("The over-overtime rate (overtime on Sundays, etc.)"));
+  gtk_widget_show (overover_box);
+
+  gtk_widget_show (overover_combo);
+
+  gtk_table_attach (GTK_TABLE (rate_table), overover_combo, 1, 2, 2, 3,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const flatfee_combo = gtt_entry_new ("flat-fee");
+  gtt_entry_set_max_saved (GTT_ENTRY (flatfee_combo), 10);
+  gtk_widget_set_name (flatfee_combo, "flatfee combo");
+
+  GtkWidget *const flatfee_box
+      = gtt_entry_gtk_entry (GTT_ENTRY (flatfee_combo));
+  dlg->flatfee = GTK_ENTRY (TAGGED (flatfee_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (flatfee_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (flatfee_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (flatfee_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (flatfee_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (flatfee_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (flatfee_box), TRUE);
+  gtk_widget_set_can_default (flatfee_box, TRUE);
+  gtk_widget_set_name (flatfee_box, "flatfee box");
+  gtk_widget_set_tooltip_text (
+      flatfee_box, _ ("If this project is billed for one price no matter how "
+                      "long it takes, enter the fee here."));
+  gtk_widget_show (flatfee_box);
+
+  gtk_widget_show (flatfee_combo);
+
+  gtk_table_attach (GTK_TABLE (rate_table), flatfee_combo, 1, 2, 3, 4,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *interval_table = glade_xml_get_widget (gtxml, "interval table");
+
+  GtkWidget *const entry22 = gtt_entry_new ("min-interval");
+  gtt_entry_set_max_saved (GTT_ENTRY (entry22), 10);
+  gtk_widget_set_name (entry22, "entry22");
+
+  GtkWidget *const minimum_box = gtt_entry_gtk_entry (GTT_ENTRY (entry22));
+  dlg->minimum = GTK_ENTRY (TAGGED (minimum_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (minimum_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (minimum_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (minimum_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (minimum_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (minimum_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (minimum_box), TRUE);
+  gtk_widget_set_can_default (minimum_box, TRUE);
+  gtk_widget_set_name (minimum_box, "minimum box");
+  gtk_widget_set_tooltip_text (
+      minimum_box, _ ("Intervals smaller than this will be discarded"));
+  gtk_widget_show (minimum_box);
+
+  gtk_widget_show (entry22);
+
+  gtk_table_attach (GTK_TABLE (interval_table), entry22, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const entry23 = gtt_entry_new ("merge-interval");
+  gtt_entry_set_max_saved (GTT_ENTRY (entry23), 10);
+  gtk_widget_set_name (entry23, "entry23");
+
+  GtkWidget *const interval_box = gtt_entry_gtk_entry (GTT_ENTRY (entry23));
+  dlg->interval = GTK_ENTRY (TAGGED (interval_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (interval_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (interval_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (interval_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (interval_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (interval_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (interval_box), TRUE);
+  gtk_widget_set_can_default (interval_box, TRUE);
+  gtk_widget_set_name (interval_box, "interval box");
+  gtk_widget_set_tooltip_text (
+      interval_box,
+      _ ("Time below which an interval is merged with its neighbors"));
+  gtk_widget_show (interval_box);
+
+  gtk_widget_show (entry23);
+
+  gtk_table_attach (GTK_TABLE (interval_table), entry23, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const entry24 = gtt_entry_new ("merge-gap");
+  gtt_entry_set_max_saved (GTT_ENTRY (entry24), 10);
+  gtk_widget_set_name (entry24, "entry24");
+
+  GtkWidget *const gap_box = gtt_entry_gtk_entry (GTT_ENTRY (entry24));
+  dlg->gap = GTK_ENTRY (TAGGED (gap_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (gap_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (gap_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (gap_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (gap_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (gap_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (gap_box), TRUE);
+  gtk_widget_set_can_default (gap_box, TRUE);
+  gtk_widget_set_name (gap_box, "gap box");
+  gtk_widget_set_tooltip_text (
+      gap_box, _ ("If the gap between intervals is smaller than this, the "
+                  "intervals will be merged together."));
+  gtk_widget_show (gap_box);
+
+  gtk_widget_show (entry24);
+
+  gtk_table_attach (GTK_TABLE (interval_table), entry24, 1, 2, 2, 3,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
   gtk_signal_connect (GTK_OBJECT (dlg->dlg), "help", GTK_SIGNAL_FUNC (help_cb),
                       "projects-editing");
 
@@ -371,18 +593,7 @@ prop_dialog_new (void)
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
 
-  dlg->title = GTK_ENTRY (TAGGED ("title box"));
-  dlg->desc = GTK_ENTRY (TAGGED ("desc box"));
   dlg->notes = GTK_TEXT_VIEW (TEXTED ("notes box"));
-
-  dlg->regular = GTK_ENTRY (TAGGED ("regular box"));
-  dlg->overtime = GTK_ENTRY (TAGGED ("overtime box"));
-  dlg->overover = GTK_ENTRY (TAGGED ("overover box"));
-  dlg->flatfee = GTK_ENTRY (TAGGED ("flatfee box"));
-
-  dlg->minimum = GTK_ENTRY (TAGGED ("minimum box"));
-  dlg->interval = GTK_ENTRY (TAGGED ("interval box"));
-  dlg->gap = GTK_ENTRY (TAGGED ("gap box"));
 
   dlg->urgency = MUGGED ("urgency menu");
   dlg->importance = MUGGED ("importance menu");
@@ -420,8 +631,10 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (sizing_table), due_date, 1, 4, 5, 6,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
-  dlg->sizing = GTK_ENTRY (TAGGED ("sizing box"));
-  dlg->percent = GTK_ENTRY (TAGGED ("percent box"));
+  dlg->sizing
+      = GTK_ENTRY (TAGGED (glade_xml_get_widget (gtxml, "sizing box")));
+  dlg->percent
+      = GTK_ENTRY (TAGGED (glade_xml_get_widget (gtxml, "percent box")));
 
   /* ------------------------------------------------------ */
   /* initialize menu values */

@@ -24,6 +24,7 @@
 #include <gnome.h>
 #include <string.h>
 
+#include "gtt_entry.h"
 #include "gtt_help_popup.h"
 #include "gtt_project.h"
 #include "gtt_util.h"
@@ -227,22 +228,18 @@ destroy_cb (GtkWidget *w, PropTaskDlg *dlg)
 
 /* ============================================================== */
 
-#define NTAGGED(NAME)                                                         \
+#define NTAGGED(WDGT)                                                         \
   ({                                                                          \
-    GtkWidget *widget;                                                        \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    g_signal_connect (G_OBJECT (widget), "changed",                           \
+    g_signal_connect (G_OBJECT (WDGT), "changed",                             \
                       G_CALLBACK (save_task_notes), dlg);                     \
-    widget;                                                                   \
+    WDGT;                                                                     \
   })
 
-#define BTAGGED(NAME)                                                         \
+#define BTAGGED(WDGT)                                                         \
   ({                                                                          \
-    GtkWidget *widget;                                                        \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    g_signal_connect (G_OBJECT (widget), "changed",                           \
+    g_signal_connect (G_OBJECT (WDGT), "changed",                             \
                       G_CALLBACK (save_task_billinfo), dlg);                  \
-    widget;                                                                   \
+    WDGT;                                                                     \
   })
 
 #define TEXTED(NAME)                                                          \
@@ -288,6 +285,55 @@ prop_task_dialog_new (void)
 
   dlg->dlg = GTK_DIALOG (glade_xml_get_widget (gtxml, "Task Properties"));
 
+  GtkWidget *const task_table = glade_xml_get_widget (gtxml, "task table");
+
+  GtkWidget *const entry3 = gtt_entry_new ("task-memo");
+  gtt_entry_set_max_saved (GTT_ENTRY (entry3), 10);
+  gtk_widget_set_name (entry3, "entry3");
+
+  GtkWidget *const memo_box = gtt_entry_gtk_entry (GTT_ENTRY (entry3));
+  dlg->memo = GTK_ENTRY (NTAGGED (memo_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (memo_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (memo_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (memo_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (memo_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (memo_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (memo_box), TRUE);
+  gtk_widget_set_can_focus (memo_box, TRUE);
+  gtk_widget_set_name (memo_box, "memo box");
+  gtk_widget_set_tooltip_text (
+      memo_box, _ ("A short description to attach to this block of time."));
+  gtk_widget_show (memo_box);
+
+  gtk_widget_show (entry3);
+
+  gtk_table_attach (GTK_TABLE (task_table), entry3, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const entry4 = gtt_entry_new ("bill-unit");
+  gtt_entry_set_max_saved (GTT_ENTRY (entry4), 10);
+  gtk_widget_set_name (entry4, "entry4");
+
+  GtkWidget *const unit_box = gtt_entry_gtk_entry (GTT_ENTRY (entry4));
+  dlg->unit = GTK_ENTRY (BTAGGED (unit_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (unit_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (unit_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (unit_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (unit_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (unit_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (unit_box), TRUE);
+  gtk_widget_set_can_focus (unit_box, TRUE);
+  gtk_widget_set_name (unit_box, "unit box");
+  gtk_widget_set_tooltip_text (unit_box,
+                               _ ("The billed unit of time will be rounded to "
+                                  "an integer multiple of this time."));
+  gtk_widget_show (unit_box);
+
+  gtk_widget_show (entry4);
+
+  gtk_table_attach (GTK_TABLE (task_table), entry4, 1, 2, 3, 4,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
   glade_xml_signal_connect_data (gtxml, "on_help_button_clicked",
                                  GTK_SIGNAL_FUNC (gtt_help_popup),
                                  "properties");
@@ -302,13 +348,11 @@ prop_task_dialog_new (void)
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
 
-  dlg->memo = GTK_ENTRY (NTAGGED ("memo box"));
   dlg->notes = GTK_TEXT_VIEW (TEXTED ("notes box"));
 
   dlg->billstatus = MUGGED ("billstatus menu");
   dlg->billable = MUGGED ("billable menu");
   dlg->billrate = MUGGED ("billrate menu");
-  dlg->unit = GTK_ENTRY (BTAGGED ("unit box"));
 
   /* ------------------------------------------------------ */
   /* associate values with the three option menus */

@@ -4,6 +4,7 @@
     <child name="clist" schema="com.github.goedson.gnotime.clist"/>
     <child name="data" schema="com.github.goedson.gnotime.data"/>
     <child name="display" schema="com.github.goedson.gnotime.display"/>
+    <child name="entry-histories" schema="com.github.goedson.gnotime.entry-histories"/>
     <child name="geometry" schema="com.github.goedson.gnotime.geometry"/>
     <child name="log-file" schema="com.github.goedson.gnotime.log-file"/>
     <child name="misc" schema="com.github.goedson.gnotime.misc"/>
@@ -165,6 +166,14 @@
     </key>
     <key name="show-urgency" type="b">
       <default>true</default>
+      <summary>TODO</summary>
+      <description>TODO</description>
+    </key>
+  </schema>
+
+  <schema id="com.github.goedson.gnotime.entry-histories">
+    <key name="history" type="as">
+      <default>[]</default>
       <summary>TODO</summary>
       <description>TODO</description>
     </key>

@@ -5,6 +5,7 @@ add_executable(${PROJECT_NAME}
     gtt_application_window.c
     gtt_date_edit.c
     gtt_dbus.c
+    gtt_entry.c
     gtt_err_throw.c
     gtt_export.c
     gtt_file_io.c

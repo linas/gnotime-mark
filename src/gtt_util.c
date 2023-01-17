@@ -20,7 +20,7 @@
 
 #include <glade/glade.h>
 #include <glib.h>
-#include <gnome.h>
+
 #include <qof.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,7 +77,7 @@ gtt_glade_xml_new (const char *filename, const char *widget)
 
   if (xml == NULL)
     {
-      char *file = g_concat_dir_and_file (GTTGLADEDIR, filename);
+      char *file = g_build_filename (GTTGLADEDIR, filename, NULL);
       xml = glade_xml_new (file, widget, NULL);
       g_free (file);
     }

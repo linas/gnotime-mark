@@ -21,7 +21,7 @@
 #include "gtt_activation_dialog.h"
 
 #include <glade/glade.h>
-#include <gnome.h>
+
 #include <string.h>
 
 #include <qof.h>
@@ -31,6 +31,8 @@
 #include "gtt_project.h"
 #include "gtt_project_queries.h"
 #include "gtt_util.h"
+
+#include <glib/gi18n.h>
 
 int config_no_project_timeout;
 

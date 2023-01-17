@@ -22,7 +22,7 @@
 #include "gtt_log.h"
 
 #include <glib.h>
-#include <gnome.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -31,6 +31,7 @@
 #include "gtt_project.h"
 
 #include <gio/gio.h>
+#include <glib/gi18n.h>
 
 #define CAN_LOG ((config_logfile_name != NULL) && (config_logfile_use))
 
@@ -49,7 +50,8 @@ log_write (time_t t, const char *logstr)
   if ((config_logfile_name[0] == '~') && (config_logfile_name[1] == '/')
       && (config_logfile_name[2] != 0))
     {
-      filename = gnome_util_prepend_user_home (&config_logfile_name[2]);
+      filename = g_build_filename (g_get_home_dir (), &config_logfile_name[2],
+                                   NULL);
 
       ofile = g_file_new_for_path (filename);
 

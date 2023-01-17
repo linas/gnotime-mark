@@ -1,5 +1,6 @@
 /*   GnoTime Help Browser helper function
  *   Copyright (C) 2004 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2023      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,32 +21,45 @@
 
 #include "gtt_help_popup.h"
 
-#include <gnome.h>
-#include <libgnome/gnome-help.h>
+#include <string.h>
 
 /* ================================================================= */
 
 void
 gtt_help_popup (GtkWidget *widget, gpointer data)
 {
-  GError *err = NULL;
-  char *section = data;
-  if ((section != NULL) && !strcmp ("", section))
-    section = NULL;
-  gnome_help_display ("gnotime", section, &err);
-  if (err)
+  const gchar *const section = data;
+
+  gchar *uri = NULL;
+  if ((section != NULL) && (0 != strcmp ("", section)))
+    {
+      uri = g_strdup_printf ("ghelp:gnotime#%s", section);
+    }
+  else
+    {
+      uri = g_strdup ("ghelp:gnotime");
+    }
+
+  GError *error = NULL;
+  if (FALSE == gtk_show_uri (NULL, uri, GDK_CURRENT_TIME, &error))
     {
       GtkWidget *mb;
       mb = gtk_message_dialog_new (GTK_IS_WINDOW (widget) ? GTK_WINDOW (widget)
                                                           : NULL,
                                    GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
-                                   GTK_BUTTONS_CLOSE, "%s", err->message);
+                                   GTK_BUTTONS_CLOSE, "%s", error->message);
       g_signal_connect (G_OBJECT (mb), "response",
                         G_CALLBACK (gtk_widget_destroy), mb);
       gtk_widget_show (mb);
 
-      printf ("duude gnome help err msg: %s\n", err->message);
+      printf ("duude gnome help err msg: %s\n", error->message);
+
+      g_error_free (error);
+      error = NULL;
     }
+
+  g_free (uri);
+  uri = NULL;
 }
 
 /* ==================== END OF FILE ================================ */

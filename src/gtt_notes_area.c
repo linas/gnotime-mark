@@ -68,6 +68,10 @@ struct NotesArea_s
   GttTask *task_freeze;
 };
 
+#ifdef GTT_TODO_COLUMN_MENU
+static GtkWidget *build_column_menu (void);
+#endif // GTT_TODO_COLUMN_MENU
+
 /* ============================================================== */
 
 #define TSK_SETUP                                                             \
@@ -618,5 +622,73 @@ notes_area_set_pane_sizes (NotesArea *na, int vp, int hp)
   gtk_paned_set_position (na->vpane, vp);
   gtk_paned_set_position (na->hpane, hp);
 }
+
+#ifdef GTT_TODO_COLUMN_MENU
+static GtkWidget *
+build_column_menu (void)
+{
+  GtkWidget *const column_menu = gtk_menu_new ();
+
+  GtkWidget *const sort_up = gtk_image_menu_item_new ();
+  gtk_menu_item_set_label (GTK_MENU_ITEM (sort_up), _ ("Sort"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (sort_up), TRUE);
+  gtk_widget_set_name (sort_up, "sort_up");
+  gtk_widget_set_tooltip_text (
+      sort_up, _ ("Sort the entries in this column in alphabetical order."));
+
+  GtkWidget *const sort_up_label = gtk_image_new_from_stock (
+      GTK_STOCK_SORT_ASCENDING, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (sort_up_label), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (sort_up_label), 0, 0);
+  gtk_widget_set_name (sort_up_label, "image7");
+  gtk_widget_show (sort_up_label);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (sort_up), sort_up_label);
+  gtk_widget_show (sort_up);
+
+  gtk_menu_append (GTK_MENU_SHELL (column_menu), sort_up);
+
+  GtkWidget *const move_left = gtk_image_menu_item_new ();
+  gtk_menu_item_set_label (GTK_MENU_ITEM (move_left), _ ("Move Left"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (move_left), TRUE);
+  gtk_widget_set_name (move_left, "move_left");
+  gtk_widget_set_tooltip_text (move_left, _ ("Move this column to the left."));
+
+  GtkWidget *const move_left_label
+      = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (move_left_label), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (move_left_label), 0, 0);
+  gtk_widget_set_name (move_left_label, "image8");
+  gtk_widget_show (move_left_label);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (move_left),
+                                 move_left_label);
+  gtk_widget_show (move_left);
+
+  gtk_menu_append (GTK_MENU_SHELL (column_menu), move_left);
+
+  GtkWidget *const move_right = gtk_image_menu_item_new ();
+  gtk_menu_item_set_label (GTK_MENU_ITEM (move_right), _ ("Move Right"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (move_right), TRUE);
+  gtk_widget_set_name (move_right, "move_right");
+  gtk_widget_set_tooltip_text (move_right,
+                               _ ("Move this column to the right."));
+
+  GtkWidget *const move_right_label
+      = gtk_image_new_from_stock (GTK_STOCK_MEDIA_FORWARD, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (move_right_label), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (move_right_label), 0, 0);
+  gtk_widget_set_name (move_right_label, "image9");
+  gtk_widget_show (move_right_label);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (move_right),
+                                 move_right_label);
+  gtk_widget_show (move_right);
+
+  gtk_menu_append (GTK_MENU_SHELL (column_menu), move_right);
+
+  return column_menu;
+}
+#endif // GTT_TODO_COLUMN_MENU
 
 /* ========================= END OF FILE ======================== */

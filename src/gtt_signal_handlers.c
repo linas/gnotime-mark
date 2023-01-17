@@ -18,12 +18,15 @@
  */
 
 #include <config.h>
-#include <gnome.h>
 
 #include "gtt.h"
 
 #include <X11/Xlib.h>
+
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #undef DIE_ON_NORMAL_ERROR
 

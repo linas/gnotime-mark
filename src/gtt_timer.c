@@ -21,7 +21,6 @@
 
 #include "gtt_timer.h"
 
-#include <gnome.h>
 #include <string.h>
 
 #include "gtt.h"

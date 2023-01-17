@@ -22,7 +22,6 @@
 
 #include "gtt_export.h"
 
-#include <gnome.h>
 #include <string.h>
 
 #include "gtt_application_window.h"

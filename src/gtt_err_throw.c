@@ -20,8 +20,7 @@
 
 #include "gtt_err_throw.h"
 
-#include <glib.h>
-#include <gnome.h> /* needed only to define the _() macro */
+#include <glib/gi18n.h>
 
 static GttErrCode err = GTT_NO_ERR;
 

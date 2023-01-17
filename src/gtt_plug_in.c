@@ -21,7 +21,6 @@
 
 #include "gtt_plug_in.h"
 
-#include <glade/glade.h>
 #include <glib.h>
 #include <gnome.h>
 
@@ -35,7 +34,6 @@
 
 struct NewPluginDialog_s
 {
-  GladeXML *gtxml;
   GtkDialog *dialog;
   GtkEntry *plugin_name;
   GtkFileChooser *plugin_path;
@@ -187,33 +185,115 @@ NewPluginDialog *
 new_plugin_dialog_new (void)
 {
   NewPluginDialog *dlg;
-  GladeXML *gtxml;
-  GtkWidget *e;
 
   dlg = g_malloc (sizeof (NewPluginDialog));
   dlg->app = GNOME_APP (app_window);
 
-  gtxml = gtt_glade_xml_new ("glade/plugin.glade", "Plugin New");
-  dlg->gtxml = gtxml;
+  GtkWidget *const plugin_new = gtk_dialog_new ();
+  dlg->dialog = GTK_DIALOG (plugin_new);
+  gtk_widget_set_name (plugin_new, "Plugin New");
+  gtk_window_set_type_hint (GTK_WINDOW (plugin_new),
+                            GDK_WINDOW_TYPE_HINT_NORMAL);
 
-  dlg->dialog = GTK_DIALOG (glade_xml_get_widget (gtxml, "Plugin New"));
+  GtkWidget *const content_area
+      = gtk_dialog_get_content_area (GTK_DIALOG (plugin_new));
+  gtk_box_set_spacing (GTK_BOX (content_area), 8);
 
-  glade_xml_signal_connect_data (gtxml, "on_ok_button_clicked",
-                                 GTK_SIGNAL_FUNC (new_plugin_create_cb), dlg);
+  GtkWidget *const table1 = gtk_table_new (3, 2, FALSE);
+  gtk_widget_set_name (table1, "table1");
 
-  glade_xml_signal_connect_data (gtxml, "on_cancel_button_clicked",
-                                 GTK_SIGNAL_FUNC (new_plugin_cancel_cb), dlg);
+  GtkWidget *const label1 = gtk_label_new (_ ("Name:"));
+  gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label1), 0, 0.5);
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
 
-  /* ------------------------------------------------------ */
-  /* grab the various entry boxes and hook them up */
-  e = glade_xml_get_widget (gtxml, "plugin name");
-  dlg->plugin_name = GTK_ENTRY (e);
+  gtk_table_attach (GTK_TABLE (table1), label1, 0, 1, 0, 1, GTK_FILL, 0, 0, 0);
 
-  e = glade_xml_get_widget (gtxml, "plugin path");
-  dlg->plugin_path = GTK_FILE_CHOOSER (e);
+  GtkWidget *const plugin_name = gtk_entry_new ();
+  dlg->plugin_name = GTK_ENTRY (plugin_name);
+  gtk_entry_set_invisible_char (GTK_ENTRY (plugin_name), '*');
+  gtk_widget_set_can_focus (plugin_name, TRUE);
+  gtk_widget_set_name (plugin_name, "plugin name");
+  gtk_widget_set_tooltip_text (
+      plugin_name, _ ("Title that will appear in the 'Reports' menu."));
+  gtk_widget_show (plugin_name);
 
-  e = glade_xml_get_widget (gtxml, "plugin tooltip");
-  dlg->plugin_tooltip = GTK_ENTRY (e);
+  gtk_table_attach (GTK_TABLE (table1), plugin_name, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label2 = gtk_label_new (_ ("Path:"));
+  gtk_label_set_justify (GTK_LABEL (label2), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label2), 0, 0.5);
+  gtk_widget_set_name (label2, "label2");
+  gtk_widget_show (label2);
+
+  gtk_table_attach (GTK_TABLE (table1), label2, 0, 1, 1, 2, GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const plugin_path = gtk_file_chooser_button_new (
+      _ ("Select a File"), GTK_FILE_CHOOSER_ACTION_OPEN);
+  dlg->plugin_path = GTK_FILE_CHOOSER (plugin_path);
+  gtk_widget_set_events (plugin_path, GDK_BUTTON_PRESS_MASK
+                                          | GDK_BUTTON_RELEASE_MASK
+                                          | GDK_POINTER_MOTION_HINT_MASK
+                                          | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (plugin_path, "plugin path");
+  gtk_widget_show (plugin_path);
+
+  gtk_table_attach (GTK_TABLE (table1), plugin_path, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
+
+  GtkWidget *const label3 = gtk_label_new (_ ("Tooltip:"));
+  gtk_label_set_justify (GTK_LABEL (label3), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label3), 0, 0.5);
+  gtk_widget_set_name (label3, "label3");
+  gtk_widget_show (label3);
+
+  gtk_table_attach (GTK_TABLE (table1), label3, 0, 1, 2, 3, GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const plugin_tooltip = gtk_entry_new ();
+  dlg->plugin_tooltip = GTK_ENTRY (plugin_tooltip);
+  gtk_entry_set_invisible_char (GTK_ENTRY (plugin_tooltip), '*');
+  gtk_widget_set_can_focus (plugin_tooltip, TRUE);
+  gtk_widget_set_name (plugin_tooltip, "plugin tooltip");
+  gtk_widget_set_tooltip_text (plugin_tooltip,
+                               _ ("Tooltip that will show when the pointer "
+                                  "hovers over this menu item."));
+  gtk_widget_show (plugin_tooltip);
+
+  gtk_table_attach (GTK_TABLE (table1), plugin_tooltip, 1, 2, 2, 3,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  gtk_widget_show (table1);
+
+  gtk_box_pack_start (GTK_BOX (content_area), table1, TRUE, TRUE, 0);
+
+  GtkWidget *const action_area
+      = gtk_dialog_get_action_area (GTK_DIALOG (plugin_new));
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (action_area), GTK_BUTTONBOX_END);
+
+  GtkWidget *const ok_button = gtk_button_new_from_stock (GTK_STOCK_OK);
+  gtk_widget_set_can_default (ok_button, TRUE);
+  gtk_widget_set_can_focus (ok_button, TRUE);
+  gtk_widget_set_name (ok_button, "ok_button");
+  g_signal_connect (G_OBJECT (ok_button), "clicked",
+                    G_CALLBACK (new_plugin_create_cb), dlg);
+  gtk_widget_show (ok_button);
+
+  gtk_box_pack_start (GTK_BOX (action_area), ok_button, TRUE, TRUE, 0);
+
+  GtkWidget *const cancel_button
+      = gtk_button_new_from_stock (GTK_STOCK_CANCEL);
+  gtk_widget_set_can_default (cancel_button, TRUE);
+  gtk_widget_set_can_focus (cancel_button, TRUE);
+  gtk_widget_set_name (cancel_button, "cancel_button");
+  g_signal_connect (G_OBJECT (cancel_button), "clicked",
+                    G_CALLBACK (new_plugin_cancel_cb), dlg);
+  gtk_widget_show (cancel_button);
+
+  gtk_box_pack_start (GTK_BOX (action_area), cancel_button, TRUE, TRUE, 0);
+
+  gtk_widget_show (plugin_new);
 
   gtk_widget_hide_on_delete (GTK_WIDGET (dlg->dialog));
 

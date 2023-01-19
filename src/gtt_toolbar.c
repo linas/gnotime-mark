@@ -21,7 +21,6 @@
 
 #include "gtt_toolbar.h"
 
-#include <gnome.h>
 #include <string.h>
 
 #include "gtt.h"
@@ -100,10 +99,11 @@ toolbar_set_states (void)
 
   if (mytbar->timer_button_image)
     {
-      gtk_image_set_from_stock (
-          mytbar->timer_button_image,
-          ((timer_is_running ()) ? GNOME_STOCK_TIMER_STOP : GNOME_STOCK_TIMER),
-          GTK_ICON_SIZE_LARGE_TOOLBAR);
+      gtk_image_set_from_stock (mytbar->timer_button_image,
+                                ((timer_is_running ())
+                                     ? GTK_STOCK_MEDIA_STOP
+                                     : GTK_STOCK_MEDIA_RECORD),
+                                GTK_ICON_SIZE_LARGE_TOOLBAR);
     }
 }
 
@@ -176,9 +176,10 @@ build_toolbar (void)
           /* There is no true 'stock' item for journal, so
            * instead we draw our own button, and use a stock
            * image. */
+          // TODO: Choose or create proper icon
           mytbar->journal_button = toolbar_append_stock_button (
               mytbar->tbar, _ ("Activity Journal"),
-              _ ("View and Edit Timestamp Logs"), GNOME_STOCK_BOOK_OPEN,
+              _ ("View and Edit Timestamp Logs"), GTK_STOCK_CANCEL,
               (GtkSignalFunc)show_report, ACTIVITY_REPORT);
           position++;
         }
@@ -197,7 +198,7 @@ build_toolbar (void)
            */
           mytbar->timer_button_image = GTK_IMAGE (gtk_image_new ());
           gtk_image_set_from_stock (mytbar->timer_button_image,
-                                    GNOME_STOCK_TIMER,
+                                    GTK_STOCK_MEDIA_RECORD,
                                     GTK_ICON_SIZE_LARGE_TOOLBAR);
 
           mytbar->timer_button = gtk_toolbar_append_item (
@@ -208,10 +209,10 @@ build_toolbar (void)
         }
       if (config_show_tb_calendar)
         {
+          // TODO: Choose or create proper icon
           mytbar->calendar_w = toolbar_append_stock_button (
               mytbar->tbar, _ ("Calendar"), _ ("View Calendar"),
-              GNOME_STOCK_TEXT_BULLETED_LIST, (GtkSignalFunc)edit_calendar,
-              NULL);
+              GTK_STOCK_CANCEL, (GtkSignalFunc)edit_calendar, NULL);
           position++;
         }
       if (((config_show_tb_timer) || (config_show_tb_journal)

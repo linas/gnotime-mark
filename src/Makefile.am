@@ -13,6 +13,7 @@ gnotime_SOURCES =                \
 	gtt_application_window.c \
 	gtt_date_edit.c          \
 	gtt_dbus.c               \
+	gtt_dialog.c             \
 	gtt_entry.c              \
 	gtt_err_throw.c          \
 	gtt_export.c             \
@@ -56,6 +57,7 @@ noinst_HEADERS =                 \
 	gtt_current_project.h    \
 	gtt_date_edit.h          \
 	gtt_dbus.h               \
+	gtt_dialog.h             \
 	gtt_entry.h              \
 	gtt_err_throw.h          \
 	gtt_export.h             \

@@ -24,22 +24,15 @@
   @NOTATION@
 */
 
-#include <config.h>
+#include "config.h"
+
+#include "gtt_dialog.h"
+
+#include <gdk/gdkkeysyms-compat.h>
+
+#include <glib/gi18n.h>
 
 #ifndef GTT_DISABLE_DEPRECATED_SOURCE
-
-/* Must be before all other gnome includes!! */
-#include <glib/gi18n-lib.h>
-
-#include "gnome-dialog-util.h"
-#include "gnome-dialog.h"
-#include "gnome-marshal.h"
-#include "gnome-uidefs.h"
-#include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
-#include <libgnome/gnome-config.h>
-#include <libgnome/gnome-util.h>
-#include <string.h> /* for strcmp */
 
 enum
 {
@@ -47,6 +40,9 @@ enum
   CLOSE,
   LAST_SIGNAL
 };
+
+#define GTT_PAD 8
+#define GTT_PAD_SMALL 4
 
 static void gtt_dialog_class_init (GttDialogClass *klass);
 static void gtt_dialog_init (GttDialog *dialog);
@@ -61,35 +57,9 @@ static void gtt_dialog_finalize (GObject *object);
 static void gtt_dialog_show (GtkWidget *d);
 static void gtt_dialog_close_real (GttDialog *d);
 
-static GtkWindowClass *parent_class;
 static gint dialog_signals[LAST_SIGNAL] = { 0, 0 };
 
-GType
-gtt_dialog_get_type (void)
-{
-  static GType dialog_type = 0;
-
-  if (G_UNLIKELY (dialog_type == 0))
-    {
-      const GTypeInfo dialog_info = {
-        sizeof (GttDialogClass),
-        (GBaseInitFunc)NULL,
-        (GBaseFinalizeFunc)NULL,
-        (GClassInitFunc)gtt_dialog_class_init,
-        (GClassFinalizeFunc)NULL,
-        NULL, /* class_data */
-        sizeof (GttDialog),
-        0, /* n_preallocs */
-        (GInstanceInitFunc)gtt_dialog_init,
-        NULL /* value_table */
-      };
-
-      dialog_type = g_type_register_static (GTK_TYPE_WINDOW, "GttDialog",
-                                            &dialog_info, 0);
-    }
-
-  return dialog_type;
-}
+G_DEFINE_TYPE (GttDialog, gtt_dialog, GTK_TYPE_WINDOW)
 
 static void
 gtt_dialog_class_init (GttDialogClass *klass)
@@ -102,12 +72,10 @@ gtt_dialog_class_init (GttDialogClass *klass)
   gobject_class = (GObjectClass *)klass;
   widget_class = (GtkWidgetClass *)klass;
 
-  parent_class = g_type_class_peek_parent (klass);
-
   dialog_signals[CLOSE] = g_signal_new (
       "close", G_TYPE_FROM_CLASS (gobject_class), G_SIGNAL_RUN_LAST,
       G_STRUCT_OFFSET (GttDialogClass, close), NULL, NULL,
-      _gnome_marshal_BOOLEAN__VOID, G_TYPE_BOOLEAN, 0);
+      gtk_marshal_BOOLEAN__VOID, G_TYPE_BOOLEAN, 0);
 
   dialog_signals[CLICKED] = g_signal_new (
       "clicked", G_TYPE_FROM_CLASS (gobject_class), G_SIGNAL_RUN_LAST,
@@ -429,8 +397,10 @@ gtt_pixmap_button (GtkWidget *pixmap, const char *text)
   gtk_box_pack_start (GTK_BOX (w), hbox, TRUE, FALSE,
                       GTT_STOCK_BUTTON_PADDING);
 
-  use_icon = gnome_config_get_bool ("/Gnome/Icons/ButtonUseIcons=true");
-  use_label = gnome_config_get_bool ("/Gnome/Icons/ButtonUseLabels=true");
+  use_icon = TRUE;  // FIXME: gnome_config_get_bool
+                    // ("/Gnome/Icons/ButtonUseIcons=true");
+  use_label = TRUE; // FIXME: gnome_config_get_bool
+                    // ("/Gnome/Icons/ButtonUseLabels=true");
 
   if ((use_label) || (!use_icon) || (!pixmap))
     {
@@ -1036,8 +1006,9 @@ gtt_dialog_key_pressed (GtkWidget *d, GdkEventKey *e)
   /* Have to call parent's handler, or the widget wouldn't get any
      key press events. Note that this is NOT done if the dialog
      may have been destroyed. */
-  if (GTK_WIDGET_CLASS (parent_class)->key_press_event)
-    return (*(GTK_WIDGET_CLASS (parent_class)->key_press_event)) (d, e);
+  if (GTK_WIDGET_CLASS (gtt_dialog_parent_class)->key_press_event)
+    return (*(GTK_WIDGET_CLASS (gtt_dialog_parent_class)->key_press_event)) (
+        d, e);
   else
     return FALSE; /* Not handled. */
 }
@@ -1065,8 +1036,8 @@ gtt_dialog_destroy (GtkObject *object)
     g_list_free (dialog->buttons);
   dialog->buttons = NULL;
 
-  if (GTK_OBJECT_CLASS (parent_class)->destroy)
-    (*(GTK_OBJECT_CLASS (parent_class)->destroy)) (object);
+  if (GTK_OBJECT_CLASS (gtt_dialog_parent_class)->destroy)
+    (*(GTK_OBJECT_CLASS (gtt_dialog_parent_class)->destroy)) (object);
 }
 
 static void
@@ -1075,8 +1046,8 @@ gtt_dialog_finalize (GObject *object)
   g_return_if_fail (object != NULL);
   g_return_if_fail (GTT_IS_DIALOG (object));
 
-  if (G_OBJECT_CLASS (parent_class)->finalize)
-    (*(G_OBJECT_CLASS (parent_class)->finalize)) (object);
+  if (G_OBJECT_CLASS (gtt_dialog_parent_class)->finalize)
+    (*(G_OBJECT_CLASS (gtt_dialog_parent_class)->finalize)) (object);
 }
 
 static void
@@ -1128,8 +1099,8 @@ gtt_dialog_close (GttDialog *dialog)
 static void
 gtt_dialog_show (GtkWidget *d)
 {
-  if (GTK_WIDGET_CLASS (parent_class)->show)
-    (*(GTK_WIDGET_CLASS (parent_class)->show)) (d);
+  if (GTK_WIDGET_CLASS (gtt_dialog_parent_class)->show)
+    (*(GTK_WIDGET_CLASS (gtt_dialog_parent_class)->show)) (d);
 }
 
 #endif /* GTT_DISABLE_DEPRECATED_SOURCE */

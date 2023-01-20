@@ -30,18 +30,26 @@
 
 G_BEGIN_DECLS
 
-#define GNOME_TYPE_PROPERTY_BOX            (gnome_property_box_get_type ())
-#define GNOME_PROPERTY_BOX(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GNOME_TYPE_PROPERTY_BOX, GnomePropertyBox))
-#define GNOME_PROPERTY_BOX_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GNOME_TYPE_PROPERTY_BOX, GnomePropertyBoxClass))
-#define GNOME_IS_PROPERTY_BOX(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GNOME_TYPE_PROPERTY_BOX))
-#define GNOME_IS_PROPERTY_BOX_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), GNOME_TYPE_PROPERTY_BOX))
-#define GNOME_PROPERTY_BOX_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GNOME_TYPE_PROPERTY_BOX, GnomePropertyBoxClass))
+#define GNOME_TYPE_PROPERTY_BOX (gnome_property_box_get_type ())
+#define GNOME_PROPERTY_BOX(obj)                                               \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), GNOME_TYPE_PROPERTY_BOX,                \
+                               GnomePropertyBox))
+#define GNOME_PROPERTY_BOX_CLASS(klass)                                       \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), GNOME_TYPE_PROPERTY_BOX,                 \
+                            GnomePropertyBoxClass))
+#define GNOME_IS_PROPERTY_BOX(obj)                                            \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GNOME_TYPE_PROPERTY_BOX))
+#define GNOME_IS_PROPERTY_BOX_CLASS(klass)                                    \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), GNOME_TYPE_PROPERTY_BOX))
+#define GNOME_PROPERTY_BOX_GET_CLASS(obj)                                     \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), GNOME_TYPE_PROPERTY_BOX,                 \
+                              GnomePropertyBoxClass))
 
-/*the flag used on the notebook pages to see if a change happened on a certain page or not*/
-#define GNOME_PROPERTY_BOX_DIRTY	"gnome_property_box_dirty"
+/*the flag used on the notebook pages to see if a change happened on a certain
+ * page or not*/
+#define GNOME_PROPERTY_BOX_DIRTY "gnome_property_box_dirty"
 
-
-typedef struct _GnomePropertyBox      GnomePropertyBox;
+typedef struct _GnomePropertyBox GnomePropertyBox;
 typedef struct _GnomePropertyBoxClass GnomePropertyBoxClass;
 
 /**
@@ -52,46 +60,44 @@ typedef struct _GnomePropertyBoxClass GnomePropertyBoxClass;
  */
 struct _GnomePropertyBox
 {
-	/*< private >*/
-	GnomeDialog dialog;
+  /*< private >*/
+  GnomeDialog dialog;
 
-	GtkWidget *notebook;	    /* The notebook widget.  */
-	GtkWidget *ok_button;	    /* OK button.  */
-	GtkWidget *apply_button;    /* Apply button.  */
-	GtkWidget *cancel_button;   /* Cancel/Close button.  */
-	GtkWidget *help_button;	    /* Help button.  */
+  GtkWidget *notebook;      /* The notebook widget.  */
+  GtkWidget *ok_button;     /* OK button.  */
+  GtkWidget *apply_button;  /* Apply button.  */
+  GtkWidget *cancel_button; /* Cancel/Close button.  */
+  GtkWidget *help_button;   /* Help button.  */
 
-	gpointer reserved; /* Reserved for a future private pointer if necessary */
+  gpointer reserved; /* Reserved for a future private pointer if necessary */
 };
 
 struct _GnomePropertyBoxClass
 {
-	GnomeDialogClass parent_class;
+  GnomeDialogClass parent_class;
 
-	void (* apply) (GnomePropertyBox *propertybox, gint page_num);
-	void (* help)  (GnomePropertyBox *propertybox, gint page_num);
+  void (*apply) (GnomePropertyBox *propertybox, gint page_num);
+  void (*help) (GnomePropertyBox *propertybox, gint page_num);
 };
 
-GType      gnome_property_box_get_type    (void) G_GNUC_CONST;
-GtkWidget *gnome_property_box_new        (void);
+GType gnome_property_box_get_type (void) G_GNUC_CONST;
+GtkWidget *gnome_property_box_new (void);
 
 /*
  * Call this when the user changes something in the current page of
  * the notebook.
  */
-void      gnome_property_box_changed     (GnomePropertyBox *property_box);
+void gnome_property_box_changed (GnomePropertyBox *property_box);
 
-void      gnome_property_box_set_modified(GnomePropertyBox *property_box,
-					  gboolean state);
+void gnome_property_box_set_modified (GnomePropertyBox *property_box,
+                                      gboolean state);
 
-
-gint	  gnome_property_box_append_page (GnomePropertyBox *property_box,
-					  GtkWidget *child,
-					  GtkWidget *tab_label);
+gint gnome_property_box_append_page (GnomePropertyBox *property_box,
+                                     GtkWidget *child, GtkWidget *tab_label);
 
 /* Deprecated, use set_modified */
-void      gnome_property_box_set_state   (GnomePropertyBox *property_box,
-					  gboolean state);
+void gnome_property_box_set_state (GnomePropertyBox *property_box,
+                                   gboolean state);
 
 G_END_DECLS
 

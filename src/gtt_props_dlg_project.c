@@ -315,15 +315,14 @@ wrapper (void *gobj, void *data)
     WDGT;                                                                     \
   })
 
-#define MUGGED(NAME)                                                          \
+#define MUGGED(WDGT)                                                          \
   ({                                                                          \
-    GtkWidget *widget, *mw;                                                   \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    mw = gtk_option_menu_get_menu (GTK_OPTION_MENU (widget));                 \
+    GtkWidget *mw;                                                            \
+    mw = gtk_option_menu_get_menu (GTK_OPTION_MENU (WDGT));                   \
     gtk_signal_connect_object (GTK_OBJECT (mw), "selection_done",             \
                                GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
                                GTK_OBJECT (dlg->dlg));                        \
-    GTK_OPTION_MENU (widget);                                                 \
+    GTK_OPTION_MENU (WDGT);                                                   \
   })
 
 #define MENTRY(WIDGET, NAME, ORDER, VAL)                                      \
@@ -862,11 +861,262 @@ prop_dialog_new (void)
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
 
-  dlg->urgency = MUGGED ("urgency menu");
-  dlg->importance = MUGGED ("importance menu");
-  dlg->status = MUGGED ("status menu");
-
   GtkWidget *const sizing_table = glade_xml_get_widget (gtxml, "sizing table");
+
+  GtkWidget *const label38 = gtk_label_new (_ ("Urgency:"));
+  gtk_label_set_justify (GTK_LABEL (label38), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label38), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label38), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label38), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label38), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label38), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label38), 0, 0);
+  gtk_widget_set_name (label38, "label38");
+  gtk_widget_show (label38);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label38, 0, 1, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const urgency_menu = gtk_option_menu_new ();
+  dlg->urgency = MUGGED (urgency_menu);
+  gtk_widget_set_can_focus (urgency_menu, TRUE);
+  gtk_widget_set_name (urgency_menu, "urgency menu");
+  gtk_widget_set_tooltip_text (
+      urgency_menu, _ ("Does this item need immediate attention? Note that "
+                       "some urgent tasks might not be important.  For "
+                       "example, Bill may want you to answer his email today, "
+                       "but you may have better things to do today."));
+
+  GtkWidget *const convertwidget3 = gtk_menu_new ();
+  gtk_widget_set_name (convertwidget3, "convertwidget3");
+
+  GtkWidget *const convertwidget4
+      = gtk_menu_item_new_with_label (_ ("Not Set"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget4), TRUE);
+  gtk_widget_set_name (convertwidget4, "convertwidget4");
+  gtk_widget_show (convertwidget4);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget3), convertwidget4);
+
+  GtkWidget *const convertwidget5 = gtk_menu_item_new_with_label (_ ("Low"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget5), TRUE);
+  gtk_widget_set_name (convertwidget5, "convertwidget5");
+  gtk_widget_show (convertwidget5);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget3), convertwidget5);
+
+  GtkWidget *const convertwidget6
+      = gtk_menu_item_new_with_label (_ ("Medium"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget6), TRUE);
+  gtk_widget_set_name (convertwidget6, "convertwidget6");
+  gtk_widget_show (convertwidget6);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget3), convertwidget6);
+
+  GtkWidget *const convertwidget7 = gtk_menu_item_new_with_label (_ ("High"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget7), TRUE);
+  gtk_widget_set_name (convertwidget7, "convertwidget7");
+  gtk_widget_show (convertwidget7);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget3), convertwidget7);
+
+  gtk_widget_show (convertwidget3);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (urgency_menu), convertwidget3);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (urgency_menu), 0);
+  gtk_widget_show (urgency_menu);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), urgency_menu, 1, 2, 0, 1,
+                    GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label46 = gtk_label_new (_ ("            "));
+  gtk_label_set_justify (GTK_LABEL (label46), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label46), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label46), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label46), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label46), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label46), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label46), 0, 0);
+  gtk_widget_set_name (label46, "label46");
+  gtk_widget_show (label46);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label46, 2, 3, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const label47 = gtk_label_new (_ ("            "));
+  gtk_label_set_justify (GTK_LABEL (label47), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label47), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label47), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label47), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label47), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label47), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label47), 0, 0);
+  gtk_widget_set_name (label47, "label47");
+  gtk_widget_show (label47);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label47, 3, 4, 0, 1, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const label39 = gtk_label_new (_ ("Importance:"));
+  gtk_label_set_justify (GTK_LABEL (label39), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label39), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label39), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label39), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label39), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label39), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label39), 0, 0);
+  gtk_widget_set_name (label39, "label39");
+  gtk_widget_show (label39);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label39, 0, 1, 1, 2, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const importance_menu = gtk_option_menu_new ();
+  dlg->importance = MUGGED (importance_menu);
+  gtk_widget_set_can_focus (importance_menu, TRUE);
+  gtk_widget_set_name (importance_menu, "importance menu");
+  gtk_widget_set_tooltip_text (
+      importance_menu,
+      _ ("How important is it to perform this task?  Not everything important "
+         "is urgent.  For example, it is important to file a tax return every "
+         "year, but you have a lot of time to get ready to do this."));
+
+  GtkWidget *const convertwidget8 = gtk_menu_new ();
+  gtk_widget_set_name (convertwidget8, "convertwidget8");
+
+  GtkWidget *const convertwidget9
+      = gtk_menu_item_new_with_label (_ ("Not Set"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget9), TRUE);
+  gtk_widget_set_name (convertwidget9, "convertwidget9");
+  gtk_widget_show (convertwidget9);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget8), convertwidget9);
+
+  GtkWidget *const convertwidget10 = gtk_menu_item_new_with_label (_ ("Low"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget10), TRUE);
+  gtk_widget_set_name (convertwidget10, "convertwidget10");
+  gtk_widget_show (convertwidget10);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget8), convertwidget10);
+
+  GtkWidget *const convertwidget11
+      = gtk_menu_item_new_with_label (_ ("Medium"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget11), TRUE);
+  gtk_widget_set_name (convertwidget11, "convertwidget11");
+  gtk_widget_show (convertwidget11);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget8), convertwidget11);
+
+  GtkWidget *const convertwidget12 = gtk_menu_item_new_with_label (_ ("High"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget12), TRUE);
+  gtk_widget_set_name (convertwidget12, "convertwidget12");
+  gtk_widget_show (convertwidget12);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget8), convertwidget12);
+
+  gtk_widget_show (convertwidget8);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (importance_menu), convertwidget8);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (importance_menu), 0);
+  gtk_widget_show (importance_menu);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), importance_menu, 1, 2, 1, 2,
+                    GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label40 = gtk_label_new (_ ("Status:"));
+  gtk_label_set_justify (GTK_LABEL (label40), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label40), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label40), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label40), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label40), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label40), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label40), 0, 0);
+  gtk_widget_set_name (label40, "label40");
+  gtk_widget_show (label40);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label40, 0, 1, 2, 3, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const status_menu = gtk_option_menu_new ();
+  dlg->status = MUGGED (status_menu);
+  gtk_widget_set_can_focus (status_menu, TRUE);
+  gtk_widget_set_name (status_menu, "status menu");
+  gtk_widget_set_tooltip_text (status_menu,
+                               _ ("What is the status of this project?"));
+
+  GtkWidget *const convertwidget13 = gtk_menu_new ();
+  gtk_widget_set_name (convertwidget13, "convertwidget3");
+
+  GtkWidget *const convertwidget14
+      = gtk_menu_item_new_with_label (_ ("No Status"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget14), TRUE);
+  gtk_widget_set_name (convertwidget14, "convertwidget14");
+  gtk_widget_show (convertwidget14);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget13), convertwidget14);
+
+  GtkWidget *const convertwidget15
+      = gtk_menu_item_new_with_label (_ ("Not Started"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget15), TRUE);
+  gtk_widget_set_name (convertwidget15, "convertwidget15");
+  gtk_widget_show (convertwidget15);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget13), convertwidget15);
+
+  GtkWidget *const convertwidget16
+      = gtk_menu_item_new_with_label (_ ("In Progress"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget16), TRUE);
+  gtk_widget_set_name (convertwidget16, "convertwidget16");
+  gtk_widget_show (convertwidget16);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget13), convertwidget16);
+
+  GtkWidget *const convertwidget17
+      = gtk_menu_item_new_with_label (_ ("On Hold"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget17), TRUE);
+  gtk_widget_set_name (convertwidget17, "convertwidget17");
+  gtk_widget_show (convertwidget17);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget13), convertwidget17);
+
+  GtkWidget *const convertwidget18
+      = gtk_menu_item_new_with_label (_ ("Cancelled"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget18), TRUE);
+  gtk_widget_set_name (convertwidget18, "convertwidget18");
+  gtk_widget_show (convertwidget18);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget13), convertwidget18);
+
+  GtkWidget *const convertwidget19
+      = gtk_menu_item_new_with_label (_ ("Completed"));
+  gtk_menu_item_set_use_underline (GTK_MENU_ITEM (convertwidget19), TRUE);
+  gtk_widget_set_name (convertwidget19, "convertwidget19");
+  gtk_widget_show (convertwidget19);
+
+  gtk_menu_append (GTK_MENU_SHELL (convertwidget13), convertwidget19);
+
+  gtk_widget_show (convertwidget13);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (status_menu), convertwidget13);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (status_menu), 0);
+  gtk_widget_show (status_menu);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), status_menu, 1, 2, 2, 3,
+                    GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label41 = gtk_label_new (_ ("Planned Start:"));
+  gtk_label_set_justify (GTK_LABEL (label41), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label41), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label41), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label41), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label41), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label41), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label41), 0, 0);
+  gtk_widget_set_name (label41, "label41");
+  gtk_widget_show (label41);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label41, 0, 1, 3, 4, GTK_FILL, 0,
+                    0, 0);
 
   GtkWidget *const start_date = gtt_date_edit_new_flags (
       0, GTT_DATE_EDIT_24_HR | GTT_DATE_EDIT_SHOW_TIME);
@@ -878,6 +1128,20 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (sizing_table), start_date, 1, 4, 3, 4,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
+  GtkWidget *const label42 = gtk_label_new (_ ("Planned Finish:"));
+  gtk_label_set_justify (GTK_LABEL (label42), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label42), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label42), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label42), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label42), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label42), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label42), 0, 0);
+  gtk_widget_set_name (label42, "label42");
+  gtk_widget_show (label42);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label42, 0, 1, 4, 5, GTK_FILL, 0,
+                    0, 0);
+
   GtkWidget *const end_date = gtt_date_edit_new_flags (
       0, GTT_DATE_EDIT_24_HR | GTT_DATE_EDIT_SHOW_TIME);
   dlg->end = DATED (end_date);
@@ -887,6 +1151,20 @@ prop_dialog_new (void)
 
   gtk_table_attach (GTK_TABLE (sizing_table), end_date, 1, 4, 4, 5,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label43 = gtk_label_new (_ ("Due Date:"));
+  gtk_label_set_justify (GTK_LABEL (label43), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label43), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label43), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label43), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label43), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label43), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label43), 0, 0);
+  gtk_widget_set_name (label43, "label43");
+  gtk_widget_show (label43);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label43, 0, 1, 5, 6, GTK_FILL, 0,
+                    0, 0);
 
   GtkWidget *const due_date = gtt_date_edit_new_flags (
       0, GTT_DATE_EDIT_24_HR | GTT_DATE_EDIT_SHOW_TIME);
@@ -898,10 +1176,63 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (sizing_table), due_date, 1, 4, 5, 6,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
-  dlg->sizing
-      = GTK_ENTRY (TAGGED (glade_xml_get_widget (gtxml, "sizing box")));
-  dlg->percent
-      = GTK_ENTRY (TAGGED (glade_xml_get_widget (gtxml, "percent box")));
+  GtkWidget *const label44 = gtk_label_new (_ ("Hours to Finish:"));
+  gtk_label_set_justify (GTK_LABEL (label44), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label44), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label44), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label44), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label44), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label44), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label44), 0, 0);
+  gtk_widget_set_name (label44, "label44");
+  gtk_widget_show (label44);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label44, 0, 1, 6, 7, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const sizing_box = gtk_entry_new ();
+  dlg->sizing = GTK_ENTRY (TAGGED (sizing_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (sizing_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (sizing_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (sizing_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (sizing_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (sizing_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (sizing_box), TRUE);
+  gtk_widget_set_can_focus (sizing_box, TRUE);
+  gtk_widget_set_name (sizing_box, "sizing box");
+  gtk_widget_show (sizing_box);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), sizing_box, 1, 2, 6, 7,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label45 = gtk_label_new (_ ("% Complete"));
+  gtk_label_set_justify (GTK_LABEL (label45), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label45), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label45), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label45), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label45), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label45), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label45), 0, 0);
+  gtk_widget_set_name (label45, "label45");
+  gtk_widget_show (label45);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), label45, 0, 1, 7, 8, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const percent_box = gtk_entry_new ();
+  dlg->percent = GTK_ENTRY (TAGGED (percent_box));
+  gtk_entry_set_activates_default (GTK_ENTRY (percent_box), FALSE);
+  gtk_entry_set_editable (GTK_ENTRY (percent_box), TRUE);
+  gtk_entry_set_has_frame (GTK_ENTRY (percent_box), TRUE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (percent_box), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (percent_box), 0);
+  gtk_entry_set_visibility (GTK_ENTRY (percent_box), TRUE);
+  gtk_widget_set_can_focus (percent_box, TRUE);
+  gtk_widget_set_name (percent_box, "percent box");
+  gtk_widget_show (percent_box);
+
+  gtk_table_attach (GTK_TABLE (sizing_table), percent_box, 1, 2, 7, 8,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
   /* ------------------------------------------------------ */
   /* initialize menu values */

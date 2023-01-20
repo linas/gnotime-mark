@@ -10,7 +10,6 @@ gttglade_DATA =              \
   notes.glade                \
   plugin_editor.glade        \
   prefs.glade                \
-  project_properties.glade   \
   task_popup.glade           \
   task_properties.glade
 

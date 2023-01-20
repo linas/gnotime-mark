@@ -21,20 +21,21 @@
 
 #include "gtt_props_dlg_project.h"
 
-#include <glade/glade.h>
-#include <gnome.h>
+#include <glib/gi18n.h>
+
+#include <stdlib.h>
 #include <string.h>
 
 #include "gtt_date_edit.h"
 #include "gtt_entry.h"
 #include "gtt_help_popup.h"
 #include "gtt_project.h"
+#include "gtt_property_box.h"
 #include "gtt_util.h"
 
 typedef struct _PropDlg
 {
-  GladeXML *gtxml;
-  GnomePropertyBox *dlg;
+  GttPropertyBox *dlg;
   GtkEntry *title;
   GtkEntry *desc;
   GtkTextView *notes;
@@ -73,7 +74,7 @@ typedef struct _PropDlg
   })
 
 static void
-prop_set (GnomePropertyBox *pb, gint page, PropDlg *dlg)
+prop_set (GttPropertyBox *pb, gint page, PropDlg *dlg)
 {
   long ivl;
   const gchar *cstr;
@@ -277,7 +278,7 @@ do_set_project (GttProject *proj, PropDlg *dlg)
   gtk_entry_set_text (dlg->percent, buff);
 
   /* set to unmodified as it reflects the current state of the project */
-  gnome_property_box_set_modified (GNOME_PROPERTY_BOX (dlg->dlg), FALSE);
+  gtt_property_box_set_modified (GTT_PROPERTY_BOX (dlg->dlg), FALSE);
 }
 
 /* ============================================================== */
@@ -285,7 +286,7 @@ do_set_project (GttProject *proj, PropDlg *dlg)
 #define TAGGED(WDGT)                                                          \
   ({                                                                          \
     gtk_signal_connect_object (GTK_OBJECT (WDGT), "changed",                  \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
+                               GTK_SIGNAL_FUNC (gtt_property_box_changed),    \
                                GTK_OBJECT (dlg->dlg));                        \
     WDGT;                                                                     \
   })
@@ -293,10 +294,10 @@ do_set_project (GttProject *proj, PropDlg *dlg)
 #define DATED(WDGT)                                                           \
   ({                                                                          \
     gtk_signal_connect_object (GTK_OBJECT (WDGT), "date_changed",             \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
+                               GTK_SIGNAL_FUNC (gtt_property_box_changed),    \
                                GTK_OBJECT (dlg->dlg));                        \
     gtk_signal_connect_object (GTK_OBJECT (WDGT), "time_changed",             \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
+                               GTK_SIGNAL_FUNC (gtt_property_box_changed),    \
                                GTK_OBJECT (dlg->dlg));                        \
     GTT_DATE_EDIT (WDGT);                                                     \
   })
@@ -304,7 +305,7 @@ do_set_project (GttProject *proj, PropDlg *dlg)
 static void
 wrapper (void *gobj, void *data)
 {
-  gnome_property_box_changed (GNOME_PROPERTY_BOX (data));
+  gtt_property_box_changed (GTT_PROPERTY_BOX (data));
 }
 
 #define TEXTED(WDGT)                                                          \
@@ -320,7 +321,7 @@ wrapper (void *gobj, void *data)
     GtkWidget *mw;                                                            \
     mw = gtk_option_menu_get_menu (GTK_OPTION_MENU (WDGT));                   \
     gtk_signal_connect_object (GTK_OBJECT (mw), "selection_done",             \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
+                               GTK_SIGNAL_FUNC (gtt_property_box_changed),    \
                                GTK_OBJECT (dlg->dlg));                        \
     GTK_OPTION_MENU (WDGT);                                                   \
   })
@@ -337,7 +338,7 @@ wrapper (void *gobj, void *data)
 /* ================================================================= */
 
 static void
-help_cb (GnomePropertyBox *propertybox, gint page_num, gpointer data)
+help_cb (GttPropertyBox *propertybox, gint page_num, gpointer data)
 {
   gtt_help_popup (GTK_WIDGET (propertybox), data);
 }
@@ -346,18 +347,21 @@ static PropDlg *
 prop_dialog_new (void)
 {
   PropDlg *dlg;
-  GladeXML *gtxml;
 
   dlg = g_new0 (PropDlg, 1);
 
-  gtxml = gtt_glade_xml_new ("glade/project_properties.glade",
-                             "Project Properties");
-  dlg->gtxml = gtxml;
+  GtkWidget *const project_properties = gtt_property_box_new ();
+  dlg->dlg = GTT_PROPERTY_BOX (project_properties);
+  gtk_widget_set_name (project_properties, "Project Properties");
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (project_properties), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (project_properties), FALSE);
+  gtk_window_set_position (GTK_WINDOW (project_properties), GTK_WIN_POS_NONE);
+  gtk_window_set_resizable (GTK_WINDOW (project_properties), FALSE);
 
-  dlg->dlg = GNOME_PROPERTY_BOX (
-      glade_xml_get_widget (gtxml, "Project Properties"));
-
-  GtkWidget *title_table = glade_xml_get_widget (gtxml, "title table");
+  GtkWidget *const title_table = gtk_table_new (3, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (title_table), 3);
+  gtk_table_set_row_spacings (GTK_TABLE (title_table), 3);
+  gtk_widget_set_name (title_table, "title table");
 
   GtkWidget *const title_label = gtk_label_new (_ ("Project Title:"));
   gtk_label_set_justify (GTK_LABEL (title_label), GTK_JUSTIFY_RIGHT);
@@ -482,7 +486,26 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (title_table), scrolledwindow1, 1, 2, 2, 3,
                     GTK_FILL, 0, 0, 0);
 
-  GtkWidget *rate_table = glade_xml_get_widget (gtxml, "rate table");
+  gtk_widget_show (title_table);
+
+  GtkWidget *const lablelala = gtk_label_new (_ ("Project"));
+  gtk_label_set_justify (GTK_LABEL (lablelala), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (lablelala), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (lablelala), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (lablelala), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (lablelala), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (lablelala), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (lablelala), 0, 0);
+  gtk_widget_set_name (lablelala, "lablelala");
+  gtk_widget_show (lablelala);
+
+  gtt_property_box_append_page (GTT_PROPERTY_BOX (project_properties),
+                                title_table, lablelala);
+
+  GtkWidget *const rate_table = gtk_table_new (4, 3, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (rate_table), 3);
+  gtk_table_set_row_spacings (GTK_TABLE (rate_table), 3);
+  gtk_widget_set_name (rate_table, "rate table");
 
   GtkWidget *const label22 = gtk_label_new (_ ("Regular Rate:"));
   gtk_label_set_justify (GTK_LABEL (label22), GTK_JUSTIFY_RIGHT);
@@ -695,7 +718,26 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (rate_table), label29, 2, 3, 3, 4, GTK_FILL, 0,
                     0, 0);
 
-  GtkWidget *interval_table = glade_xml_get_widget (gtxml, "interval table");
+  gtk_widget_show (rate_table);
+
+  GtkWidget *const label16 = gtk_label_new (_ ("Rates"));
+  gtk_label_set_justify (GTK_LABEL (label16), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label16), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label16), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label16), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label16), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label16), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label16), 0, 0);
+  gtk_widget_set_name (label16, "label16");
+  gtk_widget_show (label16);
+
+  gtt_property_box_append_page (GTT_PROPERTY_BOX (project_properties),
+                                rate_table, label16);
+
+  GtkWidget *const interval_table = gtk_table_new (3, 3, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (interval_table), 3);
+  gtk_table_set_row_spacings (GTK_TABLE (interval_table), 3);
+  gtk_widget_set_name (interval_table, "interval table");
 
   GtkWidget *const label31 = gtk_label_new (_ ("Minimum Interval: "));
   gtk_label_set_justify (GTK_LABEL (label31), GTK_JUSTIFY_CENTER);
@@ -852,6 +894,22 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (interval_table), label36, 2, 3, 2, 3, GTK_FILL,
                     0, 0, 0);
 
+  gtk_widget_show (interval_table);
+
+  GtkWidget *const label17 = gtk_label_new (_ ("Intervals"));
+  gtk_label_set_justify (GTK_LABEL (label17), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label17), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label17), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label17), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label17), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label17), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label17), 0, 0);
+  gtk_widget_set_name (label17, "label17");
+  gtk_widget_show (label17);
+
+  gtt_property_box_append_page (GTT_PROPERTY_BOX (project_properties),
+                                interval_table, label17);
+
   gtk_signal_connect (GTK_OBJECT (dlg->dlg), "help", GTK_SIGNAL_FUNC (help_cb),
                       "projects-editing");
 
@@ -861,7 +919,11 @@ prop_dialog_new (void)
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
 
-  GtkWidget *const sizing_table = glade_xml_get_widget (gtxml, "sizing table");
+  GtkWidget *const sizing_table = gtk_table_new (8, 4, FALSE);
+  gtk_container_set_border_width (GTK_CONTAINER (sizing_table), 5);
+  gtk_table_set_col_spacings (GTK_TABLE (sizing_table), 7);
+  gtk_table_set_row_spacings (GTK_TABLE (sizing_table), 5);
+  gtk_widget_set_name (sizing_table, "sizing table");
 
   GtkWidget *const label38 = gtk_label_new (_ ("Urgency:"));
   gtk_label_set_justify (GTK_LABEL (label38), GTK_JUSTIFY_CENTER);
@@ -1234,6 +1296,22 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (sizing_table), percent_box, 1, 2, 7, 8,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
+  gtk_widget_show (sizing_table);
+
+  GtkWidget *const label37 = gtk_label_new (_ ("Planning"));
+  gtk_label_set_justify (GTK_LABEL (label37), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label37), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label37), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label37), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label37), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label37), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label37), 0, 0);
+  gtk_widget_set_name (label37, "label37");
+  gtk_widget_show (label37);
+
+  gtt_property_box_append_page (GTT_PROPERTY_BOX (project_properties),
+                                sizing_table, label37);
+
   /* ------------------------------------------------------ */
   /* initialize menu values */
 
@@ -1254,7 +1332,8 @@ prop_dialog_new (void)
   MENTRY (dlg->status, "status", 4, GTT_CANCELLED);
   MENTRY (dlg->status, "status", 5, GTT_COMPLETED);
 
-  gnome_dialog_close_hides (GNOME_DIALOG (dlg->dlg), TRUE);
+  gtt_dialog_close_hides (GTT_DIALOG (dlg->dlg), TRUE);
+  gtk_widget_show (project_properties);
 
   return dlg;
 }

@@ -307,15 +307,12 @@ wrapper (void *gobj, void *data)
   gnome_property_box_changed (GNOME_PROPERTY_BOX (data));
 }
 
-#define TEXTED(NAME)                                                          \
+#define TEXTED(WDGT)                                                          \
   ({                                                                          \
-    GtkWidget *widget;                                                        \
-    GtkTextBuffer *buff;                                                      \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    buff = gtk_text_view_get_buffer (GTK_TEXT_VIEW (widget));                 \
+    GtkTextBuffer *buff = gtk_text_view_get_buffer (GTK_TEXT_VIEW (WDGT));    \
     g_signal_connect_object (G_OBJECT (buff), "changed",                      \
                              G_CALLBACK (wrapper), G_OBJECT (dlg->dlg), 0);   \
-    widget;                                                                   \
+    WDGT;                                                                     \
   })
 
 #define MUGGED(NAME)                                                          \
@@ -363,6 +360,20 @@ prop_dialog_new (void)
 
   GtkWidget *title_table = glade_xml_get_widget (gtxml, "title table");
 
+  GtkWidget *const title_label = gtk_label_new (_ ("Project Title:"));
+  gtk_label_set_justify (GTK_LABEL (title_label), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (title_label), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (title_label), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (title_label), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (title_label), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (title_label), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (title_label), 0, 0);
+  gtk_widget_set_name (title_label, "label18");
+  gtk_widget_show (title_label);
+
+  gtk_table_attach (GTK_TABLE (title_table), title_label, 0, 1, 0, 1, GTK_FILL,
+                    0, 0, 0);
+
   GtkWidget *const entry7 = gtt_entry_new ("project-title");
   gtt_entry_set_max_saved (GTT_ENTRY (entry7), 10);
   gtk_widget_set_name (entry7, "entry7");
@@ -385,6 +396,20 @@ prop_dialog_new (void)
 
   gtk_table_attach (GTK_TABLE (title_table), entry7, 1, 2, 0, 1,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const desc_label = gtk_label_new (_ ("Project Description:"));
+  gtk_label_set_justify (GTK_LABEL (desc_label), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (desc_label), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (desc_label), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (desc_label), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (desc_label), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (desc_label), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (desc_label), 0, 0);
+  gtk_widget_set_name (desc_label, "label19");
+  gtk_widget_show (desc_label);
+
+  gtk_table_attach (GTK_TABLE (title_table), desc_label, 0, 1, 1, 2, GTK_FILL,
+                    0, 0, 0);
 
   GtkWidget *const entry9 = gtt_entry_new ("project-description");
   gtt_entry_set_max_saved (GTT_ENTRY (entry9), 10);
@@ -409,6 +434,54 @@ prop_dialog_new (void)
 
   gtk_table_attach (GTK_TABLE (title_table), entry9, 1, 2, 1, 2,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const notes_label = gtk_label_new (_ ("Notes:"));
+  gtk_label_set_justify (GTK_LABEL (notes_label), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (notes_label), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (notes_label), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (notes_label), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (notes_label), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (notes_label), 0, 0);
+  gtk_misc_set_padding (GTK_MISC (notes_label), 0, 0);
+  gtk_widget_set_name (notes_label, "label20");
+  gtk_widget_show (notes_label);
+
+  gtk_table_attach (GTK_TABLE (title_table), notes_label, 0, 1, 2, 3, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_placement (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                     GTK_CORNER_TOP_LEFT);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                       GTK_SHADOW_IN);
+  gtk_widget_set_name (scrolledwindow1, "scrolledwindow1");
+
+  GtkWidget *const notes_box = gtk_text_view_new ();
+  dlg->notes = GTK_TEXT_VIEW (TEXTED (notes_box));
+  gtk_text_view_set_editable (GTK_TEXT_VIEW (notes_box), TRUE);
+  gtk_text_view_set_indent (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_justification (GTK_TEXT_VIEW (notes_box),
+                                   GTK_JUSTIFY_LEFT);
+  gtk_text_view_set_left_margin (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_inside_wrap (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_right_margin (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (notes_box), GTK_WRAP_WORD);
+  gtk_widget_set_can_focus (notes_box, TRUE);
+  gtk_widget_set_name (notes_box, "notes box");
+  gtk_widget_set_tooltip_text (notes_box,
+                               _ ("Internal notes about the project that will "
+                                  "not be printed on an invoice."));
+  gtk_widget_show (notes_box);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow1), notes_box);
+  gtk_widget_show (scrolledwindow1);
+
+  gtk_table_attach (GTK_TABLE (title_table), scrolledwindow1, 1, 2, 2, 3,
+                    GTK_FILL, 0, 0, 0);
 
   GtkWidget *rate_table = glade_xml_get_widget (gtxml, "rate table");
 
@@ -592,8 +665,6 @@ prop_dialog_new (void)
 
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
-
-  dlg->notes = GTK_TEXT_VIEW (TEXTED ("notes box"));
 
   dlg->urgency = MUGGED ("urgency menu");
   dlg->importance = MUGGED ("importance menu");

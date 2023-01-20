@@ -38,6 +38,7 @@ gnotime_SOURCES =                \
 	gtt_project.c            \
 	gtt_project_queries.c    \
 	gtt_projects_tree.c      \
+	gtt_property_box.c       \
 	gtt_props_dlg_interval.c \
 	gtt_props_dlg_project.c  \
 	gtt_props_dlg_task.c     \
@@ -83,6 +84,7 @@ noinst_HEADERS =                 \
 	gtt_project_p.h          \
 	gtt_project_queries.h    \
 	gtt_projects_tree.h      \
+	gtt_property_box.h       \
 	gtt_props_dlg_interval.h \
 	gtt_props_dlg_project.h  \
 	gtt_props_dlg_task.h     \

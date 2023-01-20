@@ -30,6 +30,7 @@ add_executable(${PROJECT_NAME}
     gtt_project.c
     gtt_project_queries.c
     gtt_projects_tree.c
+    gtt_property_box.c
     gtt_props_dlg_interval.c
     gtt_props_dlg_project.c
     gtt_props_dlg_task.c

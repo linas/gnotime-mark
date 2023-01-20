@@ -32,15 +32,7 @@
 
 #include "gtt_property_box.h"
 
-#include <libgnome/gnome-macros.h>
-
 #ifndef GNOME_DISABLE_DEPRECATED_SOURCE
-
-#include <glib/gi18n-lib.h>
-
-#include <gtk/gtk.h>
-
-#include <libgnome/gnome-util.h>
 
 enum
 {
@@ -62,16 +54,13 @@ static void dialog_clicked_cb (GttDialog *dialog, gint button, gpointer data);
 
 static gint property_box_signals[LAST_SIGNAL] = { 0 };
 
-GNOME_CLASS_BOILERPLATE (GttPropertyBox, gtt_property_box, GttDialog,
-                         GTT_TYPE_DIALOG)
+G_DEFINE_TYPE (GttPropertyBox, gtt_property_box, GTT_TYPE_DIALOG)
 static void
 gtt_property_box_class_init (GttPropertyBoxClass *klass)
 {
   GtkObjectClass *object_class;
 
   object_class = (GtkObjectClass *)klass;
-
-  parent_class = g_type_class_peek_parent (klass);
 
   property_box_signals[APPLY] = g_signal_new (
       "apply", G_TYPE_FROM_CLASS (object_class), G_SIGNAL_RUN_LAST,
@@ -87,7 +76,7 @@ gtt_property_box_class_init (GttPropertyBoxClass *klass)
 }
 
 static void
-gtt_property_box_instance_init (GttPropertyBox *property_box)
+gtt_property_box_init (GttPropertyBox *property_box)
 {
   GList *button_list;
 

@@ -586,6 +586,20 @@ prop_dialog_new (void)
 
   GtkWidget *interval_table = glade_xml_get_widget (gtxml, "interval table");
 
+  GtkWidget *const label31 = gtk_label_new (_ ("Minimum Interval: "));
+  gtk_label_set_justify (GTK_LABEL (label31), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label31), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label31), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label31), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label31), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label31), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label31), 0, 0);
+  gtk_widget_set_name (label31, "label31");
+  gtk_widget_show (label31);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label31, 0, 1, 0, 1, GTK_FILL,
+                    0, 0, 0);
+
   GtkWidget *const entry22 = gtt_entry_new ("min-interval");
   gtt_entry_set_max_saved (GTT_ENTRY (entry22), 10);
   gtk_widget_set_name (entry22, "entry22");
@@ -608,6 +622,34 @@ prop_dialog_new (void)
 
   gtk_table_attach (GTK_TABLE (interval_table), entry22, 1, 2, 0, 1,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label34 = gtk_label_new (_ ("seconds"));
+  gtk_label_set_justify (GTK_LABEL (label34), GTK_JUSTIFY_RIGHT);
+  gtk_label_set_line_wrap (GTK_LABEL (label34), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label34), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label34), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label34), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label34), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label34), 0, 0);
+  gtk_widget_set_name (label34, "label34");
+  gtk_widget_show (label34);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label34, 2, 3, 0, 1, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const label32 = gtk_label_new (_ ("Auto-merge Interval:"));
+  gtk_label_set_justify (GTK_LABEL (label32), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label32), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label32), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label32), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label32), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label32), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label32), 0, 0);
+  gtk_widget_set_name (label32, "label32");
+  gtk_widget_show (label32);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label32, 0, 1, 1, 2, GTK_FILL,
+                    0, 0, 0);
 
   GtkWidget *const entry23 = gtt_entry_new ("merge-interval");
   gtt_entry_set_max_saved (GTT_ENTRY (entry23), 10);
@@ -633,6 +675,34 @@ prop_dialog_new (void)
   gtk_table_attach (GTK_TABLE (interval_table), entry23, 1, 2, 1, 2,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
+  GtkWidget *const label35 = gtk_label_new (_ ("seconds"));
+  gtk_label_set_justify (GTK_LABEL (label35), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label35), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label35), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label35), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label35), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label35), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label35), 0, 0);
+  gtk_widget_set_name (label35, "label35");
+  gtk_widget_show (label35);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label35, 2, 3, 1, 2, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const label33 = gtk_label_new (_ ("Auto-merge Gap:"));
+  gtk_label_set_justify (GTK_LABEL (label33), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label33), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label33), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label33), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label33), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label33), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label33), 0, 0);
+  gtk_widget_set_name (label33, "label33");
+  gtk_widget_show (label33);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label33, 0, 1, 2, 3, GTK_FILL,
+                    0, 0, 0);
+
   GtkWidget *const entry24 = gtt_entry_new ("merge-gap");
   gtt_entry_set_max_saved (GTT_ENTRY (entry24), 10);
   gtk_widget_set_name (entry24, "entry24");
@@ -656,6 +726,20 @@ prop_dialog_new (void)
 
   gtk_table_attach (GTK_TABLE (interval_table), entry24, 1, 2, 2, 3,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const label36 = gtk_label_new (_ ("seconds"));
+  gtk_label_set_justify (GTK_LABEL (label36), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label36), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label36), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label36), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label36), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label36), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label36), 0, 0);
+  gtk_widget_set_name (label36, "label36");
+  gtk_widget_show (label36);
+
+  gtk_table_attach (GTK_TABLE (interval_table), label36, 2, 3, 2, 3, GTK_FILL,
+                    0, 0, 0);
 
   gtk_signal_connect (GTK_OBJECT (dlg->dlg), "help", GTK_SIGNAL_FUNC (help_cb),
                       "projects-editing");

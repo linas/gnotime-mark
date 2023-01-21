@@ -328,41 +328,47 @@ toolbar_sensitive_cb (GtkWidget *w, PrefsDialog *odlg)
 
 /* ============================================================== */
 
-#define ENTRY_TO_CHAR(a, b)                                                   \
-  {                                                                           \
-    const char *s = gtk_entry_get_text (a);                                   \
-    if (s[0])                                                                 \
-      {                                                                       \
-        if (b)                                                                \
-          g_free (b);                                                         \
-        b = g_strdup (s);                                                     \
-      }                                                                       \
-    else                                                                      \
-      {                                                                       \
-        if (b)                                                                \
-          g_free (b);                                                         \
-        b = NULL;                                                             \
-      }                                                                       \
-  }
+void
+entry_to_char (GtkEntry *const entry, gchar **const str)
+{
+  const gchar *const txt = gtk_entry_get_text (entry);
 
-#define SHOW_CHECK(TOK)                                                       \
-  {                                                                           \
-    int state = GTK_TOGGLE_BUTTON (odlg->show_##TOK)->active;                 \
-    if (config_show_##TOK != state)                                           \
-      {                                                                       \
-        change = 1;                                                           \
-        config_show_##TOK = state;                                            \
-      }                                                                       \
-  }
+  if (NULL != *str)
+    {
+      g_free (*str);
+    }
 
-#define SET_VAL(to, from)                                                     \
-  {                                                                           \
-    if (to != from)                                                           \
-      {                                                                       \
-        change = 1;                                                           \
-        to = from;                                                            \
-      }                                                                       \
-  }
+  if (txt[0])
+    {
+      *str = g_strdup (txt);
+    }
+  else
+    {
+      *str = NULL;
+    }
+}
+
+void
+show_check (GtkCheckButton *const btn, int *const val, int *const changed)
+{
+  const gint state = GTK_TOGGLE_BUTTON (btn)->active;
+
+  if (*val != state)
+    {
+      *changed = 1;
+      *val = state;
+    }
+}
+
+void
+set_val (int *const to, const int from, int *const changed)
+{
+  if (from != *to)
+    {
+      *changed = 1;
+      *to = from;
+    }
+}
 
 static void
 prefs_set (GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
@@ -373,24 +379,33 @@ prefs_set (GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
     {
       int change = 0;
 
-      SHOW_CHECK (title_importance);
-      SHOW_CHECK (title_urgency);
-      SHOW_CHECK (title_status);
-      SHOW_CHECK (title_ever);
-      SHOW_CHECK (title_year);
-      SHOW_CHECK (title_month);
-      SHOW_CHECK (title_week);
-      SHOW_CHECK (title_lastweek);
-      SHOW_CHECK (title_day);
-      SHOW_CHECK (title_yesterday);
-      SHOW_CHECK (title_current);
-      SHOW_CHECK (title_desc);
-      SHOW_CHECK (title_task);
-      SHOW_CHECK (title_estimated_start);
-      SHOW_CHECK (title_estimated_end);
-      SHOW_CHECK (title_due_date);
-      SHOW_CHECK (title_sizing);
-      SHOW_CHECK (title_percent_complete);
+      show_check (odlg->show_title_importance, &config_show_title_importance,
+                  &change);
+      show_check (odlg->show_title_urgency, &config_show_title_urgency,
+                  &change);
+      show_check (odlg->show_title_status, &config_show_title_status, &change);
+      show_check (odlg->show_title_ever, &config_show_title_ever, &change);
+      show_check (odlg->show_title_year, &config_show_title_year, &change);
+      show_check (odlg->show_title_month, &config_show_title_month, &change);
+      show_check (odlg->show_title_week, &config_show_title_week, &change);
+      show_check (odlg->show_title_lastweek, &config_show_title_lastweek,
+                  &change);
+      show_check (odlg->show_title_day, &config_show_title_day, &change);
+      show_check (odlg->show_title_yesterday, &config_show_title_yesterday,
+                  &change);
+      show_check (odlg->show_title_current, &config_show_title_current,
+                  &change);
+      show_check (odlg->show_title_desc, &config_show_title_desc, &change);
+      show_check (odlg->show_title_task, &config_show_title_task, &change);
+      show_check (odlg->show_title_estimated_start,
+                  &config_show_title_estimated_start, &change);
+      show_check (odlg->show_title_estimated_end,
+                  &config_show_title_estimated_end, &change);
+      show_check (odlg->show_title_due_date, &config_show_title_due_date,
+                  &change);
+      show_check (odlg->show_title_sizing, &config_show_title_sizing, &change);
+      show_check (odlg->show_title_percent_complete,
+                  &config_show_title_percent_complete, &change);
 
       if (change)
         {
@@ -444,8 +459,8 @@ prefs_set (GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
   if (2 == page)
     {
       /* shell command options */
-      ENTRY_TO_CHAR (odlg->shell_start, config_shell_start);
-      ENTRY_TO_CHAR (odlg->shell_stop, config_shell_stop);
+      entry_to_char (odlg->shell_start, &config_shell_start);
+      entry_to_char (odlg->shell_stop, &config_shell_stop);
     }
 
   if (3 == page)
@@ -453,8 +468,8 @@ prefs_set (GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
       /* log file options */
       config_logfile_use = GTK_TOGGLE_BUTTON (odlg->logfileuse)->active;
       config_logfile_name = gtk_file_chooser_get_filename (odlg->logfilename);
-      ENTRY_TO_CHAR (odlg->logfilestart, config_logfile_start);
-      ENTRY_TO_CHAR (odlg->logfilestop, config_logfile_stop);
+      entry_to_char (odlg->logfilestart, &config_logfile_start);
+      entry_to_char (odlg->logfilestop, &config_logfile_stop);
       config_logfile_min_secs
           = atoi (gtk_entry_get_text (odlg->logfileminsecs));
     }
@@ -468,14 +483,14 @@ prefs_set (GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
       config_show_tb_tips = GTK_TOGGLE_BUTTON (odlg->show_tb_tips)->active;
 
       /* toolbar sections */
-      SHOW_CHECK (tb_new);
-      SHOW_CHECK (tb_ccp);
-      SHOW_CHECK (tb_journal);
-      SHOW_CHECK (tb_prop);
-      SHOW_CHECK (tb_timer);
-      SHOW_CHECK (tb_pref);
-      SHOW_CHECK (tb_help);
-      SHOW_CHECK (tb_exit);
+      show_check (odlg->show_tb_new, &config_show_tb_new, &change);
+      show_check (odlg->show_tb_ccp, &config_show_tb_ccp, &change);
+      show_check (odlg->show_tb_journal, &config_show_tb_journal, &change);
+      show_check (odlg->show_tb_prop, &config_show_tb_prop, &change);
+      show_check (odlg->show_tb_timer, &config_show_tb_timer, &change);
+      show_check (odlg->show_tb_pref, &config_show_tb_pref, &change);
+      show_check (odlg->show_tb_help, &config_show_tb_help, &change);
+      show_check (odlg->show_tb_exit, &config_show_tb_exit, &change);
 
       if (change)
         {
@@ -505,10 +520,10 @@ prefs_set (GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
       /* Hunt for the hour-of night on which to start */
       const char *buff = gtk_entry_get_text (odlg->daystart_secs);
       int off = scan_time_string (buff);
-      SET_VAL (config_daystart_offset, off);
+      set_val (&config_daystart_offset, off, &change);
 
       int day = gtk_combo_box_get_active (odlg->weekstart_menu);
-      SET_VAL (config_weekstart_offset, day);
+      set_val (&config_weekstart_offset, day, &change);
 
       if (change)
         {
@@ -536,7 +551,7 @@ prefs_set (GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
           config_time_format = TIME_FORMAT_LOCALE;
         }
 
-      ENTRY_TO_CHAR (odlg->currency_symbol, config_currency_symbol);
+      entry_to_char (odlg->currency_symbol, &config_currency_symbol);
       int state = GTK_TOGGLE_BUTTON (odlg->currency_use_locale)->active;
       if (config_currency_use_locale != state)
         {
@@ -576,38 +591,42 @@ currency_sensitive_cb (GtkWidget *w, PrefsDialog *odlg)
   gtk_widget_set_sensitive (GTK_WIDGET (odlg->currency_symbol_label), !state);
 }
 
-#define SET_ACTIVE(TOK)                                                       \
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (odlg->show_##TOK),         \
-                                config_show_##TOK);
+void
+set_active (GtkCheckButton *const btn, const int val)
+{
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (btn), val);
+}
 
 static void
 options_dialog_set (PrefsDialog *odlg)
 {
   char s[30];
 
-  SET_ACTIVE (secs);
-  SET_ACTIVE (statusbar);
-  SET_ACTIVE (clist_titles);
-  SET_ACTIVE (subprojects);
+  set_active (odlg->show_secs, config_show_secs);
+  set_active (odlg->show_statusbar, config_show_statusbar);
+  set_active (odlg->show_clist_titles, config_show_clist_titles);
+  set_active (odlg->show_subprojects, config_show_subprojects);
 
-  SET_ACTIVE (title_importance);
-  SET_ACTIVE (title_urgency);
-  SET_ACTIVE (title_status);
-  SET_ACTIVE (title_ever);
-  SET_ACTIVE (title_year);
-  SET_ACTIVE (title_month);
-  SET_ACTIVE (title_week);
-  SET_ACTIVE (title_lastweek);
-  SET_ACTIVE (title_day);
-  SET_ACTIVE (title_yesterday);
-  SET_ACTIVE (title_current);
-  SET_ACTIVE (title_desc);
-  SET_ACTIVE (title_task);
-  SET_ACTIVE (title_estimated_start);
-  SET_ACTIVE (title_estimated_end);
-  SET_ACTIVE (title_due_date);
-  SET_ACTIVE (title_sizing);
-  SET_ACTIVE (title_percent_complete);
+  set_active (odlg->show_title_importance, config_show_title_importance);
+  set_active (odlg->show_title_urgency, config_show_title_urgency);
+  set_active (odlg->show_title_status, config_show_title_status);
+  set_active (odlg->show_title_ever, config_show_title_ever);
+  set_active (odlg->show_title_year, config_show_title_year);
+  set_active (odlg->show_title_month, config_show_title_month);
+  set_active (odlg->show_title_week, config_show_title_week);
+  set_active (odlg->show_title_lastweek, config_show_title_lastweek);
+  set_active (odlg->show_title_day, config_show_title_day);
+  set_active (odlg->show_title_yesterday, config_show_title_yesterday);
+  set_active (odlg->show_title_current, config_show_title_current);
+  set_active (odlg->show_title_desc, config_show_title_desc);
+  set_active (odlg->show_title_task, config_show_title_task);
+  set_active (odlg->show_title_estimated_start,
+              config_show_title_estimated_start);
+  set_active (odlg->show_title_estimated_end, config_show_title_estimated_end);
+  set_active (odlg->show_title_due_date, config_show_title_due_date);
+  set_active (odlg->show_title_sizing, config_show_title_sizing);
+  set_active (odlg->show_title_percent_complete,
+              config_show_title_percent_complete);
 
   if (config_shell_start)
     gtk_entry_set_text (odlg->shell_start, config_shell_start);
@@ -642,16 +661,16 @@ options_dialog_set (PrefsDialog *odlg)
   logfile_sensitive_cb (NULL, odlg);
 
   /* toolbar sections */
-  SET_ACTIVE (toolbar);
-  SET_ACTIVE (tb_tips);
-  SET_ACTIVE (tb_new);
-  SET_ACTIVE (tb_ccp);
-  SET_ACTIVE (tb_journal);
-  SET_ACTIVE (tb_prop);
-  SET_ACTIVE (tb_timer);
-  SET_ACTIVE (tb_pref);
-  SET_ACTIVE (tb_help);
-  SET_ACTIVE (tb_exit);
+  set_active (odlg->show_toolbar, config_show_toolbar);
+  set_active (odlg->show_tb_tips, config_show_tb_tips);
+  set_active (odlg->show_tb_new, config_show_tb_new);
+  set_active (odlg->show_tb_ccp, config_show_tb_ccp);
+  set_active (odlg->show_tb_journal, config_show_tb_journal);
+  set_active (odlg->show_tb_prop, config_show_tb_prop);
+  set_active (odlg->show_tb_timer, config_show_tb_timer);
+  set_active (odlg->show_tb_pref, config_show_tb_pref);
+  set_active (odlg->show_tb_help, config_show_tb_help);
+  set_active (odlg->show_tb_exit, config_show_tb_exit);
 
   toolbar_sensitive_cb (NULL, odlg);
 

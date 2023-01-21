@@ -1164,40 +1164,126 @@ shell_command_options (PrefsDialog *dlg)
 static void
 logfile_options (PrefsDialog *dlg)
 {
-  GtkWidget *w;
   GladeXML *gtxml = dlg->gtxml;
 
-  w = GETCHWID ("use logfile");
-  dlg->logfileuse = GTK_CHECK_BUTTON (w);
-  gtk_signal_connect (GTK_OBJECT (w), "clicked",
+  GtkWidget *const table4 = glade_xml_get_widget (gtxml, "table4");
+
+  GtkWidget *const use_logfile
+      = gtk_check_button_new_with_label (_ ("Use Logfile"));
+  dlg->logfileuse = GTK_CHECK_BUTTON (getchwid (use_logfile, dlg));
+  gtk_button_set_use_underline (GTK_BUTTON (use_logfile), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (use_logfile), TRUE);
+  gtk_widget_set_can_focus (use_logfile, TRUE);
+  gtk_widget_set_name (use_logfile, "use logfile");
+  gtk_signal_connect (GTK_OBJECT (use_logfile), "clicked",
                       GTK_SIGNAL_FUNC (logfile_sensitive_cb), (gpointer *)dlg);
+  gtk_widget_show (use_logfile);
 
-  w = glade_xml_get_widget (gtxml, "filename label");
-  dlg->logfilename_l = w;
+  gtk_table_attach (GTK_TABLE (table4), use_logfile, 0, 1, 0, 1, GTK_FILL, 0,
+                    0, 0);
 
-  w = glade_xml_get_widget (gtxml, "logfile path");
-  dlg->logfilename = GTK_FILE_CHOOSER (w);
-  gtk_signal_connect_object (GTK_OBJECT (dlg->logfilename), "file-set",
+  GtkWidget *const filename_label = gtk_label_new (_ ("Filename:"));
+  dlg->logfilename_l = filename_label;
+  gtk_label_set_justify (GTK_LABEL (filename_label), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (filename_label), 0, 0.5);
+  gtk_widget_set_name (filename_label, "filename label");
+  gtk_widget_show (filename_label);
+
+  gtk_table_attach (GTK_TABLE (table4), filename_label, 0, 1, 1, 2, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const logfile_path = gtk_file_chooser_button_new (
+      _ ("Select a File"), GTK_FILE_CHOOSER_ACTION_OPEN);
+  dlg->logfilename = GTK_FILE_CHOOSER (logfile_path);
+  gtk_widget_set_events (logfile_path, GDK_BUTTON_PRESS_MASK
+                                           | GDK_BUTTON_RELEASE_MASK
+                                           | GDK_POINTER_MOTION_HINT_MASK
+                                           | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (logfile_path, "logfile path");
+  gtk_signal_connect_object (GTK_OBJECT (logfile_path), "file-set",
                              GTK_SIGNAL_FUNC (gnome_property_box_changed),
                              GTK_OBJECT (dlg->dlg));
+  gtk_widget_show (logfile_path);
 
-  w = glade_xml_get_widget (gtxml, "fstart label");
-  dlg->logfilestart_l = w;
+  gtk_table_attach (GTK_TABLE (table4), logfile_path, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
 
-  w = GETWID ("fstart");
-  dlg->logfilestart = GTK_ENTRY (w);
+  GtkWidget *const fstart_label = gtk_label_new (_ ("Entry Start:"));
+  dlg->logfilestart_l = fstart_label;
+  gtk_label_set_justify (GTK_LABEL (fstart_label), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (fstart_label), 0, 0.5);
+  gtk_widget_set_name (fstart_label, "fstart label");
+  gtk_widget_show (fstart_label);
 
-  w = glade_xml_get_widget (gtxml, "fstop label");
-  dlg->logfilestop_l = w;
+  gtk_table_attach (GTK_TABLE (table4), fstart_label, 0, 1, 2, 3, GTK_FILL, 0,
+                    0, 0);
 
-  w = GETWID ("fstop");
-  dlg->logfilestop = GTK_ENTRY (w);
+  GtkWidget *const fstart = gtk_entry_new ();
+  dlg->logfilestart = GTK_ENTRY (getwid (fstart, dlg));
+  gtk_widget_set_can_focus (fstart, TRUE);
+  gtk_widget_set_events (
+      fstart, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+                  | GDK_POINTER_MOTION_HINT_MASK | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (fstart, "fstart");
+  gtk_widget_set_tooltip_text (
+      fstart, _ ("Entry that will be logged when a project starts. Use %t for "
+                 "the project title, %d for the description, etc. See the "
+                 "manual for more options."));
+  gtk_widget_show (fstart);
 
-  w = glade_xml_get_widget (gtxml, "fmin label");
-  dlg->logfileminsecs_l = w;
+  gtk_table_attach (GTK_TABLE (table4), fstart, 1, 2, 2, 3,
+                    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
 
-  w = GETWID ("fmin");
-  dlg->logfileminsecs = GTK_ENTRY (w);
+  GtkWidget *const fstop_label = gtk_label_new (_ ("Entry Stop:"));
+  dlg->logfilestop_l = fstop_label;
+  gtk_label_set_justify (GTK_LABEL (fstop_label), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (fstop_label), 0, 0.5);
+  gtk_widget_set_name (fstop_label, "fstop label");
+  gtk_widget_show (fstop_label);
+
+  gtk_table_attach (GTK_TABLE (table4), fstop_label, 0, 1, 3, 4, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const fstop = gtk_entry_new ();
+  dlg->logfilestop = GTK_ENTRY (getwid (fstop, dlg));
+  gtk_widget_set_can_focus (fstop, TRUE);
+  gtk_widget_set_events (fstop, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+                                    | GDK_POINTER_MOTION_HINT_MASK
+                                    | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (fstop, "fstop");
+  gtk_widget_set_tooltip_text (
+      fstop, _ ("Entry that will be logged when the project stops.  Use %t "
+                "for the porject title, %d for the project description, etc. "
+                "See the manual for more options."));
+  gtk_widget_show (fstop);
+
+  gtk_table_attach (GTK_TABLE (table4), fstop, 1, 2, 3, 4,
+                    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+
+  GtkWidget *const fmin_label = gtk_label_new (_ ("Min Recorded:"));
+  dlg->logfileminsecs_l = fmin_label;
+  gtk_label_set_justify (GTK_LABEL (fmin_label), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (fmin_label), 0, 0.5);
+  gtk_widget_set_name (fmin_label, "fmin label");
+  gtk_widget_show (fmin_label);
+
+  gtk_table_attach (GTK_TABLE (table4), fmin_label, 0, 1, 4, 5, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const fmin = gtk_entry_new ();
+  dlg->logfileminsecs = GTK_ENTRY (getwid (fmin, dlg));
+  gtk_widget_set_can_focus (fmin, TRUE);
+  gtk_widget_set_events (fmin, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+                                   | GDK_POINTER_MOTION_HINT_MASK
+                                   | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (fmin, "fmin");
+  gtk_widget_set_tooltip_text (
+      fmin, _ ("Switches between projects that happen faster than this will "
+               "not be logged (enter the number of seconds)"));
+  gtk_widget_show (fmin);
+
+  gtk_table_attach (GTK_TABLE (table4), fmin, 1, 2, 4, 5,
+                    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
 }
 
 #define TBWID(strname)                                                        \

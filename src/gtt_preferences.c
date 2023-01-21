@@ -863,14 +863,63 @@ field_options (PrefsDialog *dlg)
 static void
 shell_command_options (PrefsDialog *dlg)
 {
-  GtkWidget *e;
   GladeXML *gtxml = dlg->gtxml;
 
-  e = GETWID ("start project");
-  dlg->shell_start = GTK_ENTRY (e);
+  GtkWidget *const table2 = glade_xml_get_widget (gtxml, "table2");
 
-  e = GETWID ("stop project");
-  dlg->shell_stop = GTK_ENTRY (e);
+  GtkWidget *const label6 = gtk_label_new (_ ("Start Project Command:"));
+  gtk_label_set_justify (GTK_LABEL (label6), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label6), 0, 0.5);
+  gtk_widget_set_name (label6, "label6");
+  gtk_widget_show (label6);
+
+  gtk_table_attach (GTK_TABLE (table2), label6, 0, 1, 0, 1, GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const start_project = gtk_entry_new ();
+  dlg->shell_start = GTK_ENTRY (getwid (start_project, dlg));
+  gtk_entry_set_text (GTK_ENTRY (start_project),
+                      _ ("echo shell start id=%D \"%t\" xx\"%d\" %T  "
+                         "%Hxx%Mxx%S hours=%h min=%m secs=%s"));
+  gtk_widget_set_can_focus (start_project, TRUE);
+  gtk_widget_set_events (start_project, GDK_BUTTON_PRESS_MASK
+                                            | GDK_BUTTON_RELEASE_MASK
+                                            | GDK_POINTER_MOTION_HINT_MASK
+                                            | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (start_project, "start project");
+  gtk_widget_set_tooltip_text (start_project,
+                               _ ("Enter a shell command to be executed "
+                                  "whenever projects are switched."));
+  gtk_widget_show (start_project);
+
+  gtk_table_attach (GTK_TABLE (table2), start_project, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+
+  GtkWidget *const label7 = gtk_label_new (_ ("Stop Project Command:"));
+  gtk_label_set_justify (GTK_LABEL (label7), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label7), 0, 0.5);
+  gtk_widget_set_name (label7, "label7");
+  gtk_widget_show (label7);
+
+  gtk_table_attach (GTK_TABLE (table2), label7, 0, 1, 1, 2, GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const stop_project = gtk_entry_new ();
+  dlg->shell_stop = GTK_ENTRY (getwid (stop_project, dlg));
+  gtk_entry_set_text (GTK_ENTRY (stop_project),
+                      _ ("echo shell stop id=%D \"%t\" xx\"%d\" %T  "
+                         "%Hxx%Mxx%S hours=%h min=%m secs=%s"));
+  gtk_widget_set_can_focus (stop_project, TRUE);
+  gtk_widget_set_events (stop_project, GDK_BUTTON_PRESS_MASK
+                                           | GDK_BUTTON_RELEASE_MASK
+                                           | GDK_POINTER_MOTION_HINT_MASK
+                                           | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (stop_project, "stop project");
+  gtk_widget_set_tooltip_text (
+      stop_project,
+      _ ("Enter a shell command to be executed when no projects are active."));
+  gtk_widget_show (stop_project);
+
+  gtk_table_attach (GTK_TABLE (table2), stop_project, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
 }
 
 static void

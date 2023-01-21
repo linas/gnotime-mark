@@ -781,6 +781,16 @@ daystart_menu_changed (gpointer data, GtkComboBox *w)
     e;                                                                        \
   })
 
+GtkWidget *
+getwid (GtkWidget *const widget, PrefsDialog *const dlg)
+{
+  gtk_signal_connect_object (GTK_OBJECT (widget), "changed",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+
+  return widget;
+}
+
 #define GETCHWID(strname)                                                     \
   ({                                                                          \
     GtkWidget *e;                                                             \
@@ -790,6 +800,16 @@ daystart_menu_changed (gpointer data, GtkComboBox *w)
                                GTK_OBJECT (dlg->dlg));                        \
     e;                                                                        \
   })
+
+GtkWidget *
+getchwid (GtkWidget *const widget, PrefsDialog *const dlg)
+{
+  gtk_signal_connect_object (GTK_OBJECT (widget), "toggled",
+                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_OBJECT (dlg->dlg));
+
+  return widget;
+}
 
 static void
 display_options (PrefsDialog *dlg)
@@ -963,21 +983,55 @@ time_format_options (PrefsDialog *dlg)
 static void
 currency_options (PrefsDialog *dlg)
 {
-  GtkWidget *w;
   GladeXML *gtxml = dlg->gtxml;
 
-  w = GETWID ("currency_symbol");
-  dlg->currency_symbol = GTK_ENTRY (w);
+  GtkWidget *const table8 = glade_xml_get_widget (gtxml, "table8");
 
-  w = glade_xml_get_widget (gtxml, "currency_symbol_label");
-  dlg->currency_symbol_label = w;
-
-  w = GETCHWID ("currency_use_locale");
-  dlg->currency_use_locale = GTK_CHECK_BUTTON (w);
-
-  gtk_signal_connect (GTK_OBJECT (w), "clicked",
+  GtkWidget *const currency_use_locale
+      = gtk_check_button_new_with_label (_ ("Use my locale formating"));
+  dlg->currency_use_locale
+      = GTK_CHECK_BUTTON (getchwid (currency_use_locale, dlg));
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (currency_use_locale), TRUE);
+  gtk_widget_set_can_focus (currency_use_locale, TRUE);
+  gtk_widget_set_events (currency_use_locale,
+                         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+                             | GDK_POINTER_MOTION_HINT_MASK
+                             | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (currency_use_locale, "currency_use_locale");
+  gtk_signal_connect (GTK_OBJECT (currency_use_locale), "clicked",
                       GTK_SIGNAL_FUNC (currency_sensitive_cb),
                       (gpointer *)dlg);
+  gtk_widget_show (currency_use_locale);
+
+  gtk_table_attach (GTK_TABLE (table8), currency_use_locale, 0, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const currency_symbol_label
+      = gtk_label_new (_ ("Currency Symbol"));
+  dlg->currency_symbol_label = currency_symbol_label;
+  gtk_label_set_justify (GTK_LABEL (currency_symbol_label),
+                         GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (currency_symbol_label), 0, 0.5);
+  gtk_widget_set_name (currency_symbol_label, "currency_symbol_label");
+  gtk_widget_show (currency_symbol_label);
+
+  gtk_table_attach (GTK_TABLE (table8), currency_symbol_label, 0, 1, 1, 2,
+                    GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const currency_symbol = gtk_entry_new ();
+  dlg->currency_symbol = GTK_ENTRY (getwid (currency_symbol, dlg));
+  gtk_entry_set_invisible_char (GTK_ENTRY (currency_symbol), '*');
+  gtk_entry_set_max_length (GTK_ENTRY (currency_symbol), 6);
+  gtk_entry_set_text (GTK_ENTRY (currency_symbol), "$");
+  gtk_widget_set_can_focus (currency_symbol, TRUE);
+  gtk_widget_set_name (currency_symbol, "currency_symbol");
+  gtk_widget_set_tooltip_text (
+      currency_symbol,
+      _ ("Place your local currency symbol for use in the reports"));
+  gtk_widget_show (currency_symbol);
+
+  gtk_table_attach (GTK_TABLE (table8), currency_symbol, 1, 2, 1, 2,
+                    GTK_EXPAND, 0, 0, 0);
 }
 
 /* ============================================================== */

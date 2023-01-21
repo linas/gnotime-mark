@@ -814,20 +814,57 @@ getchwid (GtkWidget *const widget, PrefsDialog *const dlg)
 static void
 display_options (PrefsDialog *dlg)
 {
-  GtkWidget *w;
   GladeXML *gtxml = dlg->gtxml;
 
-  w = GETCHWID ("show secs");
-  dlg->show_secs = GTK_CHECK_BUTTON (w);
+  GtkWidget *const table1 = glade_xml_get_widget (gtxml, "table1");
 
-  w = GETCHWID ("show statusbar");
-  dlg->show_statusbar = GTK_CHECK_BUTTON (w);
+  GtkWidget *const show_secs
+      = gtk_check_button_new_with_label (_ ("Show Seconds"));
+  dlg->show_secs = GTK_CHECK_BUTTON (getchwid (show_secs, dlg));
+  gtk_button_set_use_underline (GTK_BUTTON (show_secs), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_secs), TRUE);
+  gtk_widget_set_can_focus (show_secs, TRUE);
+  gtk_widget_set_name (show_secs, "show secs");
+  gtk_widget_show (show_secs);
 
-  w = GETCHWID ("show header");
-  dlg->show_clist_titles = GTK_CHECK_BUTTON (w);
+  gtk_table_attach (GTK_TABLE (table1), show_secs, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
 
-  w = GETCHWID ("show sub");
-  dlg->show_subprojects = GTK_CHECK_BUTTON (w);
+  GtkWidget *const show_statusbar
+      = gtk_check_button_new_with_label (_ ("Show Status Bar"));
+  dlg->show_statusbar = GTK_CHECK_BUTTON (getchwid (show_statusbar, dlg));
+  gtk_button_set_use_underline (GTK_BUTTON (show_statusbar), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_statusbar), TRUE);
+  gtk_widget_set_can_focus (show_statusbar, TRUE);
+  gtk_widget_set_name (show_statusbar, "show statusbar");
+  gtk_widget_show (show_statusbar);
+
+  gtk_table_attach (GTK_TABLE (table1), show_statusbar, 0, 1, 1, 2, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const show_header
+      = gtk_check_button_new_with_label (_ ("Show Table Header"));
+  dlg->show_clist_titles = GTK_CHECK_BUTTON (getchwid (show_header, dlg));
+  gtk_button_set_use_underline (GTK_BUTTON (show_header), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_header), TRUE);
+  gtk_widget_set_can_focus (show_header, TRUE);
+  gtk_widget_set_name (show_header, "show header");
+  gtk_widget_show (show_header);
+
+  gtk_table_attach (GTK_TABLE (table1), show_header, 0, 1, 2, 3, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const show_sub
+      = gtk_check_button_new_with_label (_ ("Show Sub-Projects"));
+  dlg->show_subprojects = GTK_CHECK_BUTTON (getchwid (show_sub, dlg));
+  gtk_button_set_use_underline (GTK_BUTTON (show_sub), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_sub), TRUE);
+  gtk_widget_set_can_focus (show_sub, TRUE);
+  gtk_widget_set_name (show_sub, "show sub");
+  gtk_widget_show (show_sub);
+
+  gtk_table_attach (GTK_TABLE (table1), show_sub, 0, 1, 3, 4, GTK_FILL, 0, 0,
+                    0);
 }
 
 static void

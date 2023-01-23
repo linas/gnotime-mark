@@ -1310,50 +1310,173 @@ do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
   /* This is the popup menu that says 'edit/delete/merge' */
   /* for intervals */
 
-  glxml = gtt_glade_xml_new ("glade/interval_popup.glade", "Interval Popup");
-  wig->interval_popup = glade_xml_get_widget (glxml, "Interval Popup");
-  wig->interval_paste = glade_xml_get_widget (glxml, "paste_memo");
-  wig->interval_merge_up = glade_xml_get_widget (glxml, "merge_up");
-  wig->interval_merge_down = glade_xml_get_widget (glxml, "merge_down");
-  wig->interval_move_up = glade_xml_get_widget (glxml, "move_up");
-  wig->interval_move_down = glade_xml_get_widget (glxml, "move_down");
+  GtkWidget *const interval_popup = gtk_menu_new ();
+  wig->interval_popup = interval_popup;
+  gtk_widget_set_name (interval_popup, "Interval Popup");
+
+  GtkWidget *const new_ivl
+      = gtk_image_menu_item_new_with_mnemonic (_ ("New Interval"));
+  gtk_widget_set_name (new_ivl, "new_interval");
+
+  GtkWidget *const new_ivl_image
+      = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (new_ivl_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (new_ivl_image), 0, 0);
+  gtk_widget_set_name (new_ivl_image, "image14");
+  gtk_widget_show (new_ivl_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (new_ivl), new_ivl_image);
+  g_signal_connect (G_OBJECT (new_ivl), "activate",
+                    G_CALLBACK (interval_new_clicked_cb), wig);
+  gtk_widget_show (new_ivl);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), new_ivl);
+
+  GtkWidget *edit = gtk_menu_item_new_with_mnemonic (_ ("Edit Interval"));
+  gtk_widget_set_name (edit, "edit");
+  g_signal_connect (G_OBJECT (edit), "activate",
+                    G_CALLBACK (interval_edit_clicked_cb), wig);
+  gtk_widget_show (edit);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), edit);
+
+  GtkWidget *const delete
+      = gtk_image_menu_item_new_with_mnemonic (_ ("Delete Interval"));
+  gtk_widget_set_name (delete, "delete");
+
+  GtkWidget *const delete_image
+      = gtk_image_new_from_stock (GTK_STOCK_CUT, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (delete_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (delete_image), 0, 0);
+  gtk_widget_set_name (delete_image, "image15");
+  gtk_widget_show (delete_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (delete), delete_image);
+  g_signal_connect (G_OBJECT (delete), "activate",
+                    G_CALLBACK (interval_delete_clicked_cb), wig);
+  gtk_widget_show (delete);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), delete);
+
+  GtkWidget *const ivl_separator1 = gtk_menu_item_new ();
+  gtk_widget_set_name (ivl_separator1, "separator1");
+  gtk_widget_show (ivl_separator1);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), ivl_separator1);
+
+  GtkWidget *const merge_up
+      = gtk_check_menu_item_new_with_mnemonic (_ ("Merge Up"));
+  wig->interval_merge_up = merge_up;
+  gtk_widget_set_name (merge_up, "merge_up");
+  g_signal_connect (G_OBJECT (merge_up), "activate",
+                    G_CALLBACK (interval_merge_up_clicked_cb), wig);
+  gtk_widget_show (merge_up);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), merge_up);
+
+  GtkWidget *const merge_down
+      = gtk_check_menu_item_new_with_mnemonic (_ ("Merge Down"));
+  wig->interval_merge_down = merge_down;
+  gtk_widget_set_name (merge_down, "merge_down");
+  g_signal_connect (G_OBJECT (merge_down), "activate",
+                    G_CALLBACK (interval_merge_down_clicked_cb), wig);
+  gtk_widget_show (merge_down);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), merge_down);
+
+  GtkWidget *const ivl_separator2 = gtk_menu_item_new ();
+  gtk_widget_set_name (ivl_separator2, "separator2");
+  gtk_widget_show (ivl_separator2);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), ivl_separator2);
+
+  GtkWidget *const move_up
+      = gtk_image_menu_item_new_with_mnemonic (_ ("Move Up"));
+  wig->interval_move_up = move_up;
+  gtk_widget_set_name (move_up, "move_up");
+
+  GtkWidget *const move_up_image
+      = gtk_image_new_from_stock (GTK_STOCK_GO_UP, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (move_up_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (move_up_image), 0, 0);
+  gtk_widget_set_name (move_up_image, "image16");
+  gtk_widget_show (move_up_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (move_up), move_up_image);
+  g_signal_connect (G_OBJECT (move_up), "activate",
+                    G_CALLBACK (interval_move_up_clicked_cb), wig);
+  gtk_widget_show (move_up);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), move_up);
+
+  GtkWidget *const move_down
+      = gtk_image_menu_item_new_with_mnemonic (_ ("Move Down"));
+  wig->interval_move_down = move_down;
+  gtk_widget_set_name (move_down, "move_down");
+
+  GtkWidget *const move_down_image
+      = gtk_image_new_from_stock (GTK_STOCK_GO_DOWN, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (move_down_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (move_down_image), 0, 0);
+  gtk_widget_set_name (move_down_image, "image17");
+  gtk_widget_show (move_down_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (move_down),
+                                 move_down_image);
+  g_signal_connect (G_OBJECT (move_down), "activate",
+                    G_CALLBACK (interval_move_down_clicked_cb), wig);
+  gtk_widget_show (move_down);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), move_down);
+
+  GtkWidget *const ivl_separator3 = gtk_menu_item_new ();
+  gtk_widget_set_name (ivl_separator3, "separator3");
+  gtk_widget_show (ivl_separator3);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), ivl_separator3);
+
+  GtkWidget *const insert_memo
+      = gtk_image_menu_item_new_with_mnemonic (_ ("Insert Diary Entry"));
+  gtk_widget_set_name (insert_memo, "insert_memo");
+
+  GtkWidget *const insert_memo_image
+      = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (insert_memo_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (insert_memo_image), 0, 0);
+  gtk_widget_set_name (insert_memo_image, "image18");
+  gtk_widget_show (insert_memo_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (insert_memo),
+                                 insert_memo_image);
+  g_signal_connect (G_OBJECT (insert_memo), "activate",
+                    G_CALLBACK (interval_insert_memo_cb), wig);
+  gtk_widget_show (insert_memo);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), insert_memo);
+
+  GtkWidget *const paste_memo
+      = gtk_image_menu_item_new_with_mnemonic (_ ("Paste Diary Entry"));
+  wig->interval_paste = paste_memo;
+  gtk_widget_set_name (paste_memo, "paste_memo");
+
+  GtkWidget *const paste_memo_image
+      = gtk_image_new_from_stock (GTK_STOCK_PASTE, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (paste_memo_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (paste_memo_image), 0, 0);
+  gtk_widget_set_name (paste_memo_image, "image19");
+  gtk_widget_show (paste_memo_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (paste_memo),
+                                 paste_memo_image);
+  g_signal_connect (G_OBJECT (paste_memo), "activate",
+                    G_CALLBACK (interval_paste_memo_cb), wig);
+  gtk_widget_show (paste_memo);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (interval_popup), paste_memo);
+
+  gtk_widget_show (interval_popup);
+
   wig->interval = NULL;
-
-  glade_xml_signal_connect_data (glxml, "on_new_interval_activate",
-                                 GTK_SIGNAL_FUNC (interval_new_clicked_cb),
-                                 wig);
-
-  glade_xml_signal_connect_data (glxml, "on_edit_activate",
-                                 GTK_SIGNAL_FUNC (interval_edit_clicked_cb),
-                                 wig);
-
-  glade_xml_signal_connect_data (glxml, "on_delete_activate",
-                                 GTK_SIGNAL_FUNC (interval_delete_clicked_cb),
-                                 wig);
-
-  glade_xml_signal_connect_data (
-      glxml, "on_merge_up_activate",
-      GTK_SIGNAL_FUNC (interval_merge_up_clicked_cb), wig);
-
-  glade_xml_signal_connect_data (
-      glxml, "on_merge_down_activate",
-      GTK_SIGNAL_FUNC (interval_merge_down_clicked_cb), wig);
-
-  glade_xml_signal_connect_data (glxml, "on_move_up_activate",
-                                 GTK_SIGNAL_FUNC (interval_move_up_clicked_cb),
-                                 wig);
-
-  glade_xml_signal_connect_data (
-      glxml, "on_move_down_activate",
-      GTK_SIGNAL_FUNC (interval_move_down_clicked_cb), wig);
-
-  glade_xml_signal_connect_data (glxml, "on_insert_memo_activate",
-                                 GTK_SIGNAL_FUNC (interval_insert_memo_cb),
-                                 wig);
-
-  glade_xml_signal_connect_data (glxml, "on_paste_memo_activate",
-                                 GTK_SIGNAL_FUNC (interval_paste_memo_cb),
-                                 wig);
 
   /* ---------------------------------------------------- */
   /* This is the popup menu that says 'edit/delete/merge' */

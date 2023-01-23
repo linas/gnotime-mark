@@ -1286,31 +1286,124 @@ logfile_options (PrefsDialog *dlg)
                     GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
 }
 
-#define TBWID(strname)                                                        \
-  w = GETCHWID ("show " #strname);                                            \
-  dlg->show_tb_##strname = GTK_CHECK_BUTTON (w);
-
 static void
 toolbar_options (PrefsDialog *dlg)
 {
-  GtkWidget *w;
   GladeXML *gtxml = dlg->gtxml;
 
-  w = GETCHWID ("show toolbar");
-  dlg->show_toolbar = GTK_CHECK_BUTTON (w);
+  GtkWidget *const vbox2 = glade_xml_get_widget (gtxml, "vbox2");
 
-  gtk_signal_connect (GTK_OBJECT (w), "clicked",
+  GtkWidget *const show_toolbar
+      = gtk_check_button_new_with_mnemonic (_ ("Show Toolbar"));
+  dlg->show_toolbar = GTK_CHECK_BUTTON (getchwid (show_toolbar, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_toolbar), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_toolbar), TRUE);
+  gtk_widget_set_can_focus (show_toolbar, TRUE);
+  gtk_widget_set_name (show_toolbar, "show toolbar");
+  gtk_signal_connect (GTK_OBJECT (show_toolbar), "clicked",
                       GTK_SIGNAL_FUNC (toolbar_sensitive_cb), (gpointer *)dlg);
+  gtk_widget_show (show_toolbar);
 
-  TBWID (tips);
-  TBWID (new);
-  TBWID (ccp);
-  TBWID (journal);
-  TBWID (prop);
-  TBWID (timer);
-  TBWID (pref);
-  TBWID (help);
-  TBWID (exit);
+  gtk_box_pack_start (GTK_BOX (vbox2), show_toolbar, FALSE, FALSE, 0);
+
+  GtkWidget *const show_tips
+      = gtk_check_button_new_with_mnemonic (_ ("Show Tooltips"));
+  dlg->show_tb_tips = GTK_CHECK_BUTTON (getchwid (show_tips, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_tips), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_tips), TRUE);
+  gtk_widget_set_can_focus (show_tips, TRUE);
+  gtk_widget_set_name (show_tips, "show tips");
+  gtk_widget_show (show_tips);
+
+  gtk_box_pack_start (GTK_BOX (vbox2), show_tips, FALSE, FALSE, 0);
+
+  GtkWidget *const vbox3 = glade_xml_get_widget (gtxml, "vbox3");
+
+  GtkWidget *const show_new
+      = gtk_check_button_new_with_mnemonic (_ ("Show `New'"));
+  dlg->show_tb_new = GTK_CHECK_BUTTON (getchwid (show_new, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_new), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_new), TRUE);
+  gtk_widget_set_can_focus (show_new, TRUE);
+  gtk_widget_set_name (show_new, "show new");
+  gtk_widget_show (show_new);
+
+  gtk_box_pack_start (GTK_BOX (vbox3), show_new, FALSE, FALSE, 0);
+
+  GtkWidget *const show_ccp
+      = gtk_check_button_new_with_mnemonic (_ ("Show `Cut', `Copy', `Paste'"));
+  dlg->show_tb_ccp = GTK_CHECK_BUTTON (getchwid (show_ccp, dlg));
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_ccp), TRUE);
+  gtk_widget_set_can_focus (show_ccp, TRUE);
+  gtk_widget_set_name (show_ccp, "show ccp");
+  gtk_widget_show (show_ccp);
+
+  gtk_box_pack_start (GTK_BOX (vbox3), show_ccp, FALSE, FALSE, 0);
+
+  GtkWidget *const show_journal
+      = gtk_check_button_new_with_mnemonic (_ ("Show `Journal'"));
+  dlg->show_tb_journal = GTK_CHECK_BUTTON (getchwid (show_journal, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_journal), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_journal), TRUE);
+  gtk_widget_set_can_focus (show_journal, TRUE);
+  gtk_widget_set_name (show_journal, "show journal");
+  gtk_widget_show (show_journal);
+
+  gtk_box_pack_start (GTK_BOX (vbox3), show_journal, FALSE, FALSE, 0);
+
+  GtkWidget *const show_prop
+      = gtk_check_button_new_with_mnemonic (_ ("Show `Properties'"));
+  dlg->show_tb_prop = GTK_CHECK_BUTTON (getchwid (show_prop, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_prop), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_prop), TRUE);
+  gtk_widget_set_can_focus (show_prop, TRUE);
+  gtk_widget_set_name (show_prop, "show prop");
+  gtk_widget_show (show_prop);
+
+  gtk_box_pack_start (GTK_BOX (vbox3), show_prop, FALSE, FALSE, 0);
+
+  GtkWidget *const show_timer
+      = gtk_check_button_new_with_mnemonic (_ ("Show `Timer'"));
+  dlg->show_tb_timer = GTK_CHECK_BUTTON (getchwid (show_timer, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_timer), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_timer), TRUE);
+  gtk_widget_set_can_focus (show_timer, TRUE);
+  gtk_widget_set_name (show_timer, "show timer");
+  gtk_widget_show (show_timer);
+
+  gtk_box_pack_start (GTK_BOX (vbox3), show_timer, FALSE, FALSE, 0);
+
+  GtkWidget *const show_pref
+      = gtk_check_button_new_with_mnemonic (_ ("Show `Preferences'"));
+  dlg->show_tb_pref = GTK_CHECK_BUTTON (getchwid (show_pref, dlg));
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_pref), TRUE);
+  gtk_widget_set_can_focus (show_pref, TRUE);
+  gtk_widget_set_name (show_pref, "show pref");
+  gtk_widget_show (show_pref);
+
+  gtk_box_pack_start (GTK_BOX (vbox3), show_pref, FALSE, FALSE, 0);
+
+  GtkWidget *const show_help
+      = gtk_check_button_new_with_mnemonic (_ ("Show `Help'"));
+  dlg->show_tb_help = GTK_CHECK_BUTTON (getchwid (show_help, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_help), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_help), TRUE);
+  gtk_widget_set_can_focus (show_help, TRUE);
+  gtk_widget_set_name (show_help, "show help");
+  gtk_widget_show (show_help);
+
+  gtk_box_pack_start (GTK_BOX (vbox3), show_help, FALSE, FALSE, 0);
+
+  GtkWidget *const show_exit
+      = gtk_check_button_new_with_mnemonic (_ ("Show `Quit'"));
+  dlg->show_tb_exit = GTK_CHECK_BUTTON (getchwid (show_exit, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_exit), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (show_exit), TRUE);
+  gtk_widget_set_can_focus (show_exit, TRUE);
+  gtk_widget_set_name (show_exit, "show exit");
+  gtk_widget_show (show_exit);
+
+  gtk_box_pack_start (GTK_BOX (vbox3), show_exit, FALSE, FALSE, 0);
 }
 
 static void

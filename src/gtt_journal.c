@@ -1359,36 +1359,152 @@ do_show_report (const char *report, GttPlugin *plg, KvpFrame *kvpf,
   /* This is the popup menu that says 'edit/delete/merge' */
   /* for tasks */
 
-  glxml = gtt_glade_xml_new ("glade/task_popup.glade", "Task Popup");
-  wig->task_popup = glade_xml_get_widget (glxml, "Task Popup");
-  wig->task_delete_memo = glade_xml_get_widget (glxml, "delete_memo");
-  wig->task_paste = glade_xml_get_widget (glxml, "paste");
+  GtkWidget *const task_popup = gtk_menu_new ();
+  wig->task_popup = task_popup;
+  gtk_widget_set_name (task_popup, "Task Popup");
+
+  GtkWidget *const new_task
+      = gtk_image_menu_item_new_with_mnemonic (_ ("_New Diary Entry"));
+  gtk_widget_set_name (new_task, "new_task");
+
+  GtkWidget *const new_task_image
+      = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (new_task_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (new_task_image), 0, 0);
+  gtk_widget_set_name (new_task_image, "image17");
+  gtk_widget_show (new_task_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (new_task),
+                                 new_task_image);
+  g_signal_connect (G_OBJECT (new_task), "activate",
+                    G_CALLBACK (task_new_task_clicked_cb), wig);
+  gtk_widget_show (new_task);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (task_popup), new_task);
+
+  GtkWidget *const edit_task
+      = gtk_image_menu_item_new_with_mnemonic (_ ("_Edit Diary Entry"));
+  gtk_widget_set_name (edit_task, "edit_task");
+
+  GtkWidget *const edit_task_image
+      = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (edit_task_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (edit_task_image), 0, 0);
+  gtk_widget_set_name (edit_task_image, "image18");
+  gtk_widget_show (edit_task_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_task),
+                                 edit_task_image);
+  g_signal_connect (G_OBJECT (edit_task), "activate",
+                    G_CALLBACK (task_edit_task_clicked_cb), wig);
+  gtk_widget_show (edit_task);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (task_popup), edit_task);
+
+  GtkWidget *const delete_memo
+      = gtk_image_menu_item_new_with_mnemonic (_ ("_Cut Diary Entry"));
+  wig->task_delete_memo = delete_memo;
+  gtk_widget_set_name (delete_memo, "delete_memo");
+
+  GtkWidget *const delete_memo_image
+      = gtk_image_new_from_stock (GTK_STOCK_CUT, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (delete_memo_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (delete_memo_image), 0, 0);
+  gtk_widget_set_name (delete_memo_image, "image19");
+  gtk_widget_show (delete_memo_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (delete_memo),
+                                 delete_memo_image);
+  g_signal_connect (G_OBJECT (delete_memo), "activate",
+                    G_CALLBACK (task_delete_memo_clicked_cb), wig);
+  gtk_widget_show (delete_memo);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (task_popup), delete_memo);
+
+  GtkWidget *const delete_times
+      = gtk_image_menu_item_new_with_mnemonic (_ ("Cut Entry & _Times"));
+  gtk_widget_set_name (delete_times, "delete_times");
+
+  GtkWidget *const delete_times_image
+      = gtk_image_new_from_stock (GTK_STOCK_CUT, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (delete_times_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (delete_times_image), 0, 0);
+  gtk_widget_set_name (delete_times_image, "image20");
+  gtk_widget_show (delete_times_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (delete_times),
+                                 delete_times_image);
+  g_signal_connect (G_OBJECT (delete_times), "activate",
+                    G_CALLBACK (task_delete_times_clicked_cb), wig);
+  gtk_widget_show (delete_times);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (task_popup), delete_times);
+
+  GtkWidget *const copy
+      = gtk_image_menu_item_new_with_mnemonic (_ ("_Copy Diary Entry"));
+  gtk_widget_set_name (copy, "copy");
+
+  GtkWidget *const copy_image
+      = gtk_image_new_from_stock (GTK_STOCK_COPY, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (copy_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (copy_image), 0, 0);
+  gtk_widget_set_name (copy_image, "image21");
+  gtk_widget_show (copy_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (copy), copy_image);
+  g_signal_connect (G_OBJECT (copy), "activate",
+                    G_CALLBACK (task_copy_clicked_cb), wig);
+  gtk_widget_show (copy);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (task_popup), copy);
+
+  GtkWidget *const paste
+      = gtk_image_menu_item_new_with_mnemonic (_ ("_Paste Diary Entry"));
+  wig->task_paste = paste;
+  gtk_widget_set_name (paste, "paste");
+
+  GtkWidget *const paste_image
+      = gtk_image_new_from_stock (GTK_STOCK_PASTE, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (paste_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (paste_image), 0, 0);
+  gtk_widget_set_name (paste_image, "image22");
+  gtk_widget_show (paste_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (paste), paste_image);
+  g_signal_connect (G_OBJECT (paste), "activate",
+                    G_CALLBACK (task_paste_clicked_cb), wig);
+  gtk_widget_show (paste);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (task_popup), paste);
+
+  GtkWidget *const separator1 = gtk_menu_item_new ();
+  gtk_widget_set_name (separator1, "separator1");
+  gtk_widget_show (separator1);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (task_popup), separator1);
+
+  GtkWidget *const new_interval
+      = gtk_image_menu_item_new_with_mnemonic (_ ("New Time Interval"));
+  gtk_widget_set_name (new_interval, "new_interval");
+
+  GtkWidget *const new_interval_image
+      = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
+  gtk_misc_set_alignment (GTK_MISC (new_interval_image), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (new_interval_image), 0, 0);
+  gtk_widget_set_name (new_interval_image, "image23");
+  gtk_widget_show (new_interval_image);
+
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (new_interval),
+                                 new_interval_image);
+  g_signal_connect (G_OBJECT (new_interval), "activate",
+                    G_CALLBACK (task_new_interval_cb), wig);
+  gtk_widget_show (new_interval);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (task_popup), new_interval);
+
+  gtk_widget_show (task_popup);
+
   wig->task = NULL;
-
-  glade_xml_signal_connect_data (glxml, "on_new_task_activate",
-                                 GTK_SIGNAL_FUNC (task_new_task_clicked_cb),
-                                 wig);
-
-  glade_xml_signal_connect_data (glxml, "on_edit_task_activate",
-                                 GTK_SIGNAL_FUNC (task_edit_task_clicked_cb),
-                                 wig);
-
-  glade_xml_signal_connect_data (glxml, "on_delete_memo_activate",
-                                 GTK_SIGNAL_FUNC (task_delete_memo_clicked_cb),
-                                 wig);
-
-  glade_xml_signal_connect_data (
-      glxml, "on_delete_times_activate",
-      GTK_SIGNAL_FUNC (task_delete_times_clicked_cb), wig);
-
-  glade_xml_signal_connect_data (glxml, "on_copy_activate",
-                                 GTK_SIGNAL_FUNC (task_copy_clicked_cb), wig);
-
-  glade_xml_signal_connect_data (glxml, "on_paste_activate",
-                                 GTK_SIGNAL_FUNC (task_paste_clicked_cb), wig);
-
-  glade_xml_signal_connect_data (glxml, "on_new_interval_activate",
-                                 GTK_SIGNAL_FUNC (task_new_interval_cb), wig);
 
   /* ---------------------------------------------------- */
   wig->hover_help_window = NULL;

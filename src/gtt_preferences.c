@@ -751,7 +751,7 @@ options_dialog_set (PrefsDialog *odlg)
 /* ============================================================== */
 
 static void
-daystart_menu_changed (gpointer data, GtkComboBox *w)
+daystart_menu_changed (GtkWidget *w, gpointer data)
 {
   PrefsDialog *dlg = data;
 
@@ -770,16 +770,6 @@ daystart_menu_changed (gpointer data, GtkComboBox *w)
 }
 
 /* ============================================================== */
-
-#define GETWID(strname)                                                       \
-  ({                                                                          \
-    GtkWidget *e;                                                             \
-    e = glade_xml_get_widget (gtxml, strname);                                \
-    gtk_signal_connect_object (GTK_OBJECT (e), "changed",                     \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
-                               GTK_OBJECT (dlg->dlg));                        \
-    e;                                                                        \
-  })
 
 GtkWidget *
 getwid (GtkWidget *const widget, PrefsDialog *const dlg)
@@ -1409,26 +1399,141 @@ toolbar_options (PrefsDialog *dlg)
 static void
 misc_options (PrefsDialog *dlg)
 {
-  GtkWidget *w;
   GladeXML *gtxml = dlg->gtxml;
 
-  w = GETWID ("idle secs");
-  dlg->idle_secs = GTK_ENTRY (w);
+  GtkWidget *const table3 = glade_xml_get_widget (gtxml, "table3");
 
-  w = GETWID ("no project secs");
-  dlg->no_project_secs = GTK_ENTRY (w);
+  GtkWidget *const label8 = gtk_label_new (_ ("Idle Seconds:"));
+  gtk_label_set_justify (GTK_LABEL (label8), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label8), 0, 0.5);
+  gtk_widget_set_name (label8, "label8");
+  gtk_widget_show (label8);
 
-  w = GETWID ("daystart entry");
-  dlg->daystart_secs = GTK_ENTRY (w);
+  gtk_table_attach (GTK_TABLE (table3), label8, 0, 1, 0, 1, GTK_FILL, 0, 0, 0);
 
-  w = GETWID ("daystart combobox");
-  dlg->daystart_menu = GTK_COMBO_BOX (w);
+  GtkWidget *const idle_secs = gtk_entry_new ();
+  dlg->idle_secs = GTK_ENTRY (getwid (idle_secs, dlg));
+  gtk_entry_set_invisible_char (GTK_ENTRY (idle_secs), '*');
+  gtk_widget_set_can_focus (idle_secs, TRUE);
+  gtk_widget_set_name (idle_secs, "idle secs");
+  gtk_widget_set_tooltip_text (
+      idle_secs, _ ("The current active project will be made inactive after "
+                    "there has been no keyboard/mouse activity after this "
+                    "number of seconds.  Set to -1 to disable."));
+  gtk_widget_show (idle_secs);
 
-  gtk_signal_connect_object (GTK_OBJECT (w), "changed",
-                             GTK_SIGNAL_FUNC (daystart_menu_changed), dlg);
+  gtk_table_attach (GTK_TABLE (table3), idle_secs, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
-  w = GETWID ("weekstart combobox");
-  dlg->weekstart_menu = GTK_COMBO_BOX (w);
+  GtkWidget *const table7 = glade_xml_get_widget (gtxml, "table7");
+
+  GtkWidget *const label19 = gtk_label_new (_ ("Idle Seconds:"));
+  gtk_label_set_justify (GTK_LABEL (label19), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label19), 0, 0.5);
+  gtk_widget_set_name (label19, "label19");
+  gtk_widget_show (label19);
+
+  gtk_table_attach (GTK_TABLE (table7), label19, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const no_project_secs = gtk_entry_new ();
+  dlg->no_project_secs = GTK_ENTRY (getwid (no_project_secs, dlg));
+  gtk_entry_set_invisible_char (GTK_ENTRY (no_project_secs), '*');
+  gtk_widget_set_can_focus (no_project_secs, TRUE);
+  gtk_widget_set_name (no_project_secs, "no project secs");
+  gtk_widget_set_tooltip_text (
+      no_project_secs,
+      _ ("A warning will be displayed after this number of seconds with no "
+         "running project.  Set to -1 to disable."));
+  gtk_widget_show (no_project_secs);
+
+  gtk_table_attach (GTK_TABLE (table7), no_project_secs, 1, 2, 0, 1,
+                    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+  GtkWidget *const table6 = glade_xml_get_widget (gtxml, "table6");
+
+  GtkWidget *const label17 = gtk_label_new (_ ("New Day Starts At:"));
+  gtk_misc_set_alignment (GTK_MISC (label17), 0, 0.5);
+  gtk_widget_set_name (label17, "label17");
+  gtk_widget_show (label17);
+
+  gtk_table_attach (GTK_TABLE (table6), label17, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const hbox1 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox1, "hbox1");
+
+  GtkWidget *const daystart_entry = gtk_entry_new ();
+  dlg->daystart_secs = GTK_ENTRY (getwid (daystart_entry, dlg));
+  gtk_entry_set_invisible_char (GTK_ENTRY (daystart_entry), '*');
+  gtk_widget_set_can_focus (daystart_entry, TRUE);
+  gtk_widget_set_name (daystart_entry, "daystart entry");
+  gtk_widget_set_tooltip_text (
+      daystart_entry,
+      _ ("The time of night at which one day ends and the next day begins.  "
+         "By default midnight, you can set this to any value."));
+  gtk_widget_show (daystart_entry);
+
+  gtk_box_pack_start (GTK_BOX (hbox1), daystart_entry, TRUE, TRUE, 0);
+
+  GtkWidget *const daystart_combobox = gtk_combo_box_new_text ();
+  dlg->daystart_menu = GTK_COMBO_BOX (getwid (daystart_combobox, dlg));
+  gtk_widget_set_events (daystart_combobox, GDK_BUTTON_PRESS_MASK
+                                                | GDK_BUTTON_RELEASE_MASK
+                                                | GDK_POINTER_MOTION_HINT_MASK
+                                                | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (daystart_combobox, "daystart combobox");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "9 PM");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "10 PM");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "11 PM");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "12 Midnight");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "01 AM");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "02 AM");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "03 AM");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "04 AM");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "05 AM");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (daystart_combobox), "06 AM");
+  g_signal_connect (G_OBJECT (daystart_combobox), "changed",
+                    G_CALLBACK (daystart_menu_changed), dlg);
+  gtk_widget_show (daystart_combobox);
+
+  gtk_box_pack_start (GTK_BOX (hbox1), daystart_combobox, TRUE, TRUE, 0);
+
+  gtk_widget_show (hbox1);
+
+  gtk_table_attach (GTK_TABLE (table6), hbox1, 1, 2, 0, 1, GTK_FILL, GTK_FILL,
+                    0, 0);
+
+  GtkWidget *const label18 = gtk_label_new (_ ("New Week Starts On:"));
+  gtk_misc_set_alignment (GTK_MISC (label18), 0, 0.5);
+  gtk_widget_set_name (label18, "label18");
+  gtk_widget_show (label18);
+
+  gtk_table_attach (GTK_TABLE (table6), label18, 0, 1, 1, 2, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const weekstart_combobox = gtk_combo_box_new_text ();
+  dlg->weekstart_menu = GTK_COMBO_BOX (getwid (weekstart_combobox, dlg));
+  gtk_widget_set_events (weekstart_combobox, GDK_BUTTON_PRESS_MASK
+                                                 | GDK_BUTTON_RELEASE_MASK
+                                                 | GDK_POINTER_MOTION_HINT_MASK
+                                                 | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_name (weekstart_combobox, "weekstart, combobox");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (weekstart_combobox), _ ("Sunday"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (weekstart_combobox), _ ("Monday"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (weekstart_combobox),
+                             _ ("Tuesday"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (weekstart_combobox),
+                             _ ("Wednesday"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (weekstart_combobox),
+                             _ ("Thursday"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (weekstart_combobox), _ ("Friday"));
+  gtk_combo_box_append_text (GTK_COMBO_BOX (weekstart_combobox),
+                             _ ("Saturday"));
+  gtk_widget_show (weekstart_combobox);
+
+  gtk_table_attach (GTK_TABLE (table6), weekstart_combobox, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
 }
 
 static void

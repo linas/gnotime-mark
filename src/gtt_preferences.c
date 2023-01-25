@@ -781,16 +781,6 @@ getwid (GtkWidget *const widget, PrefsDialog *const dlg)
   return widget;
 }
 
-#define GETCHWID(strname)                                                     \
-  ({                                                                          \
-    GtkWidget *e;                                                             \
-    e = glade_xml_get_widget (gtxml, strname);                                \
-    gtk_signal_connect_object (GTK_OBJECT (e), "toggled",                     \
-                               GTK_SIGNAL_FUNC (gnome_property_box_changed),  \
-                               GTK_OBJECT (dlg->dlg));                        \
-    e;                                                                        \
-  })
-
 GtkWidget *
 getchwid (GtkWidget *const widget, PrefsDialog *const dlg)
 {
@@ -1539,17 +1529,45 @@ misc_options (PrefsDialog *dlg)
 static void
 time_format_options (PrefsDialog *dlg)
 {
-  GtkWidget *w;
   GladeXML *gtxml = dlg->gtxml;
 
-  w = GETCHWID ("time_format_am_pm");
-  dlg->time_format_am_pm = GTK_RADIO_BUTTON (w);
+  GtkWidget *const vbox6 = glade_xml_get_widget (gtxml, "vbox6");
 
-  w = GETCHWID ("time_format_24_hs");
-  dlg->time_format_24_hs = GTK_RADIO_BUTTON (w);
+  GtkWidget *const time_format_am_pm
+      = gtk_radio_button_new_with_mnemonic (NULL, _ (_ ("12 hours")));
+  dlg->time_format_am_pm
+      = GTK_RADIO_BUTTON (getchwid (time_format_am_pm, dlg));
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (time_format_am_pm), TRUE);
+  gtk_widget_set_can_focus (time_format_am_pm, TRUE);
+  gtk_widget_set_name (time_format_am_pm, "time_format_am_pm");
+  gtk_widget_show (time_format_am_pm);
 
-  w = GETCHWID ("time_format_locale");
-  dlg->time_format_locale = GTK_RADIO_BUTTON (w);
+  gtk_box_pack_start (GTK_BOX (vbox6), time_format_am_pm, FALSE, FALSE, 0);
+
+  GtkWidget *const time_format_24_hs = gtk_radio_button_new_with_mnemonic (
+      gtk_radio_button_get_group (GTK_RADIO_BUTTON (time_format_am_pm)),
+      _ (_ ("24 hours")));
+  dlg->time_format_24_hs
+      = GTK_RADIO_BUTTON (getchwid (time_format_24_hs, dlg));
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (time_format_24_hs), TRUE);
+  gtk_widget_set_can_focus (time_format_24_hs, TRUE);
+  gtk_widget_set_name (time_format_24_hs, "time_format_24_hs");
+  gtk_widget_show (time_format_24_hs);
+
+  gtk_box_pack_start (GTK_BOX (vbox6), time_format_24_hs, FALSE, FALSE, 0);
+
+  GtkWidget *const time_format_locale = gtk_radio_button_new_with_mnemonic (
+      gtk_radio_button_get_group (GTK_RADIO_BUTTON (time_format_24_hs)),
+      _ (_ ("Use my locale formating")));
+  dlg->time_format_locale
+      = GTK_RADIO_BUTTON (getchwid (time_format_locale, dlg));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (time_format_locale), TRUE);
+  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (time_format_locale), TRUE);
+  gtk_widget_set_can_focus (time_format_locale, TRUE);
+  gtk_widget_set_name (time_format_locale, "time_format_locale");
+  gtk_widget_show (time_format_locale);
+
+  gtk_box_pack_start (GTK_BOX (vbox6), time_format_locale, FALSE, FALSE, 0);
 }
 
 static void

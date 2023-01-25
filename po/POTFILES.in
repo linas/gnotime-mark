@@ -16,7 +16,6 @@ src/props-proj.c
 src/props-task.c
 src/timer.c
 src/toolbar.c
-glade/idle.glade
 glade/interval_edit.glade
 glade/journal.glade
 glade/notes.glade

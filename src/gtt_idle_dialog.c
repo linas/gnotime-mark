@@ -22,7 +22,6 @@
 #include "gtt_idle_dialog.h"
 
 #include <gdk/gdkx.h>
-#include <glade/glade.h>
 #include <glib.h>
 
 #include <string.h>
@@ -42,7 +41,6 @@ int config_idle_timeout = -1;
 
 struct GttIdleDialog_s
 {
-  GladeXML *gtxml;
   GtkDialog *dlg;
   GtkButton *yes_btn;
   GtkButton *no_btn;
@@ -135,7 +133,6 @@ static void
 dialog_close (GObject *obj, GttIdleDialog *dlg)
 {
   dlg->dlg = NULL;
-  dlg->gtxml = NULL;
   dlg->visible = FALSE;
 }
 
@@ -146,7 +143,6 @@ dialog_kill (GObject *obj, GttIdleDialog *dlg)
 {
   gtk_widget_destroy (GTK_WIDGET (dlg->dlg));
   dlg->dlg = NULL;
-  dlg->gtxml = NULL;
   dlg->visible = FALSE;
 }
 
@@ -338,37 +334,205 @@ value_changed (GObject *obj, GttIdleDialog *dlg)
 static void
 idle_dialog_realize (GttIdleDialog *id)
 {
-  GladeXML *gtxml;
 
   id->prj = NULL;
 
-  gtxml = gtt_glade_xml_new ("glade/idle.glade", "Idle Dialog");
-  id->gtxml = gtxml;
+  GtkWidget *const idle_dialog = gtk_dialog_new ();
+  id->dlg = GTK_DIALOG (idle_dialog);
+  gtk_dialog_set_has_separator (GTK_DIALOG (idle_dialog), TRUE);
+  gtk_widget_set_name (idle_dialog, "Idle Dialog");
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (idle_dialog), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (idle_dialog), TRUE);
+  gtk_window_set_position (GTK_WINDOW (idle_dialog), GTK_WIN_POS_CENTER);
+  gtk_window_set_resizable (GTK_WINDOW (idle_dialog), TRUE);
+  gtk_window_set_title (GTK_WINDOW (idle_dialog),
+                        _ ("Restart Idle Timer Dialog"));
+  g_signal_connect (G_OBJECT (idle_dialog), "destroy",
+                    G_CALLBACK (dialog_close), id);
 
-  id->dlg = GTK_DIALOG (glade_xml_get_widget (gtxml, "Idle Dialog"));
+  GtkWidget *const action_area
+      = gtk_dialog_get_action_area (GTK_DIALOG (idle_dialog));
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (action_area), GTK_BUTTONBOX_END);
 
-  id->yes_btn = GTK_BUTTON (glade_xml_get_widget (gtxml, "yes button"));
-  id->no_btn = GTK_BUTTON (glade_xml_get_widget (gtxml, "no button"));
-  id->help_btn = GTK_BUTTON (glade_xml_get_widget (gtxml, "helpbutton1"));
-  id->idle_label = GTK_LABEL (glade_xml_get_widget (gtxml, "idle label"));
-  id->credit_label = GTK_LABEL (glade_xml_get_widget (gtxml, "credit label"));
-  id->time_label = GTK_LABEL (glade_xml_get_widget (gtxml, "time label"));
-  id->scale = GTK_RANGE (glade_xml_get_widget (gtxml, "scale"));
-
-  g_signal_connect (G_OBJECT (id->dlg), "destroy", G_CALLBACK (dialog_close),
+  GtkWidget *const helpbutton1 = gtk_button_new_from_stock (GTK_STOCK_HELP);
+  id->help_btn = GTK_BUTTON (helpbutton1);
+  gtk_button_set_relief (GTK_BUTTON (helpbutton1), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (helpbutton1, TRUE);
+  gtk_widget_set_can_focus (helpbutton1, TRUE);
+  gtk_widget_set_name (helpbutton1, "helpbutton1");
+  g_signal_connect (G_OBJECT (helpbutton1), "clicked", G_CALLBACK (help_cb),
                     id);
+  gtk_widget_show (helpbutton1);
 
-  g_signal_connect (G_OBJECT (id->yes_btn), "clicked",
+  gtk_box_pack_start (GTK_BOX (action_area), helpbutton1, TRUE, TRUE, 0);
+
+  GtkWidget *const yes_button = gtk_button_new_from_stock (GTK_STOCK_YES);
+  id->yes_btn = GTK_BUTTON (yes_button);
+  gtk_button_set_relief (GTK_BUTTON (yes_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (yes_button, TRUE);
+  gtk_widget_set_can_focus (yes_button, TRUE);
+  gtk_widget_set_name (yes_button, "yes button");
+  gtk_widget_set_tooltip_text (
+      yes_button, _ ("Restart the same project that used to be running."));
+  g_signal_connect (G_OBJECT (yes_button), "clicked",
                     G_CALLBACK (restart_proj), id);
+  gtk_widget_show (yes_button);
 
-  g_signal_connect (G_OBJECT (id->no_btn), "clicked", G_CALLBACK (dialog_kill),
+  gtk_box_pack_start (GTK_BOX (action_area), yes_button, TRUE, TRUE, 0);
+
+  GtkWidget *const no_button = gtk_button_new_from_stock (GTK_STOCK_NO);
+  id->no_btn = GTK_BUTTON (no_button);
+  gtk_button_set_relief (GTK_BUTTON (no_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (no_button, TRUE);
+  gtk_widget_set_can_focus (no_button, TRUE);
+  gtk_widget_set_name (no_button, "no button");
+  gtk_widget_set_tooltip_text (no_button, _ ("Do not restart the timer."));
+  g_signal_connect (G_OBJECT (no_button), "clicked", G_CALLBACK (dialog_kill),
                     id);
+  gtk_widget_show (no_button);
 
-  g_signal_connect (G_OBJECT (id->help_btn), "clicked", G_CALLBACK (help_cb),
-                    id);
+  gtk_box_pack_start (GTK_BOX (action_area), no_button, TRUE, TRUE, 0);
 
-  g_signal_connect (G_OBJECT (id->scale), "value_changed",
+  GtkWidget *const content_area
+      = gtk_dialog_get_content_area (GTK_DIALOG (idle_dialog));
+
+  GtkWidget *const hbox4 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox4, "hbox4");
+
+  GtkWidget *const image2 = gtk_image_new_from_stock (
+      GTK_STOCK_DIALOG_QUESTION, GTK_ICON_SIZE_DIALOG);
+  gtk_misc_set_alignment (GTK_MISC (image2), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (image2), 0, 0);
+  gtk_widget_set_name (image2, "image2");
+  gtk_widget_show (image2);
+
+  gtk_box_pack_start (GTK_BOX (hbox4), image2, TRUE, TRUE, 0);
+
+  GtkWidget *const vbox4 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox4, "vbox4");
+
+  GtkWidget *const scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_placement (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                     GTK_CORNER_TOP_LEFT);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                  GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                       GTK_SHADOW_NONE);
+  gtk_widget_set_name (scrolledwindow1, "scrolledwindow1");
+
+  GtkWidget *const viewport1
+      = gtk_viewport_new (gtk_scrolled_window_get_hadjustment (
+                              GTK_SCROLLED_WINDOW (scrolledwindow1)),
+                          gtk_scrolled_window_get_vadjustment (
+                              GTK_SCROLLED_WINDOW (scrolledwindow1)));
+  gtk_container_set_border_width (GTK_CONTAINER (viewport1), 1);
+  gtk_viewport_set_shadow_type (GTK_VIEWPORT (viewport1), GTK_SHADOW_NONE);
+  gtk_widget_set_name (viewport1, "viewport1");
+
+  GtkWidget *const idle_label
+      = gtk_label_new (_ ("Dummy Text Do Not Translate"));
+  id->idle_label = GTK_LABEL (idle_label);
+  gtk_label_set_justify (GTK_LABEL (idle_label), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (idle_label), TRUE);
+  gtk_label_set_selectable (GTK_LABEL (idle_label), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (idle_label), TRUE);
+  gtk_label_set_use_underline (GTK_LABEL (idle_label), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (idle_label), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (idle_label), 0, 0);
+  gtk_widget_set_name (idle_label, "idle label");
+  gtk_widget_show (idle_label);
+
+  gtk_container_add (GTK_CONTAINER (viewport1), idle_label);
+  gtk_widget_show (viewport1);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow1), viewport1);
+  gtk_widget_show (scrolledwindow1);
+
+  gtk_box_pack_start (GTK_BOX (vbox4), scrolledwindow1, TRUE, FALSE, 5);
+
+  GtkWidget *const hseparator1 = gtk_hseparator_new ();
+  gtk_widget_set_name (hseparator1, "hseparator1");
+  gtk_widget_show (hseparator1);
+
+  gtk_box_pack_start (GTK_BOX (vbox4), hseparator1, FALSE, TRUE, 0);
+
+  GtkWidget *const scrolledwindow2 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_placement (GTK_SCROLLED_WINDOW (scrolledwindow2),
+                                     GTK_CORNER_TOP_LEFT);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow2),
+                                  GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow2),
+                                       GTK_SHADOW_NONE);
+  gtk_widget_set_name (scrolledwindow2, "scrolledwindow2");
+
+  GtkWidget *const viewport2
+      = gtk_viewport_new (gtk_scrolled_window_get_hadjustment (
+                              GTK_SCROLLED_WINDOW (scrolledwindow2)),
+                          gtk_scrolled_window_get_vadjustment (
+                              GTK_SCROLLED_WINDOW (scrolledwindow2)));
+  gtk_viewport_set_shadow_type (GTK_VIEWPORT (viewport2), GTK_SHADOW_NONE);
+  gtk_widget_set_name (viewport2, "viewport2");
+
+  GtkWidget *const credit_label
+      = gtk_label_new (_ ("Dummy Text Do Not Translate"));
+  id->credit_label = GTK_LABEL (credit_label);
+  gtk_label_set_justify (GTK_LABEL (credit_label), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (credit_label), TRUE);
+  gtk_label_set_selectable (GTK_LABEL (credit_label), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (credit_label), TRUE);
+  gtk_label_set_use_underline (GTK_LABEL (credit_label), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (credit_label), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (credit_label), 0, 0);
+  gtk_widget_set_name (credit_label, "credit label");
+  gtk_widget_show (credit_label);
+
+  gtk_container_add (GTK_CONTAINER (viewport2), credit_label);
+  gtk_widget_show (viewport2);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow2), viewport2);
+  gtk_widget_show (scrolledwindow2);
+
+  gtk_box_pack_start (GTK_BOX (vbox4), scrolledwindow2, TRUE, FALSE, 5);
+
+  GtkObject *const scale_adjustment
+      = gtk_adjustment_new (33.9914, 0, 100, 1, 5, 10);
+
+  GtkWidget *const scale = gtk_hscale_new (GTK_ADJUSTMENT (scale_adjustment));
+  id->scale = GTK_RANGE (scale);
+  gtk_range_set_inverted (GTK_RANGE (scale), FALSE);
+  gtk_range_set_update_policy (GTK_RANGE (scale), GTK_UPDATE_CONTINUOUS);
+  gtk_scale_set_digits (GTK_SCALE (scale), 4);
+  gtk_scale_set_draw_value (GTK_SCALE (scale), FALSE);
+  gtk_scale_set_value_pos (GTK_SCALE (scale), GTK_POS_TOP);
+  gtk_widget_set_can_focus (scale, TRUE);
+  gtk_widget_set_name (scale, "scale");
+  g_signal_connect (G_OBJECT (scale), "value_changed",
                     G_CALLBACK (value_changed), id);
+  gtk_widget_show (scale);
+
+  gtk_box_pack_start (GTK_BOX (vbox4), scale, FALSE, FALSE, 3);
+
+  GtkWidget *const time_label = gtk_label_new ("hh:mm");
+  id->time_label = GTK_LABEL (time_label);
+  gtk_label_set_justify (GTK_LABEL (time_label), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (time_label), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (time_label), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (time_label), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (time_label), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (time_label), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (time_label), 0, 0);
+  gtk_widget_set_name (time_label, "time label");
+  gtk_widget_show (time_label);
+
+  gtk_box_pack_start (GTK_BOX (vbox4), time_label, FALSE, FALSE, 6);
+
+  gtk_widget_show (vbox4);
+
+  gtk_box_pack_start (GTK_BOX (hbox4), vbox4, TRUE, TRUE, 0);
+
+  gtk_widget_show (hbox4);
+
+  gtk_box_pack_start (GTK_BOX (content_area), hbox4, TRUE, TRUE, 0);
 }
 
 /* =========================================================== */
@@ -380,8 +544,6 @@ idle_dialog_new (void)
 
   id = g_new0 (GttIdleDialog, 1);
   id->prj = NULL;
-
-  id->gtxml = NULL;
 
   gchar *display_name = gdk_get_display ();
   id->display = XOpenDisplay (display_name);
@@ -434,7 +596,7 @@ show_idle_dialog (GttIdleDialog *id)
   idle_time = now - id->last_activity;
 
   /* Due to GtkDialog broken-ness, re-realize the GUI */
-  if (NULL == id->gtxml)
+  if (NULL == id->dlg)
     {
       idle_dialog_realize (id);
     }
@@ -470,7 +632,7 @@ void
 raise_idle_dialog (GttIdleDialog *id)
 {
   g_return_if_fail (id);
-  g_return_if_fail (id->gtxml);
+  g_return_if_fail (id->dlg);
 
   /* Now, draw the messages in the GUI popup. */
   display_value (id, config_idle_timeout);

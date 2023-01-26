@@ -19,8 +19,6 @@
 
 #include "config.h"
 
-#include <glade/glade.h>
-#include <gnome.h>
 #include <qof.h>
 #include <string.h>
 
@@ -29,6 +27,7 @@
 #include "gtt_current_project.h"
 #include "gtt_help_popup.h"
 #include "gtt_preferences.h"
+#include "gtt_property_box.h"
 #include "gtt_timer.h"
 #include "gtt_toolbar.h"
 #include "gtt_util.h"
@@ -87,8 +86,7 @@ char *config_data_url = NULL;
 
 typedef struct _PrefsDialog
 {
-  GladeXML *gtxml;
-  GnomePropertyBox *dlg;
+  GttPropertyBox *dlg;
   GtkCheckButton *show_secs;
   GtkCheckButton *show_statusbar;
   GtkCheckButton *show_clist_titles;
@@ -371,7 +369,7 @@ set_val (int *const to, const int from, int *const changed)
 }
 
 static void
-prefs_set (GnomePropertyBox *pb, gint page, PrefsDialog *odlg)
+prefs_set (GttPropertyBox *pb, gint page, PrefsDialog *odlg)
 {
   int state;
 
@@ -745,7 +743,7 @@ options_dialog_set (PrefsDialog *odlg)
                                 config_currency_use_locale);
 
   /* set to unmodified as it reflects the current state of the app */
-  gnome_property_box_set_modified (GNOME_PROPERTY_BOX (odlg->dlg), FALSE);
+  gtt_property_box_set_modified (GTT_PROPERTY_BOX (odlg->dlg), FALSE);
 }
 
 /* ============================================================== */
@@ -775,7 +773,7 @@ GtkWidget *
 getwid (GtkWidget *const widget, PrefsDialog *const dlg)
 {
   gtk_signal_connect_object (GTK_OBJECT (widget), "changed",
-                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_SIGNAL_FUNC (gtt_property_box_changed),
                              GTK_OBJECT (dlg->dlg));
 
   return widget;
@@ -785,7 +783,7 @@ GtkWidget *
 getchwid (GtkWidget *const widget, PrefsDialog *const dlg)
 {
   gtk_signal_connect_object (GTK_OBJECT (widget), "toggled",
-                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_SIGNAL_FUNC (gtt_property_box_changed),
                              GTK_OBJECT (dlg->dlg));
 
   return widget;
@@ -794,9 +792,13 @@ getchwid (GtkWidget *const widget, PrefsDialog *const dlg)
 static void
 display_options (PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const frame1 = gtk_frame_new (_ ("Project List Display"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame1), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame1), 0, 0.5);
+  gtk_widget_set_name (frame1, "frame1");
 
-  GtkWidget *const table1 = glade_xml_get_widget (gtxml, "table1");
+  GtkWidget *const table1 = gtk_table_new (4, 1, FALSE);
+  gtk_widget_set_name (table1, "table1");
 
   GtkWidget *const show_secs
       = gtk_check_button_new_with_label (_ ("Show Seconds"));
@@ -845,14 +847,30 @@ display_options (PrefsDialog *dlg)
 
   gtk_table_attach (GTK_TABLE (table1), show_sub, 0, 1, 3, 4, GTK_FILL, 0, 0,
                     0);
+
+  gtk_widget_show (table1);
+
+  gtk_container_add (GTK_CONTAINER (frame1), table1);
+  gtk_widget_show (frame1);
+
+  GtkWidget *const label1 = gtk_label_new (_ ("Display"));
+  gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
+
+  gtt_property_box_append_page (dlg->dlg, frame1, label1);
 }
 
 static void
 field_options (PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const frame7 = gtk_frame_new (_ ("View Project Fields"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame7), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame7), 0, 0.5);
+  gtk_widget_set_name (frame7, "frame7");
 
-  GtkWidget *const table5 = glade_xml_get_widget (gtxml, "table5");
+  GtkWidget *const table5 = gtk_table_new (18, 1, FALSE);
+  gtk_widget_set_name (table5, "table5");
 
   GtkWidget *const show_importance
       = gtk_check_button_new_with_label (_ ("Show Project Importance"));
@@ -1077,14 +1095,32 @@ field_options (PrefsDialog *dlg)
 
   gtk_table_attach (GTK_TABLE (table5), show_percent_complete, 0, 1, 17, 18,
                     GTK_FILL, 0, 0, 0);
+
+  gtk_widget_show (table5);
+
+  gtk_container_add (GTK_CONTAINER (frame7), table5);
+  gtk_widget_show (frame7);
+
+  GtkWidget *const label9 = gtk_label_new (_ ("Fields"));
+  gtk_label_set_justify (GTK_LABEL (label9), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label9, "label9");
+  gtk_widget_show (label9);
+
+  gtt_property_box_append_page (dlg->dlg, frame7, label9);
 }
 
 static void
 shell_command_options (PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const frame2 = gtk_frame_new (_ ("Shell Commands"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame2), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame2), 0, 0.5);
+  gtk_widget_set_name (frame2, "frame2");
 
-  GtkWidget *const table2 = glade_xml_get_widget (gtxml, "table2");
+  GtkWidget *const table2 = gtk_table_new (2, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table2), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table2), 3);
+  gtk_widget_set_name (table2, "table2");
 
   GtkWidget *const label6 = gtk_label_new (_ ("Start Project Command:"));
   gtk_label_set_justify (GTK_LABEL (label6), GTK_JUSTIFY_CENTER);
@@ -1139,14 +1175,32 @@ shell_command_options (PrefsDialog *dlg)
 
   gtk_table_attach (GTK_TABLE (table2), stop_project, 1, 2, 1, 2,
                     GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+
+  gtk_widget_show (table2);
+
+  gtk_container_add (GTK_CONTAINER (frame2), table2);
+  gtk_widget_show (frame2);
+
+  GtkWidget *const label2 = gtk_label_new (_ ("Shell"));
+  gtk_label_set_justify (GTK_LABEL (label2), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label2, "label2");
+  gtk_widget_show (label2);
+
+  gtt_property_box_append_page (dlg->dlg, frame2, label2);
 }
 
 static void
 logfile_options (PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const frame5 = gtk_frame_new (_ ("Logfile"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame5), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame5), 0, 0.5);
+  gtk_widget_set_name (frame5, "frame5");
 
-  GtkWidget *const table4 = glade_xml_get_widget (gtxml, "table4");
+  GtkWidget *const table4 = gtk_table_new (5, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table4), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table4), 3);
+  gtk_widget_set_name (table4, "table4");
 
   GtkWidget *const use_logfile
       = gtk_check_button_new_with_label (_ ("Use Logfile"));
@@ -1181,7 +1235,7 @@ logfile_options (PrefsDialog *dlg)
                                            | GDK_POINTER_MOTION_MASK);
   gtk_widget_set_name (logfile_path, "logfile path");
   gtk_signal_connect_object (GTK_OBJECT (logfile_path), "file-set",
-                             GTK_SIGNAL_FUNC (gnome_property_box_changed),
+                             GTK_SIGNAL_FUNC (gtt_property_box_changed),
                              GTK_OBJECT (dlg->dlg));
   gtk_widget_show (logfile_path);
 
@@ -1264,14 +1318,33 @@ logfile_options (PrefsDialog *dlg)
 
   gtk_table_attach (GTK_TABLE (table4), fmin, 1, 2, 4, 5,
                     GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+
+  gtk_widget_show (table4);
+
+  gtk_container_add (GTK_CONTAINER (frame5), table4);
+  gtk_widget_show (frame5);
+
+  GtkWidget *const label3 = gtk_label_new (_ ("Logfile"));
+  gtk_label_set_justify (GTK_LABEL (label3), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label3, "label3");
+  gtk_widget_show (label3);
+
+  gtt_property_box_append_page (dlg->dlg, frame5, label3);
 }
 
 static void
 toolbar_options (PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const vbox1 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox1, "vbox1");
 
-  GtkWidget *const vbox2 = glade_xml_get_widget (gtxml, "vbox2");
+  GtkWidget *const frame3 = gtk_frame_new (_ ("Toolbar"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame3), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame3), 0, 0.5);
+  gtk_widget_set_name (frame3, "frame3");
+
+  GtkWidget *const vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox2, "vbox2");
 
   GtkWidget *const show_toolbar
       = gtk_check_button_new_with_mnemonic (_ ("Show Toolbar"));
@@ -1297,7 +1370,20 @@ toolbar_options (PrefsDialog *dlg)
 
   gtk_box_pack_start (GTK_BOX (vbox2), show_tips, FALSE, FALSE, 0);
 
-  GtkWidget *const vbox3 = glade_xml_get_widget (gtxml, "vbox3");
+  gtk_widget_show (vbox2);
+
+  gtk_container_add (GTK_CONTAINER (frame3), vbox2);
+  gtk_widget_show (frame3);
+
+  gtk_box_pack_start (GTK_BOX (vbox1), frame3, TRUE, TRUE, 0);
+
+  GtkWidget *const frame4 = gtk_frame_new (_ ("Toolbar Segments"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame4), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame4), 0, 0.5);
+  gtk_widget_set_name (frame4, "frame4");
+
+  GtkWidget *const vbox3 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox3, "vbox3");
 
   GtkWidget *const show_new
       = gtk_check_button_new_with_mnemonic (_ ("Show `New'"));
@@ -1384,14 +1470,39 @@ toolbar_options (PrefsDialog *dlg)
   gtk_widget_show (show_exit);
 
   gtk_box_pack_start (GTK_BOX (vbox3), show_exit, FALSE, FALSE, 0);
+
+  gtk_widget_show (vbox3);
+
+  gtk_container_add (GTK_CONTAINER (frame4), vbox3);
+  gtk_widget_show (frame4);
+
+  gtk_box_pack_start (GTK_BOX (vbox1), frame4, TRUE, TRUE, 0);
+
+  gtk_widget_show (vbox1);
+
+  GtkWidget *const label4 = gtk_label_new (_ ("Toolbar"));
+  gtk_label_set_justify (GTK_LABEL (label4), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label4, "label4");
+  gtk_widget_show (label4);
+
+  gtt_property_box_append_page (dlg->dlg, vbox1, label4);
 }
 
 static void
 misc_options (PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const vbox4 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox4, "vbox4");
 
-  GtkWidget *const table3 = glade_xml_get_widget (gtxml, "table3");
+  GtkWidget *const frame6 = gtk_frame_new (_ ("Inactivity Timeout"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame6), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame6), 0, 0.5);
+  gtk_widget_set_name (frame6, "frame6");
+
+  GtkWidget *const table3 = gtk_table_new (1, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table3), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table3), 3);
+  gtk_widget_set_name (table3, "table3");
 
   GtkWidget *const label8 = gtk_label_new (_ ("Idle Seconds:"));
   gtk_label_set_justify (GTK_LABEL (label8), GTK_JUSTIFY_CENTER);
@@ -1415,7 +1526,22 @@ misc_options (PrefsDialog *dlg)
   gtk_table_attach (GTK_TABLE (table3), idle_secs, 1, 2, 0, 1,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
-  GtkWidget *const table7 = glade_xml_get_widget (gtxml, "table7");
+  gtk_widget_show (table3);
+
+  gtk_container_add (GTK_CONTAINER (frame6), table3);
+  gtk_widget_show (frame6);
+
+  gtk_box_pack_start (GTK_BOX (vbox4), frame6, TRUE, TRUE, 0);
+
+  GtkWidget *const frame9 = gtk_frame_new (_ ("No Project Timeout"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame9), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame9), 0, 0.5);
+  gtk_widget_set_name (frame9, "frame9");
+
+  GtkWidget *const table7 = gtk_table_new (1, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table7), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table7), 3);
+  gtk_widget_set_name (table7, "table7");
 
   GtkWidget *const label19 = gtk_label_new (_ ("Idle Seconds:"));
   gtk_label_set_justify (GTK_LABEL (label19), GTK_JUSTIFY_CENTER);
@@ -1440,7 +1566,21 @@ misc_options (PrefsDialog *dlg)
   gtk_table_attach (GTK_TABLE (table7), no_project_secs, 1, 2, 0, 1,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
-  GtkWidget *const table6 = glade_xml_get_widget (gtxml, "table6");
+  gtk_widget_show (table7);
+
+  gtk_container_add (GTK_CONTAINER (frame9), table7);
+  gtk_widget_show (frame9);
+
+  gtk_box_pack_start (GTK_BOX (vbox4), frame9, TRUE, TRUE, 0);
+
+  GtkWidget *const frame8 = gtk_frame_new (_ ("End of Day/Week"));
+  gtk_frame_set_label_align (GTK_FRAME (frame8), 0, 0.5);
+  gtk_widget_set_name (frame8, "frame8");
+
+  GtkWidget *const table6 = gtk_table_new (2, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table6), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table6), 3);
+  gtk_widget_set_name (table6, "table6");
 
   GtkWidget *const label17 = gtk_label_new (_ ("New Day Starts At:"));
   gtk_misc_set_alignment (GTK_MISC (label17), 0, 0.5);
@@ -1524,14 +1664,38 @@ misc_options (PrefsDialog *dlg)
 
   gtk_table_attach (GTK_TABLE (table6), weekstart_combobox, 1, 2, 1, 2,
                     GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+
+  gtk_widget_show (table6);
+
+  gtk_container_add (GTK_CONTAINER (frame8), table6);
+  gtk_widget_show (frame8);
+
+  gtk_box_pack_start (GTK_BOX (vbox4), frame8, TRUE, TRUE, 0);
+
+  gtk_widget_show (vbox4);
+
+  GtkWidget *const label5 = gtk_label_new (_ ("Misc"));
+  gtk_label_set_justify (GTK_LABEL (label5), GTK_JUSTIFY_CENTER);
+  gtk_widget_set_name (label5, "label5");
+  gtk_widget_show (label5);
+
+  gtt_property_box_append_page (dlg->dlg, vbox4, label5);
 }
 
 static void
-time_format_options (PrefsDialog *dlg)
+time_format_options (GtkWidget *const vbox, PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const frame10 = gtk_frame_new (_ ("Time format"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame10), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame10), 0, 0.5);
+  gtk_widget_set_name (frame10, "frame10");
 
-  GtkWidget *const vbox6 = glade_xml_get_widget (gtxml, "vbox6");
+  GtkWidget *const alignment1 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment1), 0, 0, 12, 0);
+  gtk_widget_set_name (alignment1, "alignment1");
+
+  GtkWidget *const vbox6 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox6, "vbox6");
 
   GtkWidget *const time_format_am_pm
       = gtk_radio_button_new_with_mnemonic (NULL, _ (_ ("12 hours")));
@@ -1568,14 +1732,30 @@ time_format_options (PrefsDialog *dlg)
   gtk_widget_show (time_format_locale);
 
   gtk_box_pack_start (GTK_BOX (vbox6), time_format_locale, FALSE, FALSE, 0);
+
+  gtk_widget_show (vbox6);
+
+  gtk_container_add (GTK_CONTAINER (alignment1), vbox6);
+  gtk_widget_show (alignment1);
+
+  gtk_container_add (GTK_CONTAINER (frame10), alignment1);
+  gtk_widget_show (frame10);
+
+  gtk_box_pack_start (GTK_BOX (vbox), frame10, TRUE, TRUE, 0);
 }
 
 static void
-currency_options (PrefsDialog *dlg)
+currency_options (GtkWidget *const vbox, PrefsDialog *dlg)
 {
-  GladeXML *gtxml = dlg->gtxml;
+  GtkWidget *const frame11 = gtk_frame_new (_ ("Currency settings"));
+  gtk_container_set_border_width (GTK_CONTAINER (frame11), 4);
+  gtk_frame_set_label_align (GTK_FRAME (frame11), 0, 0.5);
+  gtk_widget_set_name (frame11, "frame11");
 
-  GtkWidget *const table8 = glade_xml_get_widget (gtxml, "table8");
+  GtkWidget *const table8 = gtk_table_new (2, 2, FALSE);
+  gtk_table_set_col_spacings (GTK_TABLE (table8), 8);
+  gtk_table_set_row_spacings (GTK_TABLE (table8), 3);
+  gtk_widget_set_name (table8, "table8");
 
   GtkWidget *const currency_use_locale
       = gtk_check_button_new_with_label (_ ("Use my locale formating"));
@@ -1622,12 +1802,19 @@ currency_options (PrefsDialog *dlg)
 
   gtk_table_attach (GTK_TABLE (table8), currency_symbol, 1, 2, 1, 2,
                     GTK_EXPAND, 0, 0, 0);
+
+  gtk_widget_show (table8);
+
+  gtk_container_add (GTK_CONTAINER (frame11), table8);
+  gtk_widget_show (frame11);
+
+  gtk_box_pack_start (GTK_BOX (vbox), frame11, TRUE, TRUE, 0);
 }
 
 /* ============================================================== */
 
 static void
-help_cb (GnomePropertyBox *propertybox, gint page_num, gpointer data)
+help_cb (GttPropertyBox *propertybox, gint page_num, gpointer data)
 {
   gtt_help_popup (GTK_WIDGET (propertybox), data);
 }
@@ -1636,15 +1823,13 @@ static PrefsDialog *
 prefs_dialog_new (void)
 {
   PrefsDialog *dlg;
-  GladeXML *gtxml;
 
   dlg = g_malloc (sizeof (PrefsDialog));
 
-  gtxml = gtt_glade_xml_new ("glade/prefs.glade", "Global Preferences");
-  dlg->gtxml = gtxml;
-
-  dlg->dlg = GNOME_PROPERTY_BOX (
-      glade_xml_get_widget (gtxml, "Global Preferences"));
+  GtkWidget *const global_preferences = gtt_property_box_new ();
+  dlg->dlg = GTT_PROPERTY_BOX (global_preferences);
+  gtk_widget_set_name (global_preferences, "Global Preferences");
+  gtk_window_set_resizable (GTK_WINDOW (global_preferences), FALSE);
 
   gtk_signal_connect (GTK_OBJECT (dlg->dlg), "help", GTK_SIGNAL_FUNC (help_cb),
                       "preferences");
@@ -1654,16 +1839,30 @@ prefs_dialog_new (void)
 
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
-  display_options (dlg);
   field_options (dlg);
+  display_options (dlg);
   shell_command_options (dlg);
   logfile_options (dlg);
   toolbar_options (dlg);
   misc_options (dlg);
-  time_format_options (dlg);
-  currency_options (dlg);
 
-  gnome_dialog_close_hides (GNOME_DIALOG (dlg->dlg), TRUE);
+  GtkWidget *const vbox6 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (vbox6, "vbox6");
+
+  time_format_options (vbox6, dlg);
+  currency_options (vbox6, dlg);
+
+  gtk_widget_show (vbox6);
+
+  GtkWidget *const label21 = gtk_label_new (_ ("Reports"));
+  gtk_widget_set_name (label21, "label21");
+  gtk_widget_show (label21);
+
+  gtt_property_box_append_page (dlg->dlg, vbox6, label21);
+
+  gtk_widget_show (global_preferences);
+
+  gtt_dialog_close_hides (GTT_DIALOG (dlg->dlg), TRUE);
   return dlg;
 }
 

@@ -17,6 +17,5 @@ src/props-task.c
 src/timer.c
 src/toolbar.c
 glade/journal.glade
-glade/prefs.glade
 glade/task_properties.glade
 gnotime.desktop.in

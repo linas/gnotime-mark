@@ -2,7 +2,6 @@
 gttgladedir = $(datadir)/gnotime/glade
 
 gttglade_DATA =              \
-  interval_edit.glade        \
   journal.glade              \
   plugin_editor.glade        \
   prefs.glade                \

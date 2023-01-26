@@ -18,7 +18,6 @@ src/timer.c
 src/toolbar.c
 glade/interval_edit.glade
 glade/journal.glade
-glade/notes.glade
 glade/prefs.glade
 glade/task_properties.glade
 gnotime.desktop.in

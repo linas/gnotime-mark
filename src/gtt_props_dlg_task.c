@@ -1,5 +1,6 @@
 /*   Task Properties for GTimeTracker - a time tracker
  *   Copyright (C) 2001,2002,2003,2004 Linas Vepstas <linas@linas.org>
+ * Copyright (C) 2023      Markus Prasser
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,8 +21,9 @@
 
 #include "gtt_props_dlg_task.h"
 
-#include <glade/glade.h>
-#include <gnome.h>
+#include <glib/gi18n.h>
+
+#include <stdlib.h>
 #include <string.h>
 
 #include "gtt_entry.h"
@@ -31,7 +33,6 @@
 
 typedef struct PropTaskDlg_s
 {
-  GladeXML *gtxml;
   GtkDialog *dlg;
   GtkEntry *memo;
   GtkTextView *notes;
@@ -228,41 +229,6 @@ destroy_cb (GtkWidget *w, PropTaskDlg *dlg)
 
 /* ============================================================== */
 
-#define NTAGGED(WDGT)                                                         \
-  ({                                                                          \
-    g_signal_connect (G_OBJECT (WDGT), "changed",                             \
-                      G_CALLBACK (save_task_notes), dlg);                     \
-    WDGT;                                                                     \
-  })
-
-#define BTAGGED(WDGT)                                                         \
-  ({                                                                          \
-    g_signal_connect (G_OBJECT (WDGT), "changed",                             \
-                      G_CALLBACK (save_task_billinfo), dlg);                  \
-    WDGT;                                                                     \
-  })
-
-#define TEXTED(NAME)                                                          \
-  ({                                                                          \
-    GtkWidget *widget;                                                        \
-    GtkTextBuffer *buff;                                                      \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    buff = gtk_text_view_get_buffer (GTK_TEXT_VIEW (widget));                 \
-    g_signal_connect (G_OBJECT (buff), "changed",                             \
-                      G_CALLBACK (save_task_notes), dlg);                     \
-    widget;                                                                   \
-  })
-
-#define MUGGED(NAME)                                                          \
-  ({                                                                          \
-    GtkWidget *widget, *mw;                                                   \
-    widget = glade_xml_get_widget (gtxml, NAME);                              \
-    mw = gtk_option_menu_get_menu (GTK_OPTION_MENU (widget));                 \
-    g_signal_connect (G_OBJECT (mw), "selection_done",                        \
-                      G_CALLBACK (save_task_billinfo), dlg);                  \
-    GTK_OPTION_MENU (widget);                                                 \
-  })
-
 #define MENTRY(WIDGET, NAME, ORDER, VAL)                                      \
   {                                                                           \
     GtkWidget *menu_item;                                                     \
@@ -276,23 +242,81 @@ static PropTaskDlg *
 prop_task_dialog_new (void)
 {
   PropTaskDlg *dlg = NULL;
-  GladeXML *gtxml;
 
   dlg = g_new0 (PropTaskDlg, 1);
 
-  gtxml = gtt_glade_xml_new ("glade/task_properties.glade", "Task Properties");
-  dlg->gtxml = gtxml;
+  GtkWidget *const task_properties = gtk_dialog_new ();
+  dlg->dlg = GTK_DIALOG (task_properties);
+  gtk_dialog_set_has_separator (GTK_DIALOG (task_properties), TRUE);
+  gtk_window_set_destroy_with_parent (GTK_WINDOW (task_properties), FALSE);
+  gtk_window_set_modal (GTK_WINDOW (task_properties), FALSE);
+  gtk_window_set_position (GTK_WINDOW (task_properties), GTK_WIN_POS_NONE);
+  gtk_window_set_resizable (GTK_WINDOW (task_properties), TRUE);
+  gtk_window_set_title (GTK_WINDOW (task_properties), _ ("Diary Notes"));
 
-  dlg->dlg = GTK_DIALOG (glade_xml_get_widget (gtxml, "Task Properties"));
+  GtkWidget *const action_area
+      = gtk_dialog_get_action_area (GTK_DIALOG (task_properties));
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (action_area), GTK_BUTTONBOX_END);
 
-  GtkWidget *const task_table = glade_xml_get_widget (gtxml, "task table");
+  GtkWidget *const help_button = gtk_button_new_from_stock (GTK_STOCK_HELP);
+  gtk_button_set_relief (GTK_BUTTON (help_button), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (help_button, TRUE);
+  gtk_widget_set_can_focus (help_button, TRUE);
+  gtk_widget_set_name (help_button, "help button");
+  g_signal_connect (help_button, "clicked", G_CALLBACK (gtt_help_popup),
+                    "properties");
+  gtk_widget_show (help_button);
+
+  gtk_box_pack_start (GTK_BOX (action_area), help_button, TRUE, TRUE, 0);
+
+  GtkWidget *const okbutton1 = gtk_button_new_from_stock (GTK_STOCK_OK);
+  gtk_button_set_relief (GTK_BUTTON (okbutton1), GTK_RELIEF_NORMAL);
+  gtk_widget_set_can_default (okbutton1, TRUE);
+  gtk_widget_set_can_focus (okbutton1, TRUE);
+  gtk_widget_set_name (okbutton1, "okbutton1");
+  g_signal_connect (okbutton1, "clicked", G_CALLBACK (close_cb), dlg);
+  gtk_widget_show (okbutton1);
+
+  gtk_box_pack_start (GTK_BOX (action_area), okbutton1, TRUE, TRUE, 0);
+
+  GtkWidget *const content_area
+      = gtk_dialog_get_content_area (GTK_DIALOG (task_properties));
+
+  GtkWidget *const notebook = gtk_notebook_new ();
+  gtk_notebook_popup_disable (GTK_NOTEBOOK (notebook));
+  gtk_notebook_set_scrollable (GTK_NOTEBOOK (notebook), FALSE);
+  gtk_notebook_set_show_border (GTK_NOTEBOOK (notebook), TRUE);
+  gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook), TRUE);
+  gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook), GTK_POS_TOP);
+  gtk_widget_set_can_focus (notebook, TRUE);
+  gtk_widget_set_name (notebook, "notebook");
+
+  GtkWidget *const task_table = gtk_table_new (2, 2, FALSE);
+  gtk_container_set_border_width (GTK_CONTAINER (task_table), 7);
+  gtk_table_set_col_spacings (GTK_TABLE (task_table), 7);
+  gtk_table_set_row_spacings (GTK_TABLE (task_table), 7);
+  gtk_widget_set_name (task_table, "task table");
+
+  GtkWidget *const label1 = gtk_label_new (_ ("Diary Entry:"));
+  gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label1), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label1), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label1), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label1), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label1), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label1), 0, 0);
+  gtk_widget_set_name (label1, "label1");
+  gtk_widget_show (label1);
+
+  gtk_table_attach (GTK_TABLE (task_table), label1, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
 
   GtkWidget *const entry3 = gtt_entry_new ("task-memo");
   gtt_entry_set_max_saved (GTT_ENTRY (entry3), 10);
   gtk_widget_set_name (entry3, "entry3");
 
   GtkWidget *const memo_box = gtt_entry_gtk_entry (GTT_ENTRY (entry3));
-  dlg->memo = GTK_ENTRY (NTAGGED (memo_box));
+  dlg->memo = GTK_ENTRY (memo_box);
   gtk_entry_set_activates_default (GTK_ENTRY (memo_box), FALSE);
   gtk_entry_set_editable (GTK_ENTRY (memo_box), TRUE);
   gtk_entry_set_has_frame (GTK_ENTRY (memo_box), TRUE);
@@ -303,6 +327,8 @@ prop_task_dialog_new (void)
   gtk_widget_set_name (memo_box, "memo box");
   gtk_widget_set_tooltip_text (
       memo_box, _ ("A short description to attach to this block of time."));
+  g_signal_connect (G_OBJECT (memo_box), "changed",
+                    G_CALLBACK (save_task_notes), dlg);
   gtk_widget_show (memo_box);
 
   gtk_widget_show (entry3);
@@ -310,12 +336,66 @@ prop_task_dialog_new (void)
   gtk_table_attach (GTK_TABLE (task_table), entry3, 1, 2, 0, 1,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
+  GtkWidget *const label2 = gtk_label_new (_ ("Notes:"));
+  gtk_label_set_justify (GTK_LABEL (label2), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label2), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label2), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label2), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label2), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label2), 0, 0);
+  gtk_misc_set_padding (GTK_MISC (label2), 0, 0);
+  gtk_widget_set_name (label2, "label2");
+  gtk_widget_show (label2);
+
+  gtk_table_attach (GTK_TABLE (task_table), label2, 0, 1, 1, 2, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_placement (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                     GTK_CORNER_TOP_LEFT);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1),
+                                       GTK_SHADOW_IN);
+  gtk_widget_set_name (scrolledwindow1, "scrolledwindow1");
+
+  GtkWidget *const notes_box = gtk_text_view_new ();
+  dlg->notes = GTK_TEXT_VIEW (notes_box);
+  gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (notes_box), TRUE);
+  gtk_text_view_set_editable (GTK_TEXT_VIEW (notes_box), TRUE);
+  gtk_text_view_set_indent (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_justification (GTK_TEXT_VIEW (notes_box),
+                                   GTK_JUSTIFY_LEFT);
+  gtk_text_view_set_left_margin (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_pixels_inside_wrap (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_right_margin (GTK_TEXT_VIEW (notes_box), 0);
+  gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (notes_box), GTK_WRAP_WORD);
+  gtk_widget_set_can_focus (notes_box, TRUE);
+  gtk_widget_set_name (notes_box, "notes box");
+  gtk_widget_set_tooltip_text (notes_box,
+                               _ ("Type detailed diary entry notes here."));
+
+  GtkTextBuffer *const notes_box_buffer
+      = gtk_text_view_get_buffer (GTK_TEXT_VIEW (notes_box));
+  g_signal_connect (G_OBJECT (notes_box_buffer), "changed",
+                    G_CALLBACK (save_task_notes), dlg);
+
+  gtk_widget_show (notes_box);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow1), notes_box);
+  gtk_widget_show (scrolledwindow1);
+
+  gtk_table_attach (GTK_TABLE (task_table), scrolledwindow1, 1, 2, 1, 2,
+                    GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
+
   GtkWidget *const entry4 = gtt_entry_new ("bill-unit");
   gtt_entry_set_max_saved (GTT_ENTRY (entry4), 10);
   gtk_widget_set_name (entry4, "entry4");
 
   GtkWidget *const unit_box = gtt_entry_gtk_entry (GTT_ENTRY (entry4));
-  dlg->unit = GTK_ENTRY (BTAGGED (unit_box));
+  dlg->unit = GTK_ENTRY (unit_box);
   gtk_entry_set_activates_default (GTK_ENTRY (unit_box), FALSE);
   gtk_entry_set_editable (GTK_ENTRY (unit_box), TRUE);
   gtk_entry_set_has_frame (GTK_ENTRY (unit_box), TRUE);
@@ -327,6 +407,8 @@ prop_task_dialog_new (void)
   gtk_widget_set_tooltip_text (unit_box,
                                _ ("The billed unit of time will be rounded to "
                                   "an integer multiple of this time."));
+  g_signal_connect (G_OBJECT (unit_box), "changed",
+                    G_CALLBACK (save_task_billinfo), dlg);
   gtk_widget_show (unit_box);
 
   gtk_widget_show (entry4);
@@ -334,12 +416,259 @@ prop_task_dialog_new (void)
   gtk_table_attach (GTK_TABLE (task_table), entry4, 1, 2, 3, 4,
                     GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
-  glade_xml_signal_connect_data (gtxml, "on_help_button_clicked",
-                                 GTK_SIGNAL_FUNC (gtt_help_popup),
-                                 "properties");
+  gtk_widget_show (task_table);
 
-  glade_xml_signal_connect_data (gtxml, "on_ok_button_clicked",
-                                 GTK_SIGNAL_FUNC (close_cb), dlg);
+  GtkWidget *const label5 = gtk_label_new (_ ("Diary Notes"));
+  gtk_label_set_justify (GTK_LABEL (label5), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label5), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label5), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label5), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label5), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label5), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label5), 0, 0);
+  gtk_widget_set_name (label5, "label5");
+  gtk_widget_show (label5);
+
+  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), task_table, label5);
+
+  GtkWidget *const table1 = gtk_table_new (4, 3, FALSE);
+  gtk_container_set_border_width (GTK_CONTAINER (table1), 7);
+  gtk_table_set_col_spacings (GTK_TABLE (table1), 7);
+  gtk_table_set_row_spacings (GTK_TABLE (table1), 7);
+  gtk_widget_set_name (table1, "table1");
+
+  GtkWidget *const label16 = gtk_label_new (_ ("Billing Status:"));
+  gtk_label_set_justify (GTK_LABEL (label16), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label16), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label16), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label16), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label16), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label16), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label16), 0, 0);
+  gtk_widget_set_name (label16, "label16");
+  gtk_widget_show (label16);
+
+  gtk_table_attach (GTK_TABLE (table1), label16, 0, 1, 0, 1, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const billstatus_menu = gtk_option_menu_new ();
+  dlg->billstatus = GTK_OPTION_MENU (billstatus_menu);
+  gtk_widget_set_can_focus (billstatus_menu, TRUE);
+  gtk_widget_set_name (billstatus_menu, "billstatus menu");
+  gtk_widget_set_tooltip_text (
+      billstatus_menu,
+      _ ("Is this task ready to be billed to the customer? \"Hold\" means "
+         "maybe, but not yet, needs review.   \"Bill\" means print this on "
+         "the next invoice.   \"Paid\" means that it should no longer be "
+         "included on invoices."));
+
+  GtkWidget *const convertwidget12 = gtk_menu_new ();
+  gtk_widget_set_name (convertwidget12, "convertwidget12");
+
+  GtkWidget *const convertwidget13
+      = gtk_menu_item_new_with_mnemonic (_ ("Hold"));
+  gtk_widget_set_name (convertwidget13, "convertwidget13");
+  gtk_widget_show (convertwidget13);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget12), convertwidget13);
+
+  GtkWidget *const convertwidget14
+      = gtk_menu_item_new_with_mnemonic (_ ("Bill"));
+  gtk_widget_set_name (convertwidget14, "convertwidget14");
+  gtk_widget_show (convertwidget14);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget12), convertwidget14);
+
+  GtkWidget *const convertwidget15
+      = gtk_menu_item_new_with_mnemonic (_ ("Paid"));
+  gtk_widget_set_name (convertwidget15, "convertwidget15");
+  gtk_widget_show (convertwidget15);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget12), convertwidget15);
+
+  g_signal_connect (G_OBJECT (convertwidget12), "selection_done",
+                    G_CALLBACK (save_task_billinfo), dlg);
+  gtk_widget_show (convertwidget12);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (billstatus_menu),
+                            convertwidget12);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (billstatus_menu), 0);
+  gtk_widget_show (billstatus_menu);
+
+  gtk_table_attach (GTK_TABLE (table1), billstatus_menu, 1, 2, 0, 1, GTK_FILL,
+                    0, 0, 0);
+
+  GtkWidget *const label15 = gtk_label_new (_ ("Billable:"));
+  gtk_label_set_justify (GTK_LABEL (label15), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label15), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label15), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label15), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label15), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label15), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label15), 0, 0);
+  gtk_widget_set_name (label15, "label15");
+  gtk_widget_show (label15);
+
+  gtk_table_attach (GTK_TABLE (table1), label15, 0, 1, 1, 2, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const billable_menu = gtk_option_menu_new ();
+  dlg->billable = GTK_OPTION_MENU (billable_menu);
+  gtk_widget_set_can_focus (billable_menu, TRUE);
+  gtk_widget_set_name (billable_menu, "billable menu");
+  gtk_widget_set_tooltip_text (
+      billable_menu,
+      _ ("How should this task be billed?  \"Billable\" means bill to the "
+         "customer in the normal fashion.   \"Not Billable\" means we can't "
+         "ask for money for this, don't print on the invoice.   \"No Charge\" "
+         "means print on the invoice as 'free/no-charge'."));
+
+  GtkWidget *const convertwidget8 = gtk_menu_new ();
+  gtk_widget_set_name (convertwidget8, "convertwidget8");
+
+  GtkWidget *const convertwidget9
+      = gtk_menu_item_new_with_mnemonic (_ ("Billable"));
+  gtk_widget_set_name (convertwidget9, "convertwidget9");
+  gtk_widget_show (convertwidget9);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget8), convertwidget9);
+
+  GtkWidget *const convertwidget10
+      = gtk_menu_item_new_with_mnemonic (_ ("Not Billable"));
+  gtk_widget_set_name (convertwidget10, "convertwidget10");
+  gtk_widget_show (convertwidget10);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget8), convertwidget10);
+
+  GtkWidget *const convertwidget11
+      = gtk_menu_item_new_with_mnemonic (_ ("No Charge"));
+  gtk_widget_set_name (convertwidget11, "convertwidget11");
+  gtk_widget_show (convertwidget11);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget8), convertwidget11);
+
+  g_signal_connect (G_OBJECT (convertwidget8), "selection_done",
+                    G_CALLBACK (save_task_billinfo), dlg);
+  gtk_widget_show (convertwidget8);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (billable_menu), convertwidget8);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (billable_menu), 0);
+  gtk_widget_show (billable_menu);
+
+  gtk_table_attach (GTK_TABLE (table1), billable_menu, 1, 2, 1, 2, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const label14 = gtk_label_new (_ ("Billing Rate:"));
+  gtk_label_set_justify (GTK_LABEL (label14), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label14), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label14), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label14), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label14), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label14), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label14), 0, 0);
+  gtk_widget_set_name (label14, "label14");
+  gtk_widget_show (label14);
+
+  gtk_table_attach (GTK_TABLE (table1), label14, 0, 1, 2, 3, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const billrate_menu = gtk_option_menu_new ();
+  dlg->billrate = GTK_OPTION_MENU (billrate_menu);
+  gtk_widget_set_can_focus (billrate_menu, TRUE);
+  gtk_widget_set_name (billrate_menu, "billrate menu");
+  gtk_widget_set_tooltip_text (billrate_menu,
+                               _ ("Fee rate to be charged for this task."));
+
+  GtkWidget *const convertwidget3 = gtk_menu_new ();
+  gtk_widget_set_name (convertwidget3, "convertwidget3");
+
+  GtkWidget *const convertwidget4
+      = gtk_menu_item_new_with_mnemonic (_ ("Regular"));
+  gtk_widget_set_name (convertwidget4, "convertwidget4");
+  gtk_widget_show (convertwidget4);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget3), convertwidget4);
+
+  GtkWidget *const convertwidget5
+      = gtk_menu_item_new_with_mnemonic (_ ("Overtime"));
+  gtk_widget_set_name (convertwidget5, "convertwidget5");
+  gtk_widget_show (convertwidget5);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget3), convertwidget5);
+
+  GtkWidget *const convertwidget6
+      = gtk_menu_item_new_with_mnemonic (_ ("OverOver"));
+  gtk_widget_set_name (convertwidget6, "convertwidget6");
+  gtk_widget_show (convertwidget6);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget3), convertwidget6);
+
+  GtkWidget *const convertwidget7
+      = gtk_menu_item_new_with_mnemonic (_ ("Flat Fee"));
+  gtk_widget_set_name (convertwidget7, "convertwidget7");
+  gtk_widget_show (convertwidget7);
+
+  gtk_menu_shell_append (GTK_MENU_SHELL (convertwidget3), convertwidget7);
+
+  g_signal_connect (G_OBJECT (convertwidget3), "selection_done",
+                    G_CALLBACK (save_task_billinfo), dlg);
+  gtk_widget_show (convertwidget3);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (billrate_menu), convertwidget3);
+  gtk_option_menu_set_history (GTK_OPTION_MENU (billrate_menu), 0);
+  gtk_widget_show (billrate_menu);
+
+  gtk_table_attach (GTK_TABLE (table1), billrate_menu, 1, 2, 2, 3, GTK_FILL, 0,
+                    0, 0);
+
+  GtkWidget *const label12 = gtk_label_new (_ ("Billing Block:"));
+  gtk_label_set_justify (GTK_LABEL (label12), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label12), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label12), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label12), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label12), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label12), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label12), 0, 0);
+  gtk_widget_set_name (label12, "label12");
+  gtk_widget_show (label12);
+
+  gtk_table_attach (GTK_TABLE (table1), label12, 0, 1, 3, 4, GTK_FILL, 0, 0,
+                    0);
+
+  GtkWidget *const label13 = gtk_label_new (_ ("minutes"));
+  gtk_label_set_justify (GTK_LABEL (label13), GTK_JUSTIFY_CENTER);
+  gtk_label_set_line_wrap (GTK_LABEL (label13), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label13), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label13), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label13), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label13), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label13), 0, 0);
+  gtk_widget_set_name (label13, "label13");
+  gtk_widget_show (label13);
+
+  gtk_table_attach (GTK_TABLE (table1), label13, 2, 3, 3, 4, GTK_FILL, 0, 0,
+                    0);
+
+  gtk_widget_show (table1);
+
+  GtkWidget *const label9 = gtk_label_new (_ ("Billing"));
+  gtk_label_set_justify (GTK_LABEL (label9), GTK_JUSTIFY_LEFT);
+  gtk_label_set_line_wrap (GTK_LABEL (label9), FALSE);
+  gtk_label_set_selectable (GTK_LABEL (label9), FALSE);
+  gtk_label_set_use_markup (GTK_LABEL (label9), FALSE);
+  gtk_label_set_use_underline (GTK_LABEL (label9), FALSE);
+  gtk_misc_set_alignment (GTK_MISC (label9), 0.5, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label9), 0, 0);
+  gtk_widget_set_name (label9, "label9");
+  gtk_widget_show (label9);
+
+  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), table1, label9);
+
+  gtk_widget_show (notebook);
+
+  gtk_box_pack_start (GTK_BOX (content_area), notebook, TRUE, TRUE, 0);
+
+  gtk_widget_show (task_properties);
 
   g_signal_connect (G_OBJECT (dlg->dlg), "close", G_CALLBACK (close_cb), dlg);
   g_signal_connect (G_OBJECT (dlg->dlg), "destroy", G_CALLBACK (destroy_cb),
@@ -347,12 +676,6 @@ prop_task_dialog_new (void)
 
   /* ------------------------------------------------------ */
   /* grab the various entry boxes and hook them up */
-
-  dlg->notes = GTK_TEXT_VIEW (TEXTED ("notes box"));
-
-  dlg->billstatus = MUGGED ("billstatus menu");
-  dlg->billable = MUGGED ("billable menu");
-  dlg->billrate = MUGGED ("billrate menu");
 
   /* ------------------------------------------------------ */
   /* associate values with the three option menus */

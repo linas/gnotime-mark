@@ -281,7 +281,6 @@ doc/C/man/Makefile
 doc/Makefile
 ghtml/C/Makefile
 ghtml/Makefile
-glade/Makefile
 po/Makefile.in
 redhat/Makefile
 redhat/gnotime.spec

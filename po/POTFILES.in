@@ -16,5 +16,4 @@ src/props-proj.c
 src/props-task.c
 src/timer.c
 src/toolbar.c
-glade/journal.glade
 gnotime.desktop.in

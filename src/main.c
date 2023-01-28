@@ -23,7 +23,6 @@
 
 #include <errno.h>
 #include <gio/gio.h>
-#include <glade/glade.h>
 #include <gnome.h>
 #include <libgnomeui/gnome-window-icon.h>
 #include <libguile.h>
@@ -820,8 +819,6 @@ main (int argc, char *argv[])
   g_signal_connect (G_OBJECT (client), "save_yourself",
                     G_CALLBACK (save_state), (gpointer)argv[0]);
   g_signal_connect (G_OBJECT (client), "die", G_CALLBACK (session_die), NULL);
-
-  glade_init ();
 
 #ifdef HAVE_DECL_WNOHANG
   /* Create a signal handler to reap zombie processes.  Most portable */

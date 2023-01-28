@@ -108,7 +108,6 @@ AM_CFLAGS = -g -Wall     \
 	${LIBGNOME_CFLAGS}     \
 	${LIBGNOMEUI_CFLAGS}     \
 	${LIBGTKHTML_CFLAGS}  \
-	${LIBGLADE_CFLAGS}    \
 	${LIBXML2_CFLAGS} \
 	${GUILE_CFLAGS} ${X11_CFLAGS}
 
@@ -118,7 +117,6 @@ INCLUDES =                                   \
 	$(XSS_EXTENSION_CFLAGS)                   \
 	-I$(includedir)                           \
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\"  \
-	-DGTTGLADEDIR=\""$(datadir)/gnotime"\"    \
 	-DPREFIX=\""$(prefix)"\"                  \
 	-DSYSCONFDIR=\""$(sysconfdir)/gnotime"\"  \
 	-DGTTDATADIR=\""$(datadir)/gnotime"\"     \
@@ -140,7 +138,6 @@ gnotime_LDADD =          \
 	$(LIBQOF_LIBS)        \
 	$(LIBDBUS_LIBS)       \
 	$(XSS_EXTENSION_LIBS) \
-	$(LIBGLADE_LIBS)      \
 	$(LIBGTKHTML_LIBS)    \
 	$(LIBXML2_LIBS)       \
 	${GUILE_LIBS}         \

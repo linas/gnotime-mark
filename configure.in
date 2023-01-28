@@ -49,7 +49,6 @@ LIBGNOME_REQUIRED=2.0.0
 LIBGNOMEUI_REQUIRED=2.0.3
 GLIB_REQUIRED=2.32.4
 GTK_REQUIRED=2.12
-LIBGLADE_REQUIRED=2.0.0
 LIBGTKHTML_REQUIRED=3.0.0
 LIBXML2_REQUIRED=2.0.0
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
@@ -107,13 +106,6 @@ dnl *****************************************
 PKG_CHECK_MODULES(X11, x11)
 AC_SUBST(X11_CFLAGS)
 AC_SUBST(X11_LIBS)
-
-dnl *****************************************
-dnl need libglade
-dnl *****************************************
-PKG_CHECK_MODULES(LIBGLADE, libglade-2.0 >= $LIBGLADE_REQUIRED)
-AC_SUBST(LIBGLADE_CFLAGS)
-AC_SUBST(LIBGLADE_LIBS)
 
 dnl **************************************************************
 dnl If QOF is found on the build system, then use it.

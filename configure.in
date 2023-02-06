@@ -1,5 +1,5 @@
 AC_INIT(src)
-AM_INIT_AUTOMAKE(gnotime, 2.4.0)
+AM_INIT_AUTOMAKE(gnotime, 2.99.0)
 
 dnl AC_PROG_INTLTOOL
 
@@ -47,10 +47,8 @@ dnl *****************************************
 
 LIBGNOME_REQUIRED=2.0.0
 LIBGNOMEUI_REQUIRED=2.0.3
-GLIB_REQUIRED=2.14
+GLIB_REQUIRED=2.32.4
 GTK_REQUIRED=2.12
-LIBGNOMEVFS_REQUIRED=2.0.0
-LIBGLADE_REQUIRED=2.0.0
 LIBGTKHTML_REQUIRED=3.0.0
 LIBXML2_REQUIRED=2.0.0
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
@@ -109,29 +107,6 @@ PKG_CHECK_MODULES(X11, x11)
 AC_SUBST(X11_CFLAGS)
 AC_SUBST(X11_LIBS)
 
-dnl *****************************************
-dnl need libglade
-dnl *****************************************
-PKG_CHECK_MODULES(LIBGLADE, libglade-2.0 >= $LIBGLADE_REQUIRED)
-AC_SUBST(LIBGLADE_CFLAGS)
-AC_SUBST(LIBGLADE_LIBS)
-
-dnl *********************************************
-dnl for anything which calls gconftool-2 correctly
-dnl *********************************************
-AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
-
-if test x"$GCONFTOOL" = xno; then
-  AC_MSG_ERROR([gconftool-2 executable not found in your path - should be installed with GConf])
-fi
-
-dnl *****************************************
-dnl Check for gconf
-dnl *****************************************
-PKG_CHECK_MODULES(GCONF, gconf-2.0)
-AC_SUBST(GCONF_CFLAGS)
-AC_SUBST(GCONF_LIBS)
-
 dnl **************************************************************
 dnl If QOF is found on the build system, then use it.
 dnl **************************************************************
@@ -164,15 +139,6 @@ WITH_DBUS=1
 WITH_DBUS=0
 ])
 AC_SUBST(WITH_DBUS)
-
-
-dnl *******************************
-dnl Gnome VFS
-dnl *******************************
-
-PKG_CHECK_MODULES(LIBGNOMEVFS, gnome-vfs-2.0 >= $LIBGNOMEVFS_REQUIRED)
-AC_SUBST(LIBGNOMEVFS_CFLAGS)
-AC_SUBST(LIBGNOMEVFS_LIBS)
 
 
 dnl *******************************
@@ -305,10 +271,8 @@ Makefile
 doc/C/Makefile
 doc/C/man/Makefile
 doc/Makefile
-gconf/Makefile
 ghtml/C/Makefile
 ghtml/Makefile
-glade/Makefile
 po/Makefile.in
 redhat/Makefile
 redhat/gnotime.spec

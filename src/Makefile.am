@@ -8,81 +8,92 @@
 
 bin_PROGRAMS = gnotime
 
-gnotime_SOURCES =     \
-	active-dialog.c    \
-	app.c              \
-	projects-tree.c    \
-	dialog.c           \
-	err.c              \
-	err-throw.c        \
-	export.c           \
-	file-io.c          \
-	gconf-gnomeui.c    \
-	gconf-io.c         \
-	ghtml.c            \
-	ghtml-deprecated.c \
-	idle-dialog.c      \
-	journal.c          \
-	log.c              \
-	main.c             \
-	menucmd.c          \
-	menus.c            \
-	myoaf.c            \
-	notes-area.c       \
-	plug-edit.c        \
-	plug-in.c          \
-	prefs.c            \
-	proj.c             \
-	proj-query.c       \
-	props-invl.c       \
-	props-proj.c       \
-	props-task.c       \
-	query.c            \
-	status-icon.c      \
-	timer.c            \
-	toolbar.c          \
-	util.c             \
-	xml-read.c         \
-	xml-write.c        \
-	dbus.c
+gnotime_SOURCES =                \
+	gtt_activation_dialog.c  \
+	gtt_application_window.c \
+	gtt_date_edit.c          \
+	gtt_dbus.c               \
+	gtt_dialog.c             \
+	gtt_entry.c              \
+	gtt_err_throw.c          \
+	gtt_export.c             \
+	gtt_file_io.c            \
+	gtt_ghtml.c              \
+	gtt_ghtml_deprecated.c   \
+	gtt_gsettings_gnomeui.c  \
+	gtt_gsettings_io.c       \
+	gtt_gsettings_io_p.c     \
+	gtt_help_popup.c         \
+	gtt_idle_dialog.c        \
+	gtt_idle_timer.c         \
+	gtt_journal.c            \
+	gtt_log.c                \
+	gtt_menu_commands.c      \
+	gtt_menus.c              \
+	gtt_myoaf.c              \
+	gtt_notes_area.c         \
+	gtt_plug_in.c            \
+	gtt_plug_in_edit.c       \
+	gtt_preferences.c        \
+	gtt_project.c            \
+	gtt_project_queries.c    \
+	gtt_projects_tree.c      \
+	gtt_property_box.c       \
+	gtt_props_dlg_interval.c \
+	gtt_props_dlg_project.c  \
+	gtt_props_dlg_task.c     \
+	gtt_queries.c            \
+	gtt_signal_handlers.c    \
+	gtt_status_icon.c        \
+	gtt_timer.c              \
+	gtt_toolbar.c            \
+	gtt_util.c               \
+	gtt_xml_read.c           \
+	gtt_xml_write.c          \
+	main.c
 
-noinst_HEADERS =      \
-	active-dialog.h    \
-	app.h              \
-	projects-tree.h    \
-	dbus.h             \
-	cur-proj.h         \
-	dialog.h           \
-	err-throw.h        \
-	export.h           \
-	file-io.h          \
-	gconf-gnomeui.h    \
-	gconf-io.h         \
-	gconf-io-p.h       \
-	ghtml.h            \
-	ghtml-deprecated.h \
-	gtt.h              \
-	idle-dialog.h      \
-	journal.h          \
-	log.h              \
-	menucmd.h          \
-	menus.h            \
-	myoaf.h            \
-	notes-area.h       \
-	plug-in.h          \
-	prefs.h            \
-	proj.h             \
-	proj_p.h           \
-	proj-query.h       \
-	props-invl.h       \
-	props-proj.h       \
-	props-task.h       \
-	query.h            \
-	status-icon.h      \
-	timer.h            \
-	toolbar.h          \
-	util.h             \
-	xml-gtt.h
+noinst_HEADERS =                 \
+	gtt_activation_dialog.h  \
+	gtt_application_window.h \
+	gtt_current_project.h    \
+	gtt_date_edit.h          \
+	gtt_dbus.h               \
+	gtt_dialog.h             \
+	gtt_entry.h              \
+	gtt_err_throw.h          \
+	gtt_export.h             \
+	gtt_file_io.h            \
+	gtt_ghtml_deprecated.h   \
+	gtt_ghtml.h              \
+	gtt_gsettings_gnomeui.h  \
+	gtt_gsettings_io.h       \
+	gtt_gsettings_io_p.h     \
+	gtt.h                    \
+	gtt_help_popup.h         \
+	gtt_idle_dialog.h        \
+	gtt_idle_timer.h         \
+	gtt_journal.h            \
+	gtt_log.h                \
+	gtt_menu_commands.h      \
+	gtt_menus.h              \
+	gtt_myoaf.h              \
+	gtt_notes_area.h         \
+	gtt_plug_in.h            \
+	gtt_preferences.h        \
+	gtt_project.h            \
+	gtt_project_p.h          \
+	gtt_project_queries.h    \
+	gtt_projects_tree.h      \
+	gtt_property_box.h       \
+	gtt_props_dlg_interval.h \
+	gtt_props_dlg_project.h  \
+	gtt_props_dlg_task.h     \
+	gtt_queries.h            \
+	gtt_status_icon.h        \
+	gtt_timer.h              \
+	gtt_toolbar.h            \
+	gtt_util.h               \
+	gtt_xml.h
 
 # disable depricated when we find work-around for ctree, property box.
 #
@@ -96,10 +107,7 @@ AM_CFLAGS = -g -Wall     \
 	${GTK_CFLAGS}     \
 	${LIBGNOME_CFLAGS}     \
 	${LIBGNOMEUI_CFLAGS}     \
-	${GCONF_CFLAGS}       \
-	${LIBGNOMEVFS_CFLAGS} \
 	${LIBGTKHTML_CFLAGS}  \
-	${LIBGLADE_CFLAGS}    \
 	${LIBXML2_CFLAGS} \
 	${GUILE_CFLAGS} ${X11_CFLAGS}
 
@@ -109,7 +117,6 @@ INCLUDES =                                   \
 	$(XSS_EXTENSION_CFLAGS)                   \
 	-I$(includedir)                           \
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\"  \
-	-DGTTGLADEDIR=\""$(datadir)/gnotime"\"    \
 	-DPREFIX=\""$(prefix)"\"                  \
 	-DSYSCONFDIR=\""$(sysconfdir)/gnotime"\"  \
 	-DGTTDATADIR=\""$(datadir)/gnotime"\"     \
@@ -120,21 +127,18 @@ INCLUDES =                                   \
 	${GTK_CFLAGS}     \
 	${LIBGNOME_CFLAGS}     \
 	${LIBGNOMEUI_CFLAGS}     \
-	${GCONF_CFLAGS}       \
 	${GUILE_CFLAGS}
 
 gnotime_LDADD =          \
+	-lm \
 	${GLIB_LIBS}     \
 	${GTK_LIBS}     \
 	${LIBGNOME_LIBS}     \
 	${LIBGNOMEUI_LIBS}     \
-	${GCONF_LIBS}       \
 	$(LIBQOF_LIBS)        \
 	$(LIBDBUS_LIBS)       \
 	$(XSS_EXTENSION_LIBS) \
-	$(LIBGLADE_LIBS)      \
 	$(LIBGTKHTML_LIBS)    \
-	${LIBGNOMEVFS_LIBS}   \
 	$(LIBXML2_LIBS)       \
 	${GUILE_LIBS}         \
 	$(INTLLIBS) \
@@ -147,7 +151,7 @@ EXTRA_DIST =         \
 	dbus.xml          \
 	design.txt
 
-LIBGTK_SRCS= dbus.c dbus.h
+LIBGTK_SRCS= gtt_dbus.c gtt_dbus.h
 BUILT_SOURCES=	dbus-glue.h
 dbus-glue.h : dbus.xml Makefile
 	dbus-binding-tool --mode=glib-server --output=$@ --prefix=gnotime_dbus $(srcdir)/dbus.xml
